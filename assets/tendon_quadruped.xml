@@ -66,17 +66,12 @@
       <!-- <site name='tip'  pos='.15 0 .11'/>-->
       <!-- torso/bthigh -->
       <body name="bthigh" pos="-.5 0 0">
-        <joint axis="0 1 0" damping="6" name="bthigh" pos="0 0 0" range="-.52 1.05" stiffness="240" type="hinge"/>
-        <geom axisangle="0 1 0 -3.8" name="bthigh" pos=".1 0 -.13" size="0.046 .145" type="capsule"/>
-        <!-- torso/bthigh/bshin -->
-        <body name="bshin" pos=".16 0 -.25">
-          <joint axis="0 1 0" damping="4.5" name="bshin" pos="0 0 0" range="-.785 .785" stiffness="180" type="hinge"/>
-          <geom axisangle="0 1 0 -2.03" name="bshin" pos="-.14 0 -.07" rgba="0.9 0.6 0.6 1" size="0.046 .15" type="capsule"/>
-          <!-- torso/bthigh/bshin/bfoot -->
-          <body name="bfoot" pos="-.28 0 -.14">
-            <joint axis="0 1 0" damping="3" name="bfoot" pos="0 0 0" range="-.4 .785" stiffness="120" type="hinge"/>
-            <geom axisangle="0 1 0 -.27" name="bfoot" pos=".03 0 -.097" rgba="0.9 0.6 0.6 1" size="0.046 .094" type="capsule"/>
-          </body>
+        <joint axis="0 1 0" damping="4.5" name="bthigh" pos="0 0 0" range="-1 .7" stiffness="180" type="hinge"/>
+        <geom axisangle="0 1 0 .52" name="bthigh" pos="-.07 0 -.12" size="0.046 .133" type="capsule"/>
+        <!-- torso/fthigh/fshin -->
+        <body name="bshin" pos="-.14 0 -.24">
+          <joint axis="0 1 0" damping="3" name="bshin" pos="0 0 0" range="-1.2 .87" stiffness="120" type="hinge"/>
+          <geom axisangle="0 1 0 -.6" name="bshin" pos=".065 0 -.09" rgba="0.9 0.6 0.6 1" size="0.046 .106" type="capsule"/>
         </body>
       </body>
       <!-- torso/fthigh -->
@@ -87,11 +82,6 @@
         <body name="fshin" pos="-.14 0 -.24">
           <joint axis="0 1 0" damping="3" name="fshin" pos="0 0 0" range="-1.2 .87" stiffness="120" type="hinge"/>
           <geom axisangle="0 1 0 -.6" name="fshin" pos=".065 0 -.09" rgba="0.9 0.6 0.6 1" size="0.046 .106" type="capsule"/>
-          <!-- torso/fthigh/fshin/ffoot -->
-          <body name="ffoot" pos=".13 0 -.18">
-            <joint axis="0 1 0" damping="1.5" name="ffoot" pos="0 0 0" range="-.5 .5" stiffness="60" type="hinge"/>
-            <geom axisangle="0 1 0 -.6" name="ffoot" pos=".045 0 -.07" rgba="0.9 0.6 0.6 1" size="0.046 .07" type="capsule"/>
-          </body>
         </body>
       </body>
     </body>
@@ -99,9 +89,7 @@
   <actuator>
     <motor gear="120" joint="bthigh" name="bthigh"/>
     <motor gear="90" joint="bshin" name="bshin"/>
-    <motor gear="60" joint="bfoot" name="bfoot"/>
     <motor gear="120" joint="fthigh" name="fthigh"/>
     <motor gear="60" joint="fshin" name="fshin"/>
-    <motor gear="30" joint="ffoot" name="ffoot"/>
   </actuator>
 </mujoco>
