@@ -65,8 +65,9 @@
       <geom axisangle="0 1 0 .87" name="neck" pos=".5 0 .075" size="0.046 .075" type="capsule"/>
       <geom axisangle="0 1 0 1.7" name="head" pos=".6 0 .18" size="0.08 .095 0.2" type="ellipsoid"/>
       <geom axisangle="0 1 0 -.87" name="tail" pos="-.53 0 .075" size="0.026 .035" type="capsule"/>
-
       <!-- <site name='tip'  pos='.15 0 .11'/>-->
+
+      <!-- right -->
       <!-- torso/rbthigh -->
       <body name="rbthigh" pos="-.5 0 0">
         <joint axis="0 1 0" damping="4.5" name="rbthigh" pos="0 0 0" range="-1 .7" stiffness="180" type="hinge"/>
