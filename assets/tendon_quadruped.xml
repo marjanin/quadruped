@@ -61,35 +61,62 @@
       <joint armature="0" axis="1 0 0" damping="0" limited="false" name="rootx" pos="0 0 0" stiffness="0" type="slide"/>
       <joint armature="0" axis="0 0 1" damping="0" limited="false" name="rootz" pos="0 0 0" stiffness="0" type="slide"/>
       <joint armature="0" axis="0 1 0" damping="0" limited="false" name="rooty" pos="0 0 0" stiffness="0" type="hinge"/>
-      <geom fromto="-.5 0 0 .5 0 0" name="torso" size="0.046" type="capsule"/>
+      <geom name="torso" size=".5 .25 .05" type="box"/>
       <geom axisangle="0 1 0 .87" name="head" pos=".6 0 .1" size="0.046 .15" type="capsule"/>
       <!-- <site name='tip'  pos='.15 0 .11'/>-->
-      <!-- torso/bthigh -->
-      <body name="bthigh" pos="-.5 0 0">
-        <joint axis="0 1 0" damping="4.5" name="bthigh" pos="0 0 0" range="-1 .7" stiffness="180" type="hinge"/>
-        <geom axisangle="0 1 0 .52" name="bthigh" pos="-.07 0 -.12" size="0.046 .133" type="capsule"/>
-        <!-- torso/fthigh/fshin -->
-        <body name="bshin" pos="-.14 0 -.24">
-          <joint axis="0 1 0" damping="3" name="bshin" pos="0 0 0" range="-1.2 .87" stiffness="120" type="hinge"/>
-          <geom axisangle="0 1 0 -.6" name="bshin" pos=".065 0 -.09" rgba="0.9 0.6 0.6 1" size="0.046 .106" type="capsule"/>
+      <!-- torso/rbthigh -->
+      <body name="rbthigh" pos="-.5 0 0">
+        <joint axis="0 1 0" damping="4.5" name="rbthigh" pos="0 0 0" range="-1 .7" stiffness="180" type="hinge"/>
+        <geom axisangle="0 1 0 .52" name="rbthigh" pos="-.07 -.25 -.12" size="0.046 .133" type="capsule"/>
+        <!-- torso/rbthigh/rbshin -->
+        <body name="rbshin" pos="-.14 0 -.24">
+          <joint axis="0 1 0" damping="3" name="rbshin" pos="0 0 0" range="-1.2 .87" stiffness="120" type="hinge"/>
+          <geom axisangle="0 1 0 -.6" name="rbshin" pos=".065 -.25 -.09" rgba="0.9 0.6 0.6 1" size="0.046 .106" type="capsule"/>
         </body>
       </body>
-      <!-- torso/fthigh -->
-      <body name="fthigh" pos=".5 0 0">
-        <joint axis="0 1 0" damping="4.5" name="fthigh" pos="0 0 0" range="-1 .7" stiffness="180" type="hinge"/>
-        <geom axisangle="0 1 0 .52" name="fthigh" pos="-.07 0 -.12" size="0.046 .133" type="capsule"/>
-        <!-- torso/fthigh/fshin -->
-        <body name="fshin" pos="-.14 0 -.24">
-          <joint axis="0 1 0" damping="3" name="fshin" pos="0 0 0" range="-1.2 .87" stiffness="120" type="hinge"/>
-          <geom axisangle="0 1 0 -.6" name="fshin" pos=".065 0 -.09" rgba="0.9 0.6 0.6 1" size="0.046 .106" type="capsule"/>
+      <!-- torso/rfthigh -->
+      <body name="rfthigh" pos=".5 0 0">
+        <joint axis="0 1 0" damping="4.5" name="rfthigh" pos="0 0 0" range="-1 .7" stiffness="180" type="hinge"/>
+        <geom axisangle="0 1 0 .52" name="rfthigh" pos="-.07 -.25 -.12" size="0.046 .133" type="capsule"/>
+        <!-- torso/rfthigh/rfshin -->
+        <body name="rfshin" pos="-.14 0 -.24">
+          <joint axis="0 1 0" damping="3" name="rfshin" pos="0 0 0" range="-1.2 .87" stiffness="120" type="hinge"/>
+          <geom axisangle="0 1 0 -.6" name="rfshin" pos=".065 -.25 -.09" rgba="0.9 0.6 0.6 1" size="0.046 .106" type="capsule"/>
+        </body>
+      </body>
+
+      <!-- left -->
+      <!-- torso/lbthigh -->
+      <body name="lbthigh" pos="-.5 0 0">
+        <joint axis="0 1 0" damping="4.5" name="lbthigh" pos="0 0 0" range="-1 .7" stiffness="180" type="hinge"/>
+        <geom axisangle="0 1 0 .52" name="lbthigh" pos="-.07 .25 -.12" size="0.046 .133" type="capsule"/>
+        <!-- torso/lbthigh/lbshin -->
+        <body name="lbshin" pos="-.14 0 -.24">
+          <joint axis="0 1 0" damping="3" name="lbshin" pos="0 0 0" range="-1.2 .87" stiffness="120" type="hinge"/>
+          <geom axisangle="0 1 0 -.6" name="lbshin" pos=".065 .25 -.09" rgba="0.9 0.6 0.6 1" size="0.046 .106" type="capsule"/>
+        </body>
+      </body>
+      <!-- torso/lfthigh -->
+      <body name="lfthigh" pos=".5 0 0">
+        <joint axis="0 1 0" damping="4.5" name="lfthigh" pos="0 0 0" range="-1 .7" stiffness="180" type="hinge"/>
+        <geom axisangle="0 1 0 .52" name="lfthigh" pos="-.07 .25 -.12" size="0.046 .133" type="capsule"/>
+        <!-- torso/lfthigh/lfshin -->
+        <body name="lfshin" pos="-.14 0 -.24">
+          <joint axis="0 1 0" damping="3" name="lfshin" pos="0 0 0" range="-1.2 .87" stiffness="120" type="hinge"/>
+          <geom axisangle="0 1 0 -.6" name="lfshin" pos=".065 .25 -.09" rgba="0.9 0.6 0.6 1" size="0.046 .106" type="capsule"/>
         </body>
       </body>
     </body>
   </worldbody>
   <actuator>
-    <motor gear="120" joint="bthigh" name="bthigh"/>
-    <motor gear="90" joint="bshin" name="bshin"/>
-    <motor gear="120" joint="fthigh" name="fthigh"/>
-    <motor gear="60" joint="fshin" name="fshin"/>
+    <motor gear="120" joint="rbthigh" name="rbthigh"/>
+    <motor gear="90" joint="rbshin" name="rbshin"/>
+    <motor gear="120" joint="rfthigh" name="rfthigh"/>
+    <motor gear="60" joint="rfshin" name="rfshin"/>
+
+    <motor gear="120" joint="lbthigh" name="lbthigh"/>
+    <motor gear="90" joint="lbshin" name="lbshin"/>
+    <motor gear="120" joint="lfthigh" name="lfthigh"/>
+    <motor gear="60" joint="lfshin" name="lfshin"/>
   </actuator>
 </mujoco>
