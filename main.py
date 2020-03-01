@@ -39,18 +39,16 @@ plt.show(block=False)
 # training the neural network
 model = inverse_mapping_fcn(babbling_kinematics, babbling_activations, log_address="./log/save", early_stopping=False)
 est_activations=model.predict(babbling_kinematics)
-print('ss')
-print(est_activations.shape)
-print('zz')
 plt.figure()
 plt.plot(est_activations[:])
 plt.show(block=False)
 
 #import pdb; pdb.set_trace()
 
+attempt_kinematics = create_sin_cos_kinematics_fcn(attempt_length = 5 , number_of_cycles = 4, timestep = 0.01)
+est_activations=model.predict(attempt_kinematics)
 
-
-
+[returned_kinematics, returned_est_activations] = run_activations_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=True)
 
 # kinematics = dummy_plant_fcn(activations)
 # plt.figure()

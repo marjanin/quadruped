@@ -106,3 +106,57 @@ def inverse_mapping_fcn(kinematics, activations, log_address=None, early_stoppin
 	return model
 
 #import pdb; pdb.set_trace()
+def create_sin_cos_kinematics_fcn(attempt_length = 5 , number_of_cycles = 4, timestep = 0.01):
+	"""
+	this function creates desired task kinematics and their corresponding 
+	actuation values predicted using the inverse mapping
+	"""
+	#attempt_length=5 # in seconds
+	number_of_attempt_samples=int(np.round(attempt_length/timestep))
+
+	q0=np.zeros(number_of_attempt_samples)
+	q1=np.zeros(number_of_attempt_samples)
+
+	for ii in range(number_of_attempt_samples):
+		q0[ii]=(np.pi/3)*np.sin(number_of_cycles*(2*np.pi*ii/number_of_attempt_samples))
+		q1[ii]=-1*(np.pi/2)*((-1*np.cos(number_of_cycles*(2*np.pi*ii/number_of_attempt_samples))+1)/2)
+	#import pdb; pdb.set_trace()
+	attempt_kinematics=positions_to_kinematics_fcn(q0, q1, timestep)
+	#np.save("attempt_kinematics",attempt_kinematics)
+	#np.save("est_task_activations",est_attempt_activations)
+	#import pdb; pdb.set_trace()
+	return attempt_kinematics
+
+
+def positions_to_kinematics_fcn(q0, q1, timestep = 0.01):
+	kinematics=np.transpose(
+	np.concatenate(
+		(
+			[[q0],
+			[q1],
+			[q0],
+			[q1],
+			[q0],
+			[q1],
+			[q0],
+			[q1],
+			[np.gradient(q0)/timestep],
+			[np.gradient(q1)/timestep],
+			[np.gradient(q0)/timestep],
+			[np.gradient(q1)/timestep],
+			[np.gradient(q0)/timestep],
+			[np.gradient(q1)/timestep],
+			[np.gradient(q0)/timestep],
+			[np.gradient(q1)/timestep],
+			[np.gradient(np.gradient(q0)/timestep)/timestep],
+			[np.gradient(np.gradient(q1)/timestep)/timestep],
+			[np.gradient(np.gradient(q0)/timestep)/timestep],
+			[np.gradient(np.gradient(q1)/timestep)/timestep],
+			[np.gradient(np.gradient(q0)/timestep)/timestep],
+			[np.gradient(np.gradient(q1)/timestep)/timestep],
+			[np.gradient(np.gradient(q0)/timestep)/timestep],
+			[np.gradient(np.gradient(q1)/timestep)/timestep]]),
+		axis=0
+		)
+	)
+	return kinematics
