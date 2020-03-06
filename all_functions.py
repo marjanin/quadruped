@@ -139,6 +139,31 @@ def inverse_mapping_fcn(kinematics, activations, log_address=None, early_stoppin
 	return model
 
 #import pdb; pdb.set_trace()
+def sinusoidal_CPG_fcn(w = 1, phi = 0, lower_band = -1, upper_band = 1, attempt_length = 5 , timestep = 0.01):
+	number_of_attempt_samples = int(np.round(attempt_length/timestep))
+	q0 = np.zeros(number_of_attempt_samples)
+	for ii in range(number_of_attempt_samples):
+		q0[ii]=np.sin((2*np.pi*w*ii/(number_of_attempt_samples/attempt_length))+phi)
+	q0 = (q0+1)/2 # normalize 0-1
+	q0 = q0 * (upper_band-lower_band)
+	q0 = q0 + lower_band
+	return q0
+
+def create_cyclical_movements_fcn(timestep = 0.01):
+	omega = 2.5
+	q0a = sinusoidal_CPG_fcn(w = omega, phi = 0, lower_band = -1, upper_band = .7, attempt_length = 5 , timestep = 0.01)
+	q1a = sinusoidal_CPG_fcn(w = omega, phi = np.pi/2, lower_band = -1.2, upper_band = .87, attempt_length = 5 , timestep = 0.01)
+
+	q0b = sinusoidal_CPG_fcn(w = omega, phi = np.pi, lower_band = -1, upper_band = .7, attempt_length = 5 , timestep = 0.01)
+	q1b = sinusoidal_CPG_fcn(w = omega, phi = -np.pi, lower_band = -1.2, upper_band = .87, attempt_length = 5 , timestep = 0.01)
+
+	attempt_kinematics_RB = positions_to_kinematics_fcn(q0a, q1a, timestep)
+	attempt_kinematics_RF = positions_to_kinematics_fcn(q0b, q1b, timestep)
+	attempt_kinematics_LB = positions_to_kinematics_fcn(q0b, q1b, timestep)
+	attempt_kinematics_LF = positions_to_kinematics_fcn(q0a, q1a, timestep)
+	attempt_kinematics = combine_4leg_kinematics(attempt_kinematics_RB, attempt_kinematics_RF, attempt_kinematics_LB, attempt_kinematics_LF)
+	return attempt_kinematics
+
 def create_sin_cos_kinematics_fcn(attempt_length = 5 , number_of_cycles = 4, timestep = 0.01):
 	"""
 	this function creates desired task kinematics and their corresponding 

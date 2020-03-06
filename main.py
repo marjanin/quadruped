@@ -1,50 +1,59 @@
+import os
+import pickle
 from matplotlib import pyplot as plt
 import sklearn.model_selection
+import tensorflow as tf
 from all_functions import *
 
 
 ## initialization
 dt=0.01 # time step
-signal_duration_in_seconds=1*60 # babbling duration
-np.random.seed(0) # setting the seed for numpy's random number generator
-
-## generating babbling data
-babbling_signals = babbling_input_gen_fcn(
-	number_of_signals=8,
-	signal_duration_in_seconds=signal_duration_in_seconds,
-	pass_chance=dt,
-	max_in=1,
-	min_in=-1,
-	dt=dt)
-# plotting the generated babbling data (optional)
-# plt.figure()
-# plt.plot(babbling_signals)
-# plt.title('generated babbling inputs')
-# plt.xlabel('sample #')
-# plt.show(block=False)
-
-## running the babbling data through the plant
-est_activations = babbling_signals
+experiment_ID = "0001"
+babbling = False
 MuJoCo_model_name = "tendon_quadruped_onair.xml"
-[babbling_kinematics, babbling_activations] = run_activations_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=False)
-# kinematics = NxM N number of samples, M = DoFs x 3 (pos x DoFs, vel x DoFs, acc x DoF)
-# plotting
-# plt.figure()
-# plt.plot(babbling_kinematics[:,:8])
-# plt.title('generated babbling inputs')
-# plt.xlabel('sample #')
-# plt.show(block=False)
+if babbling == True:
+	babbling_signal_duration_in_seconds=1*60 # babbling duration
+	np.random.seed(0) # setting the seed for numpy's random number generator
 
-# training the neural network
-model = inverse_mapping_fcn(babbling_kinematics, babbling_activations, log_address="./log/save", early_stopping=False)
-est_activations=model.predict(babbling_kinematics)
-# plt.figure()
-# plt.plot(est_activations[:])
-# plt.show(block=False)
+	## generating babbling data
+	babbling_signals = babbling_input_gen_fcn(
+		number_of_signals=8,
+		signal_duration_in_seconds=babbling_signal_duration_in_seconds,
+		pass_chance=dt,
+		max_in=1,
+		min_in=-1,
+		dt=dt)
+	# plotting the generated babbling data (optional)
+	# plt.figure()
+	# plt.plot(babbling_signals)
+	# plt.title('generated babbling inputs')
+	# plt.xlabel('sample #')
+	# plt.show(block=False)
 
+	## running the babbling data through the plant
+	est_activations = babbling_signals
+	[babbling_kinematics, babbling_activations] = run_activations_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=False)
+	# kinematics = NxM N number of samples, M = DoFs x 3 (pos x DoFs, vel x DoFs, acc x DoF)
+	# plotting
+	# plt.figure()
+	# plt.plot(babbling_kinematics[:,:8])
+	# plt.title('generated babbling inputs')
+	# plt.xlabel('sample #')
+	# plt.show(block=False)
 
+	# training the neural network
+	model = inverse_mapping_fcn(babbling_kinematics, babbling_activations, log_address="./log/save", early_stopping=False)
+	#est_activations=model.predict(babbling_kinematics)
+	# plt.figure()
+	# plt.plot(est_activations[:])
+	# plt.show(block=False)
+	os.makedirs("./models/{}".format(experiment_ID), exist_ok=True)
+	model.save("./models/{}/Inverse_ANN_model".format(experiment_ID))
+else:
+	model = tf.keras.models.load_model("./models/{}/Inverse_ANN_model".format(experiment_ID))
 
 attempt_kinematics = create_sin_cos_kinematics_fcn(attempt_length = 5 , number_of_cycles = 4, timestep = 0.01)
+attempt_kinematics = create_cyclical_movements_fcn()
 est_activations=model.predict(attempt_kinematics)
 #import pdb; pdb.set_trace()
 [returned_kinematics, returned_est_activations] = run_activations_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=True)
