@@ -1,6 +1,5 @@
 from matplotlib import pyplot as plt
 import sklearn.model_selection
-from babbling_functions import *
 from all_functions import *
 
 
@@ -18,11 +17,11 @@ babbling_signals = babbling_input_gen_fcn(
 	min_in=-1,
 	dt=dt)
 # plotting the generated babbling data (optional)
-plt.figure()
-plt.plot(babbling_signals)
-plt.title('generated babbling inputs')
-plt.xlabel('sample #')
-plt.show(block=False)
+# plt.figure()
+# plt.plot(babbling_signals)
+# plt.title('generated babbling inputs')
+# plt.xlabel('sample #')
+# plt.show(block=False)
 
 ## running the babbling data through the plant
 est_activations = babbling_signals
@@ -30,24 +29,24 @@ MuJoCo_model_name = "tendon_quadruped_onair.xml"
 [babbling_kinematics, babbling_activations] = run_activations_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=False)
 # kinematics = NxM N number of samples, M = DoFs x 3 (pos x DoFs, vel x DoFs, acc x DoF)
 # plotting
-plt.figure()
-plt.plot(babbling_kinematics[:,:8])
-plt.title('generated babbling inputs')
-plt.xlabel('sample #')
-plt.show(block=False)
+# plt.figure()
+# plt.plot(babbling_kinematics[:,:8])
+# plt.title('generated babbling inputs')
+# plt.xlabel('sample #')
+# plt.show(block=False)
 
 # training the neural network
 model = inverse_mapping_fcn(babbling_kinematics, babbling_activations, log_address="./log/save", early_stopping=False)
 est_activations=model.predict(babbling_kinematics)
-plt.figure()
-plt.plot(est_activations[:])
-plt.show(block=False)
+# plt.figure()
+# plt.plot(est_activations[:])
+# plt.show(block=False)
 
-#import pdb; pdb.set_trace()
+
 
 attempt_kinematics = create_sin_cos_kinematics_fcn(attempt_length = 5 , number_of_cycles = 4, timestep = 0.01)
 est_activations=model.predict(attempt_kinematics)
-
+#import pdb; pdb.set_trace()
 [returned_kinematics, returned_est_activations] = run_activations_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=True)
 
 # kinematics = dummy_plant_fcn(activations)
