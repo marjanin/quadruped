@@ -47,7 +47,7 @@ def run_activations_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj_re
 		# viewer._video_path = "~/Documents/"+str(time.localtime()[3])+str(time.localtime()[4])+str(time.localtime()[5])
 	sim_state = sim.get_state()
 	control_vector_length=sim.data.ctrl.__len__()
-	number_of_DoFs = sim.data.qpos.__len__()
+	number_of_DoFs = 8#sim.data.qpos.__len__()
 	number_of_task_samples=est_activations.shape[0]
 	real_attempt_positions = np.zeros((number_of_task_samples,number_of_DoFs))
 	real_attempt_velocities = np.zeros((number_of_task_samples,number_of_DoFs))
@@ -64,8 +64,8 @@ def run_activations_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj_re
 	    current_velocity_array = np.zeros([len(joint_names),])
 	    current_acceleration_array = np.zeros([len(joint_names),])
 	    for joint_name , joint_index in zip(joint_names, range(len(joint_names))):
-	    	current_positions_array[joint_index] = sim.data.get_joint_qpos(joint_name)
-	    	current_velocity_array[joint_index] = sim.data.get_joint_qvel(joint_name)
+	    	current_positions_array = sim.data.qpos[-8:]#current_positions_array[joint_index] = sim.data.get_joint_qpos(joint_name)
+	    	current_velocity_array = sim.data.qvel[-8:]#current_velocity_array[joint_index] = sim.data.get_joint_qvel(joint_name)
 	    	current_acceleration_array = sim.data.qacc[-8:]
 	    real_attempt_positions[ii,:] = current_positions_array
 	    real_attempt_velocities[ii,:] = current_velocity_array
@@ -150,21 +150,22 @@ def sinusoidal_CPG_fcn(w = 1, phi = 0, lower_band = -1, upper_band = 1, attempt_
 	return q0
 
 def create_cyclical_movements_fcn(timestep = 0.01):
-	omega = 2.5
-	q0a = sinusoidal_CPG_fcn(w = omega, phi = 0, lower_band = -1, upper_band = .7, attempt_length = 5 , timestep = 0.01)
-	q1a = sinusoidal_CPG_fcn(w = omega, phi = np.pi/2, lower_band = -1.2, upper_band = .87, attempt_length = 5 , timestep = 0.01)
+	omega = 3
+	attempt_length = 10
+	q0a = sinusoidal_CPG_fcn(w = omega, phi = 0, lower_band = -1, upper_band = .7, attempt_length = attempt_length , timestep = 0.01)
+	q1a = sinusoidal_CPG_fcn(w = omega, phi = np.pi/2, lower_band = -1.2, upper_band = .87, attempt_length = attempt_length , timestep = 0.01)
 
-	q0b = sinusoidal_CPG_fcn(w = omega, phi = np.pi, lower_band = -1, upper_band = .7, attempt_length = 5 , timestep = 0.01)
-	q1b = sinusoidal_CPG_fcn(w = omega, phi = -np.pi, lower_band = -1.2, upper_band = .87, attempt_length = 5 , timestep = 0.01)
+	q0b = sinusoidal_CPG_fcn(w = omega, phi = np.pi, lower_band = -1, upper_band = .7, attempt_length = attempt_length , timestep = 0.01)
+	q1b = sinusoidal_CPG_fcn(w = omega, phi = -np.pi, lower_band = -1.2, upper_band = .87, attempt_length = attempt_length , timestep = 0.01)
 
 	attempt_kinematics_RB = positions_to_kinematics_fcn(q0a, q1a, timestep)
-	attempt_kinematics_RF = positions_to_kinematics_fcn(q0b, q1b, timestep)
+	attempt_kinematics_RF = positions_to_kinematics_fcn(q0a, q1a, timestep)
 	attempt_kinematics_LB = positions_to_kinematics_fcn(q0b, q1b, timestep)
-	attempt_kinematics_LF = positions_to_kinematics_fcn(q0a, q1a, timestep)
+	attempt_kinematics_LF = positions_to_kinematics_fcn(q0b, q1b, timestep)
 	attempt_kinematics = combine_4leg_kinematics(attempt_kinematics_RB, attempt_kinematics_RF, attempt_kinematics_LB, attempt_kinematics_LF)
 	return attempt_kinematics
 
-def create_sin_cos_kinematics_fcn(attempt_length = 5 , number_of_cycles = 4, timestep = 0.01):
+def create_sin_cos_kinematics_fcn(attempt_length = 5 , number_of_cycles = 4, timestep = 0.01): # not used
 	"""
 	this function creates desired task kinematics and their corresponding 
 	actuation values predicted using the inverse mapping

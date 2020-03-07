@@ -52,12 +52,13 @@ if babbling == True:
 else:
 	model = tf.keras.models.load_model("./models/{}/Inverse_ANN_model".format(experiment_ID))
 
-attempt_kinematics = create_sin_cos_kinematics_fcn(attempt_length = 5 , number_of_cycles = 4, timestep = 0.01)
+#attempt_kinematics = create_sin_cos_kinematics_fcn(attempt_length = 5 , number_of_cycles = 4, timestep = 0.01)
 attempt_kinematics = create_cyclical_movements_fcn()
 est_activations=model.predict(attempt_kinematics)
 #import pdb; pdb.set_trace()
+[returned_kinematics, returned_est_activations] = run_activations_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=False)
+MuJoCo_model_name = "tendon_quadruped.xml"
 [returned_kinematics, returned_est_activations] = run_activations_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=True)
-
 # kinematics = dummy_plant_fcn(activations)
 # plt.figure()
 # plt.plot(kinematics[:,0])
