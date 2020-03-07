@@ -150,13 +150,13 @@ def sinusoidal_CPG_fcn(w = 1, phi = 0, lower_band = -1, upper_band = 1, attempt_
 	return q0
 
 def create_cyclical_movements_fcn(timestep = 0.01):
-	omega = 3
+	omega = 1.5
 	attempt_length = 10
 	q0a = sinusoidal_CPG_fcn(w = omega, phi = 0, lower_band = -1, upper_band = .7, attempt_length = attempt_length , timestep = 0.01)
 	q1a = sinusoidal_CPG_fcn(w = omega, phi = np.pi/2, lower_band = -1.2, upper_band = .87, attempt_length = attempt_length , timestep = 0.01)
 
 	q0b = sinusoidal_CPG_fcn(w = omega, phi = np.pi, lower_band = -1, upper_band = .7, attempt_length = attempt_length , timestep = 0.01)
-	q1b = sinusoidal_CPG_fcn(w = omega, phi = -np.pi, lower_band = -1.2, upper_band = .87, attempt_length = attempt_length , timestep = 0.01)
+	q1b = sinusoidal_CPG_fcn(w = omega, phi = -np.pi/2, lower_band = -1.2, upper_band = .87, attempt_length = attempt_length , timestep = 0.01)
 
 	attempt_kinematics_RB = positions_to_kinematics_fcn(q0a, q1a, timestep)
 	attempt_kinematics_RF = positions_to_kinematics_fcn(q0a, q1a, timestep)
