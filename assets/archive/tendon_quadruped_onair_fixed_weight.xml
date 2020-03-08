@@ -35,11 +35,10 @@
 
 <mujoco model="cheetah">
   <!-- defaults -->
-  <compiler angle="radian" coordinate="local" inertiafromgeom="true"/>
+  <compiler angle="radian" coordinate="local" inertiafromgeom="true" settotalmass="14"/>
   <default>
-    <!-- in this model, mass is calculated based on density -->
     <joint armature=".1" damping=".01" limited="true" solimplimit="0 .8 .03" solreflimit=".02 1" stiffness="8"/>
-    <geom conaffinity="0" condim="3" contype="1" friction="1 .1 .1" rgba="0.8 0.6 .4 1" solimp="0.0 0.8 0.01" solref="0.02 1"/>
+    <geom conaffinity="0" condim="3" contype="1" friction=".4 .1 .1" rgba="0.8 0.6 .4 1" solimp="0.0 0.8 0.01" solref="0.02 1"/>
     <motor ctrllimited="true" ctrlrange="-1 1"/>
   </default>
   <size nstack="300000" nuser_geom="1"/>
@@ -59,9 +58,6 @@
     <!-- torso -->
     <body name="torso" pos="0 0 .7">
       <camera name="track" mode="trackcom" pos="0 -3 0.3" xyaxes="1 0 0 0 0 1"/>
-      <joint armature="0" axis="1 0 0" damping="0" limited="false" name="rootx" pos="0 0 0" stiffness="0" type="slide"/>
-      <joint armature="0" axis="0 0 1" damping="0" limited="false" name="rootz" pos="0 0 0" stiffness="0" type="slide"/>
-      <joint armature="0" axis="0 1 0" damping="0" limited="false" name="rooty" pos="0 0 0" stiffness="0" type="hinge"/>
       <geom name="torso" size=".5 .25 .05" type="box"/>
       <geom axisangle="0 1 0 .87" name="neck" pos=".5 0 .075" size="0.046 .075" type="capsule"/>
       <geom axisangle="0 1 0 1.7" name="head" pos=".6 0 .18" size="0.08 .095 0.2" type="ellipsoid"/>

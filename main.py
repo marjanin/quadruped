@@ -8,7 +8,7 @@ from all_functions import *
 
 ## initialization
 dt=0.01 # time step
-experiment_ID = "0001"
+experiment_ID = "0002"
 babbling = False
 MuJoCo_model_name = "tendon_quadruped_onair.xml"
 if babbling == True:
@@ -59,6 +59,12 @@ est_activations=model.predict(attempt_kinematics)
 [returned_kinematics, returned_est_activations] = run_activations_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=False)
 MuJoCo_model_name = "tendon_quadruped.xml"
 [returned_kinematics, returned_est_activations] = run_activations_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=True)
+RMSE = np.sqrt(np.mean(np.square((returned_kinematics[:,:8]-attempt_kinematics[:,:8]))))
+print("RMSE:", RMSE)
+
+plt.plot(returned_kinematics[:,:8],color='b')
+plt.plot(attempt_kinematics[:,:8],color='g')
+plt.show()
 # kinematics = dummy_plant_fcn(activations)
 # plt.figure()
 # plt.plot(kinematics[:,0])
