@@ -76,7 +76,7 @@ def run_activations_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj_re
 	real_attempt_kinematics = np.concatenate((real_attempt_positions, real_attempt_velocities, real_attempt_accelerations),axis=1)
 	return real_attempt_kinematics, real_attempt_activations
 
-def run_activations_withsensor_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=False):
+def run_activations_ws_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=False):
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! the q0 is now the chasis pos. needs to be fixed
 	"""
 	this function runs the predicted activations generatred from running
@@ -125,7 +125,7 @@ def run_activations_withsensor_fcn(MuJoCo_model_name, est_activations, timestep=
 	    if Mj_render:
 	    	viewer.render()
 	real_attempt_kinematics = np.concatenate((real_attempt_positions, real_attempt_velocities, real_attempt_accelerations),axis=1)
-	return real_attempt_kinematics, real_attempt_activations, real_attempt_sensorreads
+	return real_attempt_kinematics, real_attempt_sensorreads, real_attempt_activations
 
 
 def copy_model_fcn(original_model):
@@ -147,6 +147,60 @@ def inverse_mapping_fcn(kinematics, activations, log_address=None, early_stoppin
 
 
 	x = kinematics
+	y = activations
+	x_train, x_valid, y_train, y_valid = sklearn.model_selection.train_test_split(x, y, test_size=0.2)
+	
+	logdir = log_address
+	tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=logdir)
+	
+	if ("prior_model" in kwargs):
+		model = kwargs["prior_model"]
+		history = \
+		model.fit(
+		x_train,
+		y_train,
+		epochs=5,
+		validation_data=(x_valid, y_valid),
+		callbacks=[tensorboard_callback])
+		with open(logdir+'/trainHistoryDict.pickle', 'wb') as file_pi:
+			pickle.dump(history.history, file_pi)
+	else:
+		model = tf.keras.Sequential()
+		# Adds a densely-connected layer with 15 units to the model:
+		model.add(tf.keras.layers.Dense(hidden_layer_nodes, activation='linear'))
+		# Add a softmax layer with 3 output units:
+		model.add(tf.keras.layers.Dense(output_layer_nodes, activation='linear'))
+		model.compile(optimizer=tf.train.AdamOptimizer(0.01),
+	              loss='mse',       # mean squared error
+	              metrics=['mse'])  # mean squared error
+		#training the model
+		history = \
+		model.fit(
+		x_train,
+		y_train,
+		epochs=100,
+		validation_data=(x_valid, y_valid),
+		callbacks=[tensorboard_callback])
+		with open(logdir+'/trainHistoryDict.pickle', 'wb') as file_pi:
+			pickle.dump(history.history, file_pi)
+		#tf.keras.utils.plot_model(model, to_file='model.png')
+	
+	# running the model
+	#est_activations=model.predict(kinematics)
+	return model
+
+def inverse_mapping_ws_fcn(kinematics, sensorydata, activations, log_address=None, early_stopping=False, **kwargs):
+	"""
+	this function used the babbling data to create an inverse mapping using a
+	MLP NN
+	"""
+
+	hidden_layer_nodes = 24
+	output_layer_nodes = activations.shape[1]
+	# input_layer_nodes = determined from the input data
+
+
+	x = np.concatenate((kinematics, sensorydata),axis=1)
 	y = activations
 	x_train, x_valid, y_train, y_valid = sklearn.model_selection.train_test_split(x, y, test_size=0.2)
 	

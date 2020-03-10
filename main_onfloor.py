@@ -9,7 +9,7 @@ from all_functions import *
 ## initialization
 dt=0.01 # time step
 experiment_ID = "0002"
-babbling = False
+babbling = True
 MuJoCo_model_name = "tendon_quadruped_ws.xml"
 if babbling == True:
 	babbling_signal_duration_in_seconds=1*60 # babbling duration
@@ -32,7 +32,7 @@ if babbling == True:
 
 	## running the babbling data through the plant
 	est_activations = babbling_signals
-	[babbling_kinematics, babbling_activations] = run_activations_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=False)
+	[babbling_kinematics, real_attempt_sensorreads, babbling_activations] = run_activations_ws_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=False) # this should be ol
 	# kinematics = NxM N number of samples, M = DoFs x 3 (pos x DoFs, vel x DoFs, acc x DoF)
 	# plotting
 	# plt.figure()
@@ -42,7 +42,7 @@ if babbling == True:
 	# plt.show(block=False)
 
 	# training the neural network
-	model = inverse_mapping_fcn(babbling_kinematics, babbling_activations, log_address="./log/save", early_stopping=False)
+	model = inverse_mapping_ws_fcn(babbling_kinematics, real_attempt_sensorreads, babbling_activations, log_address="./log/save", early_stopping=False)
 	#est_activations=model.predict(babbling_kinematics)
 	# plt.figure()
 	# plt.plot(est_activations[:])
@@ -56,7 +56,7 @@ else:
 attempt_kinematics = create_cyclical_movements_fcn()
 est_activations=model.predict(attempt_kinematics)
 #import pdb; pdb.set_trace()
-[returned_kinematics, returned_est_activations, real_attempt_sensorreads] = run_activations_withsensor_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=False)
+[returned_kinematics, real_attempt_sensorreads, returned_est_activations ] = run_activations_ws_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=False) # this should be cl
 MuJoCo_model_name = "tendon_quadruped.xml"
 [returned_kinematics, returned_est_activations] = run_activations_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=False)
 RMSE = np.sqrt(np.mean(np.square((returned_kinematics[:,:8]-attempt_kinematics[:,:8]))))
