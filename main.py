@@ -8,10 +8,10 @@ from all_functions import *
 
 ## initialization
 dt=0.01 # time step
-experiment_ID = "0003"
+experiment_ID = "0002"
 babbling = False
-MuJoCo_model_name = "tendon_quadruped_ws.xml"
-if babbling:
+MuJoCo_model_name = "tendon_quadruped_onair.xml"
+if babbling == True:
 	babbling_signal_duration_in_seconds=1*60 # babbling duration
 	np.random.seed(0) # setting the seed for numpy's random number generator
 
@@ -32,7 +32,7 @@ if babbling:
 
 	## running the babbling data through the plant
 	est_activations = babbling_signals
-	[babbling_kinematics, real_attempt_sensorreads, babbling_activations] = run_activations_ws_ol_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=False) # this should be ol
+	[babbling_kinematics, babbling_activations] = run_activations_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=False)
 	# kinematics = NxM N number of samples, M = DoFs x 3 (pos x DoFs, vel x DoFs, acc x DoF)
 	# plotting
 	# plt.figure()
@@ -42,7 +42,7 @@ if babbling:
 	# plt.show(block=False)
 
 	# training the neural network
-	model = inverse_mapping_ws_fcn(babbling_kinematics, real_attempt_sensorreads, babbling_activations, log_address="./log/save/{}/".format(experiment_ID), early_stopping=False)
+	model = inverse_mapping_fcn(babbling_kinematics, babbling_activations, log_address="./log/save", early_stopping=False)
 	#est_activations=model.predict(babbling_kinematics)
 	# plt.figure()
 	# plt.plot(est_activations[:])
@@ -54,29 +54,17 @@ else:
 
 #attempt_kinematics = create_sin_cos_kinematics_fcn(attempt_length = 5 , number_of_cycles = 4, timestep = 0.01)
 attempt_kinematics = create_cyclical_movements_fcn()
-
-#est_activations=ANN_model.predict(np.concatenate((1*attempt_kinematics, 000*np.ones([1000,4])),axis=1))
+est_activations=model.predict(attempt_kinematics)
 #import pdb; pdb.set_trace()
-[returned_kinematics, real_attempt_sensorreads, returned_est_activations ] = run_ws_cl_fcn(MuJoCo_model_name, model, attempt_kinematics, timestep=0.01, Mj_render=True) # this should be cl
+[returned_kinematics, returned_est_activations] = run_activations_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=False)
+MuJoCo_model_name = "tendon_quadruped.xml"
+[returned_kinematics, returned_est_activations] = run_activations_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=True)
+RMSE = np.sqrt(np.mean(np.square((returned_kinematics[:,:8]-attempt_kinematics[:,:8]))))
+print("RMSE:", RMSE)
 
 plt.plot(returned_kinematics[:,:8],color='b')
 plt.plot(attempt_kinematics[:,:8],color='g')
 plt.show()
-
-
-# MuJoCo_model_name = "tendon_quadruped.xml"
-# [returned_kinematics, returned_est_activations] = run_activations_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=False)
-RMSE = np.sqrt(np.mean(np.square((returned_kinematics[:,:8]-attempt_kinematics[:,:8]))))
-print("RMSE:", RMSE)
-
-#plt.plot(returned_kinematics[:,:8],color='b')
-#plt.plot(attempt_kinematics[:,:8],color='g')
-#plt.show()
-
-# print(returned_kinematics.shape)
-# plt.plot(real_attempt_sensorreads)
-# plt.show()
-
 # kinematics = dummy_plant_fcn(activations)
 # plt.figure()
 # plt.plot(kinematics[:,0])

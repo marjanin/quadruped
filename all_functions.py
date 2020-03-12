@@ -76,7 +76,7 @@ def run_activations_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj_re
 	real_attempt_kinematics = np.concatenate((real_attempt_positions, real_attempt_velocities, real_attempt_accelerations),axis=1)
 	return real_attempt_kinematics, real_attempt_activations
 
-def run_activations_ws_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=False):
+def run_activations_ws_ol_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=False):
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! the q0 is now the chasis pos. needs to be fixed
 	"""
 	this function runs the predicted activations generatred from running
@@ -127,6 +127,60 @@ def run_activations_ws_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj
 	real_attempt_kinematics = np.concatenate((real_attempt_positions, real_attempt_velocities, real_attempt_accelerations),axis=1)
 	return real_attempt_kinematics, real_attempt_sensorreads, real_attempt_activations
 
+def run_ws_cl_fcn(MuJoCo_model_name, ANN_model, attempt_kinematics, timestep=0.01, Mj_render=False):
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! the q0 is now the chasis pos. needs to be fixed
+	"""
+	this function runs the predicted activations generatred from running
+	the inverse map on the desired task kinematics
+	"""
+	MuJoCo_model = load_model_from_path("./assets/"+MuJoCo_model_name)
+	sim = MjSim(MuJoCo_model)
+	if Mj_render:
+		viewer = MjViewer(sim)
+		# to move it to the mounted camera
+		viewer.cam.fixedcamid += 1
+		viewer.cam.type = const.CAMERA_FIXED
+		# # to record the video
+		# viewer._record_video = True
+		# # recording path
+		# viewer._video_path = "~/Documents/"+str(time.localtime()[3])+str(time.localtime()[4])+str(time.localtime()[5])
+	sim_state = sim.get_state()
+	control_vector_length=sim.data.ctrl.__len__()
+	sensor_vector_length=sim.data.sensordata.__len__()
+	number_of_DoFs = 8#sim.data.qpos.__len__()
+	number_of_task_samples=attempt_kinematics.shape[0]
+	real_attempt_positions = np.zeros((number_of_task_samples,number_of_DoFs))
+	real_attempt_velocities = np.zeros((number_of_task_samples,number_of_DoFs))
+	real_attempt_accelerations = np.zeros((number_of_task_samples,number_of_DoFs))
+	real_attempt_activations = np.zeros((number_of_task_samples,control_vector_length))
+	real_attempt_sensorreads = np.zeros((number_of_task_samples,sensor_vector_length))
+	chassis_pos=np.zeros(number_of_task_samples,)
+	sim.set_state(sim_state)
+	for ii in range(number_of_task_samples):
+		last_sensorydata = sim.data.sensordata
+		#sim.data.ctrl[:] = est_activations[ii,:]
+		#import pdb; pdb.set_trace()
+		sim.data.ctrl[:] = ANN_model.predict(np.array([np.concatenate((attempt_kinematics[ii,:], last_sensorydata))]))
+		sim.step()
+	    # collecting kinematics (pos, vel, and acc) from all joints
+		joint_names = ["rbthigh", "rbshin", "rfthigh", "rfshin", "lbthigh", "lbshin", "lfthigh", "lfshin"]
+		current_positions_array = np.zeros([len(joint_names),])
+		current_velocity_array = np.zeros([len(joint_names),])
+		current_acceleration_array = np.zeros([len(joint_names),])
+		for joint_name , joint_index in zip(joint_names, range(len(joint_names))):
+			current_positions_array = sim.data.qpos[-8:]#current_positions_array[joint_index] = sim.data.get_joint_qpos(joint_name)
+			current_velocity_array = sim.data.qvel[-8:]#current_velocity_array[joint_index] = sim.data.get_joint_qvel(joint_name)
+			current_acceleration_array = sim.data.qacc[-8:]
+		real_attempt_positions[ii,:] = current_positions_array
+		real_attempt_velocities[ii,:] = current_velocity_array
+		real_attempt_accelerations[ii,:] = current_acceleration_array
+		real_attempt_activations[ii,:] = sim.data.ctrl
+		real_attempt_sensorreads[ii,:] = sim.data.sensordata
+		if Mj_render:
+			viewer.render()
+	real_attempt_kinematics = np.concatenate((real_attempt_positions, real_attempt_velocities, real_attempt_accelerations),axis=1)
+	return real_attempt_kinematics, real_attempt_sensorreads, real_attempt_activations
+
 
 def copy_model_fcn(original_model):
 	config=original_model.get_config()
@@ -141,7 +195,7 @@ def inverse_mapping_fcn(kinematics, activations, log_address=None, early_stoppin
 	MLP NN
 	"""
 
-	hidden_layer_nodes = 24
+	hidden_layer_nodes = 28
 	output_layer_nodes = activations.shape[1]
 	# input_layer_nodes = determined from the input data
 
@@ -178,7 +232,7 @@ def inverse_mapping_fcn(kinematics, activations, log_address=None, early_stoppin
 		model.fit(
 		x_train,
 		y_train,
-		epochs=100,
+		epochs=150,
 		validation_data=(x_valid, y_valid),
 		callbacks=[tensorboard_callback])
 		with open(logdir+'/trainHistoryDict.pickle', 'wb') as file_pi:
@@ -195,12 +249,12 @@ def inverse_mapping_ws_fcn(kinematics, sensorydata, activations, log_address=Non
 	MLP NN
 	"""
 
-	hidden_layer_nodes = 24
+	hidden_layer_nodes = 28
 	output_layer_nodes = activations.shape[1]
 	# input_layer_nodes = determined from the input data
-
-
-	x = np.concatenate((kinematics, sensorydata),axis=1)
+	sensorydata_delayed = np.zeros(sensorydata.shape)
+	sensorydata_delayed[1:,:] = sensorydata[:-1,:]
+	x = np.concatenate((kinematics, sensorydata_delayed),axis=1)
 	y = activations
 	x_train, x_valid, y_train, y_valid = sklearn.model_selection.train_test_split(x, y, test_size=0.2)
 	
@@ -232,7 +286,7 @@ def inverse_mapping_ws_fcn(kinematics, sensorydata, activations, log_address=Non
 		model.fit(
 		x_train,
 		y_train,
-		epochs=100,
+		epochs=150,
 		validation_data=(x_valid, y_valid),
 		callbacks=[tensorboard_callback])
 		with open(logdir+'/trainHistoryDict.pickle', 'wb') as file_pi:

@@ -8,10 +8,10 @@ from all_functions import *
 
 ## initialization
 dt=0.01 # time step
-experiment_ID = "0002"
+experiment_ID = "0002_wos"
 babbling = False
 MuJoCo_model_name = "tendon_quadruped_onair.xml"
-if babbling == True:
+if babbling:
 	babbling_signal_duration_in_seconds=1*60 # babbling duration
 	np.random.seed(0) # setting the seed for numpy's random number generator
 
@@ -42,7 +42,7 @@ if babbling == True:
 	# plt.show(block=False)
 
 	# training the neural network
-	model = inverse_mapping_fcn(babbling_kinematics, babbling_activations, log_address="./log/save", early_stopping=False)
+	model = inverse_mapping_fcn(babbling_kinematics, babbling_activations, log_address="./log/save/{}/".format(experiment_ID), early_stopping=False)
 	#est_activations=model.predict(babbling_kinematics)
 	# plt.figure()
 	# plt.plot(est_activations[:])
