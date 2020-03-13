@@ -27,7 +27,7 @@ def babbling_input_gen_fcn(number_of_signals, signal_duration_in_seconds, pass_c
 			else:
 				gen_input[ii] = gen_input[ii-1]
 		babbling_signals[:,jj]=gen_input
-		return babbling_signals
+	return babbling_signals
 		
 def run_activations_ws_ol_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=False):
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! the q0 is now the chasis pos. needs to be fixed
@@ -49,7 +49,8 @@ def run_activations_ws_ol_fcn(MuJoCo_model_name, est_activations, timestep=0.01,
 	sim_state = sim.get_state()
 	control_vector_length=sim.data.ctrl.__len__()
 	sensor_vector_length=sim.data.sensordata.__len__()
-	number_of_DoFs = 2#sim.data.qpos.__len__()
+	number_of_legs = 4
+	number_of_DoFs = number_of_legs*2#sim.data.qpos.__len__()
 	number_of_task_samples=est_activations.shape[0]
 	real_attempt_positions = np.zeros((number_of_task_samples,number_of_DoFs))
 	real_attempt_velocities = np.zeros((number_of_task_samples,number_of_DoFs))
@@ -67,9 +68,9 @@ def run_activations_ws_ol_fcn(MuJoCo_model_name, est_activations, timestep=0.01,
 	    current_velocity_array = np.zeros([len(joint_names),])
 	    current_acceleration_array = np.zeros([len(joint_names),])
 	    for joint_name , joint_index in zip(joint_names, range(len(joint_names))):
-	    	current_positions_array = sim.data.qpos[-2:]#current_positions_array[joint_index] = sim.data.get_joint_qpos(joint_name)
-	    	current_velocity_array = sim.data.qvel[-2:]#current_velocity_array[joint_index] = sim.data.get_joint_qvel(joint_name)
-	    	current_acceleration_array = sim.data.qacc[-2:]
+	    	current_positions_array = sim.data.qpos[-number_of_DoFs:]#current_positions_array[joint_index] = sim.data.get_joint_qpos(joint_name)
+	    	current_velocity_array = sim.data.qvel[-number_of_DoFs:]#current_velocity_array[joint_index] = sim.data.get_joint_qvel(joint_name)
+	    	current_acceleration_array = sim.data.qacc[-number_of_DoFs:]
 	    real_attempt_positions[ii,:] = current_positions_array
 	    real_attempt_velocities[ii,:] = current_velocity_array
 	    real_attempt_accelerations[ii,:] = current_acceleration_array
@@ -100,7 +101,7 @@ def run_activations_ws_cl_fcn(MuJoCo_model_name, Inverse_ANN_model, attempt_kine
 	sim_state = sim.get_state()
 	control_vector_length=sim.data.ctrl.__len__()
 	sensor_vector_length=sim.data.sensordata.__len__()
-	number_of_legs = 1
+	number_of_legs = 4
 	number_of_DoFs = number_of_legs*2#sim.data.qpos.__len__()
 	number_of_task_samples=attempt_kinematics.shape[0]
 	real_attempt_positions = np.zeros((number_of_task_samples,number_of_DoFs))
@@ -112,7 +113,7 @@ def run_activations_ws_cl_fcn(MuJoCo_model_name, Inverse_ANN_model, attempt_kine
 	sim.set_state(sim_state)
 	for ii in range(number_of_task_samples):
 		if ii == 0:
-			last_sensorydata = np.array([0])
+			last_sensorydata = np.array([0, 0, 0, 0])
 		else:
 			last_sensorydata = sim.data.sensordata
 		#import pdb; pdb.set_trace()
@@ -124,9 +125,9 @@ def run_activations_ws_cl_fcn(MuJoCo_model_name, Inverse_ANN_model, attempt_kine
 		current_velocity_array = np.zeros([len(joint_names),])
 		current_acceleration_array = np.zeros([len(joint_names),])
 		for joint_name , joint_index in zip(joint_names, range(len(joint_names))):
-			current_positions_array = sim.data.qpos[-2:]#current_positions_array[joint_index] = sim.data.get_joint_qpos(joint_name)
-			current_velocity_array = sim.data.qvel[-2:]#current_velocity_array[joint_index] = sim.data.get_joint_qvel(joint_name)
-			current_acceleration_array = sim.data.qacc[-2:]
+			current_positions_array = sim.data.qpos[-8:]#current_positions_array[joint_index] = sim.data.get_joint_qpos(joint_name)
+			current_velocity_array = sim.data.qvel[-8:]#current_velocity_array[joint_index] = sim.data.get_joint_qvel(joint_name)
+			current_acceleration_array = sim.data.qacc[-8:]
 		real_attempt_positions[ii,:] = current_positions_array
 		real_attempt_velocities[ii,:] = current_velocity_array
 		real_attempt_accelerations[ii,:] = current_acceleration_array
@@ -216,15 +217,15 @@ def create_cyclical_movements_fcn(omega = 1.5, attempt_length = 10, timestep = 0
 	q0a = sinusoidal_CPG_fcn(w = omega, phi = 0, lower_band = -.8, upper_band = .6, attempt_length = attempt_length , timestep = 0.01)
 	q1a = sinusoidal_CPG_fcn(w = omega, phi = np.pi/2, lower_band = -1, upper_band = .8, attempt_length = attempt_length , timestep = 0.01)
 
-	# q0b = sinusoidal_CPG_fcn(w = omega, phi = np.pi, lower_band = -.8, upper_band = .6, attempt_length = attempt_length , timestep = 0.01)
-	# q1b = sinusoidal_CPG_fcn(w = omega, phi = -np.pi/2, lower_band = -1, upper_band = .8, attempt_length = attempt_length , timestep = 0.01)
+	q0b = sinusoidal_CPG_fcn(w = omega, phi = np.pi, lower_band = -.8, upper_band = .6, attempt_length = attempt_length , timestep = 0.01)
+	q1b = sinusoidal_CPG_fcn(w = omega, phi = -np.pi/2, lower_band = -1, upper_band = .8, attempt_length = attempt_length , timestep = 0.01)
 
 	attempt_kinematics_RB = positions_to_kinematics_fcn(q0a, q1a, timestep)
-	# attempt_kinematics_RF = positions_to_kinematics_fcn(q0a, q1a, timestep)
-	# attempt_kinematics_LB = positions_to_kinematics_fcn(q0b, q1b, timestep)
-	# attempt_kinematics_LF = positions_to_kinematics_fcn(q0b, q1b, timestep)
-	# attempt_kinematics = combine_4leg_kinematics(attempt_kinematics_RB, attempt_kinematics_RF, attempt_kinematics_LB, attempt_kinematics_LF)
-	return attempt_kinematics_RB
+	attempt_kinematics_RF = positions_to_kinematics_fcn(q0a, q1a, timestep)
+	attempt_kinematics_LB = positions_to_kinematics_fcn(q0b, q1b, timestep)
+	attempt_kinematics_LF = positions_to_kinematics_fcn(q0b, q1b, timestep)
+	attempt_kinematics = combine_4leg_kinematics(attempt_kinematics_RB, attempt_kinematics_RF, attempt_kinematics_LB, attempt_kinematics_LF)
+	return attempt_kinematics
 
 def positions_to_kinematics_fcn(q0, q1, timestep = 0.01):
 	kinematics=np.transpose(
@@ -241,15 +242,15 @@ def positions_to_kinematics_fcn(q0, q1, timestep = 0.01):
 	)
 	return kinematics
 
-# def combine_4leg_kinematics(attempt_kinematics_RB, attempt_kinematics_RF, attempt_kinematics_LB, attempt_kinematics_LF):
-# 	attempt_kinematics = np.concatenate(
-# 		(
-# 			attempt_kinematics_RB[:,0:2], attempt_kinematics_RF[:,0:2], attempt_kinematics_LB[:,0:2], attempt_kinematics_LF[:,0:2],
-# 			attempt_kinematics_RB[:,2:4], attempt_kinematics_RF[:,2:4], attempt_kinematics_LB[:,2:4], attempt_kinematics_LF[:,2:4],
-# 			attempt_kinematics_RB[:,4:6], attempt_kinematics_RF[:,4:6], attempt_kinematics_LB[:,4:6], attempt_kinematics_LF[:,4:6]
-# 		),
-# 		axis=1
-# 	)
-# 	return attempt_kinematics
+def combine_4leg_kinematics(attempt_kinematics_RB, attempt_kinematics_RF, attempt_kinematics_LB, attempt_kinematics_LF):
+	attempt_kinematics = np.concatenate(
+		(
+			attempt_kinematics_RB[:,0:2], attempt_kinematics_RF[:,0:2], attempt_kinematics_LB[:,0:2], attempt_kinematics_LF[:,0:2],
+			attempt_kinematics_RB[:,2:4], attempt_kinematics_RF[:,2:4], attempt_kinematics_LB[:,2:4], attempt_kinematics_LF[:,2:4],
+			attempt_kinematics_RB[:,4:6], attempt_kinematics_RF[:,4:6], attempt_kinematics_LB[:,4:6], attempt_kinematics_LF[:,4:6]
+		),
+		axis=1
+	)
+	return attempt_kinematics
 
 #import pdb; pdb.set_trace()

@@ -59,9 +59,9 @@
     <!-- torso -->
     <body name="torso" pos="0 0 .7">
       <camera name="track" mode="trackcom" pos="0 -3 0.3" xyaxes="1 0 0 0 0 1"/>
-      <joint armature="0" axis="1 0 0" damping="0" limited="false" name="rootx" pos="0 0 0" stiffness="0" type="slide"/>
-      <joint armature="0" axis="0 0 1" damping="0" limited="false" name="rootz" pos="0 0 0" stiffness="0" type="slide"/>
-      <joint armature="0" axis="0 1 0" damping="0" limited="false" name="rooty" pos="0 0 0" stiffness="0" type="hinge"/>
+      <!-- <joint armature="0" axis="1 0 0" damping="0" limited="false" name="rootx" pos="0 0 0" stiffness="0" type="slide"/> -->
+      <!-- <joint armature="0" axis="0 0 1" damping="0" limited="false" name="rootz" pos="0 0 0" stiffness="0" type="slide"/> -->
+      <!-- <joint armature="0" axis="0 1 0" damping="0" limited="false" name="rooty" pos="0 0 0" stiffness="0" type="hinge"/> -->
       <geom name="torso" size=".5 .25 .05" type="box"/>
       <geom axisangle="0 1 0 .87" name="neck" pos=".5 0 .075" size="0.046 .075" type="capsule"/>
       <geom axisangle="0 1 0 1.7" name="head" pos=".6 0 .18" size="0.08 .095 0.2" type="ellipsoid"/>
@@ -122,7 +122,6 @@
     <motor gear="90" joint="rbshin" name="rbshin"/>
     <motor gear="120" joint="rfthigh" name="rfthigh"/>
     <motor gear="60" joint="rfshin" name="rfshin"/>
-
     <motor gear="120" joint="lbthigh" name="lbthigh"/>
     <motor gear="90" joint="lbshin" name="lbshin"/>
     <motor gear="120" joint="lfthigh" name="lfthigh"/>
