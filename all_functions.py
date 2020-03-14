@@ -150,7 +150,7 @@ def inverse_mapping_ws_fcn(kinematics, sensorydata, activations, log_address=Non
 	this function used the babbling data to create an inverse mapping using a
 	MLP NN
 	"""
-	hidden_layer_nodes = 4
+	hidden_layer_nodes = 24
 	output_layer_nodes = activations.shape[1]
 	# input_layer_nodes = determined from the input data
 

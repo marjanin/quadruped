@@ -15,7 +15,7 @@ experiment_ID = "0001"
 if babbling:
 	#phase 1 - babbling on air
 	MuJoCo_model_name = "tendon_quadruped_ws_onair.xml"
-	babbling_signal_duration_in_seconds=8*60 # babbling duration
+	babbling_signal_duration_in_seconds=3*60 # babbling duration
 	np.random.seed(0) # setting the seed for numpy's random number generator
 	## generating babbling data
 	babbling_signals = babbling_input_gen_fcn(
@@ -31,7 +31,7 @@ if babbling:
 	MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=False) # this should be ol
 	# phase 2 - babblin on floor
 	MuJoCo_model_name = "tendon_quadruped_ws_onfloor.xml"
-	babbling_signal_duration_in_seconds=16*60 # babbling duration
+	babbling_signal_duration_in_seconds=3*60 # babbling duration
 	np.random.seed(1) # setting the seed for numpy's random number generator
 	## generating babbling data
 	babbling_signals = babbling_input_gen_fcn(
@@ -45,7 +45,7 @@ if babbling:
 	est_activations = babbling_signals
 	#import pdb; pdb.set_trace()
 	[babbling_kinematics_p2, real_attempt_sensorreads_p2, babbling_activations_p2] = run_activations_ws_ol_fcn(
-	MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=True) # this should be ol
+	MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=False) # this should be ol
 	# concatinating babbling data from two phases
 	babbling_kinematics = np.concatenate((babbling_kinematics_p1, babbling_kinematics_p2),axis=0)
 	real_attempt_sensorreads = np.concatenate((real_attempt_sensorreads_p1, real_attempt_sensorreads_p2),axis=0)
@@ -54,7 +54,7 @@ if babbling:
 	#	real_attempt_sensorreads = []
 	
 	Inverse_ANN_model = inverse_mapping_ws_fcn(
-		babbling_kinematics, real_attempt_sensorreads, babbling_activations, log_address="./log/save/{}/".format(experiment_ID), early_stopping=False)
+		babbling_kinematics, real_attempt_sensorreads, babbling_activations, log_address="./log/save/{}/".format(experiment_ID), early_stopping=False) #
 	#saving the Inverse_ANN
 	os.makedirs("./models/{}".format(experiment_ID), exist_ok=True)
 	Inverse_ANN_model.save("./models/{}/Inverse_ANN_model".format(experiment_ID))
@@ -64,7 +64,7 @@ else:
 # creating the cyclical movement kinematics
 
 MuJoCo_model_name = "tendon_quadruped_ws_onfloor.xml"
-attempt_kinematics = create_cyclical_movements_fcn(omega = -1, attempt_length = 10, timestep = 0.01)
+attempt_kinematics = create_cyclical_movements_fcn(omega = 1, attempt_length = 10, timestep = 0.01)
 #import pdb; pdb.set_trace()
 #kinematics to activations
 #est_activations=Inverse_ANN_model.predict(np.concatenate((attempt_kinematics, 000*np.ones((1000,1))),axis=1))
