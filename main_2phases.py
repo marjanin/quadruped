@@ -15,7 +15,7 @@ experiment_ID = "0001"
 if babbling:
 	#phase 1 - babbling on air
 	MuJoCo_model_name = "tendon_quadruped_ws_onair.xml"
-	babbling_signal_duration_in_seconds=4*60 # babbling duration
+	babbling_signal_duration_in_seconds=8*60 # babbling duration
 	np.random.seed(0) # setting the seed for numpy's random number generator
 	## generating babbling data
 	babbling_signals = babbling_input_gen_fcn(
@@ -31,7 +31,7 @@ if babbling:
 	MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=False) # this should be ol
 	# phase 2 - babblin on floor
 	MuJoCo_model_name = "tendon_quadruped_ws_onfloor.xml"
-	babbling_signal_duration_in_seconds=4*60 # babbling duration
+	babbling_signal_duration_in_seconds=16*60 # babbling duration
 	np.random.seed(1) # setting the seed for numpy's random number generator
 	## generating babbling data
 	babbling_signals = babbling_input_gen_fcn(
@@ -64,7 +64,7 @@ else:
 # creating the cyclical movement kinematics
 
 MuJoCo_model_name = "tendon_quadruped_ws_onfloor.xml"
-attempt_kinematics = create_cyclical_movements_fcn(omega = -3, attempt_length = 10, timestep = 0.01)
+attempt_kinematics = create_cyclical_movements_fcn(omega = -1, attempt_length = 10, timestep = 0.01)
 #import pdb; pdb.set_trace()
 #kinematics to activations
 #est_activations=Inverse_ANN_model.predict(np.concatenate((attempt_kinematics, 000*np.ones((1000,1))),axis=1))
