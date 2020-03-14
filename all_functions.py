@@ -221,9 +221,9 @@ def create_cyclical_movements_fcn(omega = 1.5, attempt_length = 10, timestep = 0
 	q1b = sinusoidal_CPG_fcn(w = omega, phi = -np.pi/2, lower_band = -1, upper_band = .8, attempt_length = attempt_length , timestep = 0.01)
 
 	attempt_kinematics_RB = positions_to_kinematics_fcn(q0a, q1a, timestep)
-	attempt_kinematics_RF = positions_to_kinematics_fcn(q0a, q1a, timestep)
+	attempt_kinematics_RF = positions_to_kinematics_fcn(q0b, q1b, timestep)
 	attempt_kinematics_LB = positions_to_kinematics_fcn(q0b, q1b, timestep)
-	attempt_kinematics_LF = positions_to_kinematics_fcn(q0b, q1b, timestep)
+	attempt_kinematics_LF = positions_to_kinematics_fcn(q0a, q1a, timestep)
 	attempt_kinematics = combine_4leg_kinematics(attempt_kinematics_RB, attempt_kinematics_RF, attempt_kinematics_LB, attempt_kinematics_LF)
 	return attempt_kinematics
 
