@@ -168,6 +168,9 @@ def inverse_mapping_ws_fcn(kinematics, sensorydata, activations, log_address=Non
 	
 	if ("prior_model" in kwargs):
 		model = kwargs["prior_model"]
+		model.compile(optimizer=tf.train.AdamOptimizer(0.01),
+          loss='mse',       # mean squared error
+          metrics=['mse'])  # mean squared error
 		history = \
 		model.fit(
 		x_train,
@@ -191,7 +194,7 @@ def inverse_mapping_ws_fcn(kinematics, sensorydata, activations, log_address=Non
 		model.fit(
 		x_train,
 		y_train,
-		epochs=50,
+		epochs=25,
 		validation_data=(x_valid, y_valid),
 		callbacks=[tensorboard_callback])
 		with open(logdir+'/trainHistoryDict.pickle', 'wb') as file_pi:
