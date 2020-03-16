@@ -54,7 +54,7 @@ babbling_activations = np.concatenate((babbling_activations_p1, babbling_activat
 #	real_attempt_sensorreads = []
 if babbling:
 	Inverse_ANN_model = inverse_mapping_ws_fcn(
-		babbling_kinematics, babbling_sensorreads, babbling_activations, log_address="./log/save/{}/".format(experiment_ID), early_stopping=False) #
+		babbling_kinematics, babbling_sensorreads, babbling_activations, epochs=30, log_address="./log/save/{}/".format(experiment_ID)) #
 	#saving the Inverse_ANN
 	os.makedirs("./models/{}".format(experiment_ID), exist_ok=True)
 	Inverse_ANN_model.save("./models/{}/Inverse_ANN_model".format(experiment_ID))
@@ -89,7 +89,7 @@ for ii in range(10):
 	est_activations_all = np.concatenate((est_activations_all,returned_est_activations),axis=0)
 
 	Inverse_ANN_model = inverse_mapping_ws_fcn(
-	kinematics_all, sensory_all, est_activations_all, log_address="./log/save/{}/".format(experiment_ID), early_stopping=False, prior_model=Inverse_ANN_model) #
+	kinematics_all, sensory_all, est_activations_all, epochs=5, log_address="./log/{}/".format(experiment_ID), prior_model=Inverse_ANN_model) #
 	Mj_render = False
 	if ii == 8:
 		Mj_render=True

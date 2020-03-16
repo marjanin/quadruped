@@ -145,7 +145,7 @@ def run_activations_ws_cl_fcn(MuJoCo_model_name, Inverse_ANN_model, attempt_kine
 # 	new_model.compile(optimizer=tf.train.AdamOptimizer(0.01),loss='mse',metrics=['mse'])  # mean squared error
 # 	return new_model
 
-def inverse_mapping_ws_fcn(kinematics, sensorydata, activations, log_address=None, early_stopping=False, **kwargs):
+def inverse_mapping_ws_fcn(kinematics, sensorydata, activations, epochs=25, log_address=None, **kwargs):
 	"""
 	this function used the babbling data to create an inverse mapping using a
 	MLP NN
@@ -165,28 +165,31 @@ def inverse_mapping_ws_fcn(kinematics, sensorydata, activations, log_address=Non
 	
 	logdir = log_address
 	tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=logdir)
-	
+	earlystopping_callback = tf.keras.callbacks.EarlyStopping(
+	monitor='val_loss', patience=5, verbose=1)
+	checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
+		logdir+"model", monitor='val_loss', verbose=1, save_best_only=True)
 	if ("prior_model" in kwargs):
 		model = kwargs["prior_model"]
-		model.compile(optimizer=tf.train.AdamOptimizer(0.01),
-          loss='mse',       # mean squared error
-          metrics=['mse'])  # mean squared error
+		model.compile(optimizer=tf.keras.optimizers.Adam(0.01),
+		loss='mse',	   # mean squared error
+		metrics=['mse'])  # mean squared error
 		history = \
 		model.fit(
 		x_train,
 		y_train,
-		epochs=5,
+		epochs=epochs,
 		validation_data=(x_valid, y_valid),
-		callbacks=[tensorboard_callback])
-		with open(logdir+'/trainHistoryDict.pickle', 'wb') as file_pi:
-			pickle.dump(history.history, file_pi)
+		callbacks=[tensorboard_callback, earlystopping_callback, checkpoint_callback])
+		# with open(logdir+'/trainHistoryDict.pickle', 'wb') as file_pi:
+		# 	pickle.dump(history.history, file_pi)
 	else:
 		model = tf.keras.Sequential()
 		# Adds a densely-connected layer with 15 units to the model:
-		model.add(tf.keras.layers.Dense(hidden_layer_nodes, activation='linear'))
+		model.add(tf.keras.layers.Dense(hidden_layer_nodes, activation='linear', input_shape= x_train.shape[1:]))
 		# Add a softmax layer with 3 output units:
 		model.add(tf.keras.layers.Dense(output_layer_nodes, activation='linear'))
-		model.compile(optimizer=tf.train.AdamOptimizer(0.01),
+		model.compile(optimizer=tf.keras.optimizers.Adam(0.01),
 	              loss='mse',       # mean squared error
 	              metrics=['mse'])  # mean squared error
 		#training the model
@@ -194,15 +197,17 @@ def inverse_mapping_ws_fcn(kinematics, sensorydata, activations, log_address=Non
 		model.fit(
 		x_train,
 		y_train,
-		epochs=25,
+		epochs=epochs,
 		validation_data=(x_valid, y_valid),
-		callbacks=[tensorboard_callback])
-		with open(logdir+'/trainHistoryDict.pickle', 'wb') as file_pi:
-			pickle.dump(history.history, file_pi)
+		callbacks=[tensorboard_callback, earlystopping_callback, checkpoint_callback])
+		# with open(logdir+'/trainHistoryDict.pickle', 'wb') as file_pi:
+		# 	pickle.dump(history.history, file_pi)
 		#tf.keras.utils.plot_model(model, to_file='model.png')
 	
 	# running the model
 	#est_activations=model.predict(kinematics)
+	tf.keras.backend.clear_session() 
+	model=tf.keras.models.load_model(logdir+"model",compile=False)
 	return model
 
 #import pdb; pdb.set_trace()
