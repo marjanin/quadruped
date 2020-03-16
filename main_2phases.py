@@ -64,13 +64,13 @@ else:
 # creating the cyclical movement kinematics
 
 MuJoCo_model_name = "tendon_quadruped_ws_onfloor.xml"
-attempt_kinematics = create_cyclical_movements_fcn(omega = 1.5, attempt_length = 15, timestep = 0.01)
+attempt_kinematics = create_cyclical_movements_fcn(omega = 1.5, attempt_length = 10, timestep = 0.01)
 #import pdb; pdb.set_trace()
 #kinematics to activations
 #est_activations=Inverse_ANN_model.predict(np.concatenate((attempt_kinematics, 000*np.ones((1000,1))),axis=1))
 #[returned_kinematics, real_attempt_sensorreads, returned_est_activations ] = run_activations_ws_ol_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=True) # this should be cl
 [returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_fcn(
-MuJoCo_model_name, Inverse_ANN_model, attempt_kinematics, timestep=0.01, Mj_render=True) # this should be cl
+MuJoCo_model_name, Inverse_ANN_model, attempt_kinematics, timestep=0.01, Mj_render=False) # this should be cl
 
 # running the activations created for the cyclical movements
 #MuJoCo_model_name = "single_leg_ws_onfloor.xml"
@@ -90,9 +90,11 @@ for ii in range(10):
 
 	Inverse_ANN_model = inverse_mapping_ws_fcn(
 	kinematics_all, sensory_all, est_activations_all, log_address="./log/save/{}/".format(experiment_ID), early_stopping=False, prior_model=Inverse_ANN_model) #
-
+	Mj_render = False
+	if ii == 8:
+		Mj_render=True
 	[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_fcn(
-	MuJoCo_model_name, Inverse_ANN_model, attempt_kinematics, timestep=0.01, Mj_render=True) # this should be cl
+	MuJoCo_model_name, Inverse_ANN_model, attempt_kinematics, timestep=0.01, Mj_render=Mj_render) # this should be cl
 	RMSE = np.sqrt(np.mean(np.square((returned_kinematics[:,:8]-attempt_kinematics[:,:8]))))
 	print("Run #:", ii)
 	print("RMSE:", RMSE)
