@@ -61,7 +61,7 @@ Inverse_ANN_model = inverse_mapping_ws_fcn(
 
 # creating the cyclical movement kinematics
 MuJoCo_model_name = "tendon_quadruped_ws_onfloor.xml"
-attempt_kinematics = create_cyclical_movements_fcn(omega = 1.5, attempt_length = 10, timestep = 0.01)
+attempt_kinematics = create_cyclical_movements_fcn(omega = 2, attempt_length = 10, timestep = 0.01)
 #import pdb; pdb.set_trace()
 #kinematics to activations
 #est_activations=Inverse_ANN_model.predict(np.concatenate((attempt_kinematics, 000*np.ones((1000,1))),axis=1))
@@ -88,7 +88,7 @@ for ii in range(10):
 	Inverse_ANN_model = inverse_mapping_ws_fcn(
 	kinematics_all, sensory_all, est_activations_all, epochs=5, log_address="./log/{}/".format(experiment_ID), early_stopping=False, prior_model=Inverse_ANN_model) #
 	Mj_render = False
-	if ii == 11:
+	if ii == 9:
 		Mj_render=True
 	[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_fcn(
 	MuJoCo_model_name, Inverse_ANN_model, attempt_kinematics, timestep=0.01, Mj_render=Mj_render) # this should be cl
