@@ -210,6 +210,75 @@ def inverse_mapping_ws_fcn(kinematics, sensorydata, activations, epochs=25, log_
 	model=tf.keras.models.load_model(logdir+"model",compile=False)
 	return model
 
+def inverse_mapping_ws_sepANNs_fcn(kinematics, sensorydata, activations, epochs=25, log_address=None, **kwargs):
+	"""
+	this function used the babbling data to create an inverse mapping using a
+	MLP NN
+	"""
+	number_of_legs = 4
+	ANNs =  number_of_legs*[None]
+	hidden_layer_nodes = 6
+	output_layer_nodes = activations.shape[1]/number_of_legs
+	# input_layer_nodes = determined from the input data
+	for leg_number in range(number_of_legs):
+		leg_kinematics = kinematics[:,[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2, 16+leg_number*2,17+leg_number*2]]
+		if sensorydata==[]:
+			x = leg_kinematics
+		else:
+			sensorydata_delayed = np.zeros(sensorydata.shape)
+			sensorydata_delayed[1:,:] = sensorydata[:-1,:]
+			x = np.concatenate((leg_kinematics, np.transpose(np.array([sensorydata_delayed[:,leg_number]]))),axis=1)   
+		y = activations[:,[0+leg_number*2, 1+leg_number*2]]
+		x_train, x_valid, y_train, y_valid = sklearn.model_selection.train_test_split(x, y, test_size=0.2)
+	
+		logdir = log_address+"leg_{}/".format(leg_number)
+		tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=logdir)
+		earlystopping_callback = tf.keras.callbacks.EarlyStopping(
+		monitor='val_loss', patience=5, verbose=1)
+		checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
+			logdir+"model", monitor='val_loss', verbose=1, save_best_only=True)
+		if ("prior_model" in kwargs):
+			model = kwargs["prior_model"]
+			model.compile(optimizer=tf.keras.optimizers.Adam(0.01),
+			loss='mse',	   # mean squared error
+			metrics=['mse'])  # mean squared error
+			history = \
+			model.fit(
+			x_train,
+			y_train,
+			epochs=epochs,
+			validation_data=(x_valid, y_valid),
+			callbacks=[tensorboard_callback, earlystopping_callback, checkpoint_callback])
+			# with open(logdir+'/trainHistoryDict.pickle', 'wb') as file_pi:
+			# 	pickle.dump(history.history, file_pi)
+		else:
+			model = tf.keras.Sequential()
+			# Adds a densely-connected layer with 15 units to the model:
+			model.add(tf.keras.layers.Dense(hidden_layer_nodes, activation='linear', input_shape= x_train.shape[1:]))
+			# Add a softmax layer with 3 output units:
+			model.add(tf.keras.layers.Dense(output_layer_nodes, activation='linear'))
+			model.compile(optimizer=tf.keras.optimizers.Adam(0.01),
+		              loss='mse',       # mean squared error
+		              metrics=['mse'])  # mean squared error
+			#training the model
+			history = \
+			model.fit(
+			x_train,
+			y_train,
+			epochs=epochs,
+			validation_data=(x_valid, y_valid),
+			callbacks=[tensorboard_callback, earlystopping_callback, checkpoint_callback])
+			# with open(logdir+'/trainHistoryDict.pickle', 'wb') as file_pi:
+			# 	pickle.dump(history.history, file_pi)
+			#tf.keras.utils.plot_model(model, to_file='model.png')
+		
+		# running the model
+		#est_activations=model.predict(kinematics)
+		tf.keras.backend.clear_session() 
+		model=tf.keras.models.load_model(logdir+"model",compile=False)
+		ANNs[leg_number] = model
+	return ANNs
+
 #import pdb; pdb.set_trace()
 def sinusoidal_CPG_fcn(w = 1, phi = 0, lower_band = -1, upper_band = 1, attempt_length = 5 , timestep = 0.01):
 	number_of_attempt_samples = int(np.round(attempt_length/timestep))

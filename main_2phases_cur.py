@@ -12,7 +12,9 @@ dt=0.01 # time step
 #.62   4-0
 babbling = True
 experiment_ID = "0002"
+numbeR_of_legs = 4
 
+ANNs = numbeR_of_legs*[None]
 #phase 1 - babbling on air
 MuJoCo_model_name = "tendon_quadruped_ws_onair.xml"
 babbling_signal_duration_in_seconds=.25*60 # babbling duration
@@ -30,9 +32,9 @@ est_activations = babbling_signals
 [babbling_kinematics_p1, real_attempt_sensorreads_p1, babbling_activations_p1] = run_activations_ws_ol_fcn(
 MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=False) # this should be ol
 
-Inverse_ANN_model = inverse_mapping_ws_fcn(
+Inverse_ANN_model = inverse_mapping_ws_sepANNs_fcn(
 	babbling_kinematics_p1, real_attempt_sensorreads_p1, babbling_activations_p1, epochs=15, log_address="./log/{}/".format(experiment_ID)) #
-
+import pdb; pdb.set_trace()
 # phase 2 - babblin on floor
 MuJoCo_model_name = "tendon_quadruped_ws_onfloor.xml"
 babbling_signal_duration_in_seconds=.25*60 # babbling duration
@@ -55,9 +57,8 @@ babbling_kinematics = np.concatenate((babbling_kinematics_p1, babbling_kinematic
 babbling_sensorreads = np.concatenate((real_attempt_sensorreads_p1, real_attempt_sensorreads_p2),axis=0)
 babbling_activations = np.concatenate((babbling_activations_p1, babbling_activations_p2),axis=0)
 # training the neural network
-Inverse_ANN_model = inverse_mapping_ws_fcn(
+Inverse_ANN_models = inverse_mapping_ws_sepANNs_fcn(
 	babbling_kinematics, babbling_sensorreads, babbling_activations, epochs=15, log_address="./log/{}/".format(experiment_ID), prior_model=Inverse_ANN_model) #
-
 
 # creating the cyclical movement kinematics
 MuJoCo_model_name = "tendon_quadruped_ws_onfloor.xml"
