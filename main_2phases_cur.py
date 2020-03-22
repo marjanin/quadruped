@@ -32,9 +32,8 @@ est_activations = babbling_signals
 [babbling_kinematics_p1, real_attempt_sensorreads_p1, babbling_activations_p1] = run_activations_ws_ol_fcn(
 MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=False) # this should be ol
 
-Inverse_ANN_model = inverse_mapping_ws_sepANNs_fcn(
+Inverse_ANN_models = inverse_mapping_ws_sepANNs_fcn(
 	babbling_kinematics_p1, real_attempt_sensorreads_p1, babbling_activations_p1, epochs=15, log_address="./log/{}/".format(experiment_ID)) #
-import pdb; pdb.set_trace()
 # phase 2 - babblin on floor
 MuJoCo_model_name = "tendon_quadruped_ws_onfloor.xml"
 babbling_signal_duration_in_seconds=.25*60 # babbling duration
@@ -57,9 +56,9 @@ babbling_kinematics = np.concatenate((babbling_kinematics_p1, babbling_kinematic
 babbling_sensorreads = np.concatenate((real_attempt_sensorreads_p1, real_attempt_sensorreads_p2),axis=0)
 babbling_activations = np.concatenate((babbling_activations_p1, babbling_activations_p2),axis=0)
 # training the neural network
+#import pdb; pdb.set_trace()
 Inverse_ANN_models = inverse_mapping_ws_sepANNs_fcn(
-	babbling_kinematics, babbling_sensorreads, babbling_activations, epochs=15, log_address="./log/{}/".format(experiment_ID), prior_model=Inverse_ANN_model) #
-
+	babbling_kinematics, babbling_sensorreads, babbling_activations, epochs=15, log_address="./log/{}/".format(experiment_ID), prior_model=Inverse_ANN_models) #
 # creating the cyclical movement kinematics
 MuJoCo_model_name = "tendon_quadruped_ws_onfloor.xml"
 attempt_kinematics = create_cyclical_movements_fcn(omega = 2, attempt_length = 10, timestep = 0.01)
@@ -67,9 +66,9 @@ attempt_kinematics = create_cyclical_movements_fcn(omega = 2, attempt_length = 1
 #kinematics to activations
 #est_activations=Inverse_ANN_model.predict(np.concatenate((attempt_kinematics, 000*np.ones((1000,1))),axis=1))
 #[returned_kinematics, real_attempt_sensorreads, returned_est_activations ] = run_activations_ws_ol_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=True) # this should be cl
-[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_fcn(
-MuJoCo_model_name, Inverse_ANN_model, attempt_kinematics, timestep=0.01, Mj_render=False) # this should be cl
 
+[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_sepANNs_fcn(
+MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/".format(experiment_ID), timestep=0.01, Mj_render=False) # this should be cl
 # running the activations created for the cyclical movements
 #MuJoCo_model_name = "single_leg_ws_onfloor.xml"
 # calculating the RSME0
@@ -86,13 +85,13 @@ for ii in range(10):
 	sensory_all = np.concatenate((sensory_all,returned_sensorreads),axis=0)
 	est_activations_all = np.concatenate((est_activations_all,returned_est_activations),axis=0)
 
-	Inverse_ANN_model = inverse_mapping_ws_fcn(
-	kinematics_all, sensory_all, est_activations_all, epochs=5, log_address="./log/{}/".format(experiment_ID), early_stopping=False, prior_model=Inverse_ANN_model) #
+	Inverse_ANN_models = inverse_mapping_ws_sepANNs_fcn(
+	kinematics_all, sensory_all, est_activations_all, epochs=5, log_address="./log/{}/".format(experiment_ID), early_stopping=False, prior_model=Inverse_ANN_models) #
 	Mj_render = False
 	if ii == 9:
 		Mj_render=True
-	[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_fcn(
-	MuJoCo_model_name, Inverse_ANN_model, attempt_kinematics, timestep=0.01, Mj_render=Mj_render) # this should be cl
+	[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_sepANNs_fcn(
+	MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/".format(experiment_ID), timestep=0.01, Mj_render=Mj_render) # this should be cl
 	RMSE = np.sqrt(np.mean(np.square((returned_kinematics[:,:8]-attempt_kinematics[:,:8]))))
 	print("Run #:", ii)
 	print("RMSE:", RMSE)
