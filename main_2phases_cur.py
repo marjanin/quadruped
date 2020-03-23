@@ -33,7 +33,7 @@ est_activations = babbling_signals
 MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=False) # this should be ol
 
 Inverse_ANN_models = inverse_mapping_ws_sepANNs_fcn(
-	babbling_kinematics_p1, real_attempt_sensorreads_p1, babbling_activations_p1, epochs=15, log_address="./log/{}/".format(experiment_ID)) #
+	babbling_kinematics_p1, real_attempt_sensorreads_p1, babbling_activations_p1, epochs=10, log_address="./log/{}/".format(experiment_ID), use_prior_model=False) #
 # phase 2 - babblin on floor
 MuJoCo_model_name = "tendon_quadruped_ws_onfloor.xml"
 babbling_signal_duration_in_seconds=.25*60 # babbling duration
@@ -58,10 +58,10 @@ babbling_activations = np.concatenate((babbling_activations_p1, babbling_activat
 # training the neural network
 #import pdb; pdb.set_trace()
 Inverse_ANN_models = inverse_mapping_ws_sepANNs_fcn(
-	babbling_kinematics, babbling_sensorreads, babbling_activations, epochs=15, log_address="./log/{}/".format(experiment_ID), prior_model=Inverse_ANN_models) #
+	babbling_kinematics, babbling_sensorreads, babbling_activations, epochs=10, log_address="./log/{}/".format(experiment_ID), use_prior_model=True) #
 # creating the cyclical movement kinematics
 MuJoCo_model_name = "tendon_quadruped_ws_onfloor.xml"
-attempt_kinematics = create_cyclical_movements_fcn(omega = 2, attempt_length = 10, timestep = 0.01)
+attempt_kinematics = create_cyclical_movements_fcn(omega = -2, attempt_length = 10, timestep = 0.01)
 #import pdb; pdb.set_trace()
 #kinematics to activations
 #est_activations=Inverse_ANN_model.predict(np.concatenate((attempt_kinematics, 000*np.ones((1000,1))),axis=1))
@@ -86,7 +86,7 @@ for ii in range(10):
 	est_activations_all = np.concatenate((est_activations_all,returned_est_activations),axis=0)
 
 	Inverse_ANN_models = inverse_mapping_ws_sepANNs_fcn(
-	kinematics_all, sensory_all, est_activations_all, epochs=5, log_address="./log/{}/".format(experiment_ID), early_stopping=False, prior_model=Inverse_ANN_models) #
+	kinematics_all, sensory_all, est_activations_all, epochs=5, log_address="./log/{}/".format(experiment_ID), use_prior_model=True) #
 	Mj_render = False
 	if ii == 9:
 		Mj_render=True

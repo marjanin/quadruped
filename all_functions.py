@@ -272,7 +272,7 @@ def inverse_mapping_ws_fcn(kinematics, sensorydata, activations, epochs=25, log_
 	model=tf.keras.models.load_model(logdir+"model",compile=False)
 	return model
 
-def inverse_mapping_ws_sepANNs_fcn(kinematics, sensorydata, activations, epochs=25, log_address=None, **kwargs):
+def inverse_mapping_ws_sepANNs_fcn(kinematics, sensorydata, activations, epochs=25, log_address=None, use_prior_model=False):
 	"""
 	this function used the babbling data to create an inverse mapping using a
 	MLP NN
@@ -299,7 +299,7 @@ def inverse_mapping_ws_sepANNs_fcn(kinematics, sensorydata, activations, epochs=
 		monitor='val_loss', patience=5, verbose=1)
 		checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
 			logdir+"model", monitor='val_loss', verbose=1, save_best_only=True)
-		if ("prior_model" in kwargs):
+		if use_prior_model:
 			model=tf.keras.models.load_model(logdir+"model",compile=False)
 			model.compile(optimizer=tf.keras.optimizers.Adam(0.01),
 			loss='mse',	   # mean squared error
