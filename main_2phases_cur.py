@@ -8,13 +8,10 @@ experiment_ID = 'exp1_2'
 number_of_all_runs = 50
 np.zeros(number_of_all_runs,)
 all_performances=[]
+np.random.seed(0) # setting the seed for numpy's random number generator
 for run_no in range(number_of_all_runs):
 	## initialization
 	dt=0.01 # time step
-	#.65 0-4
-	#.37   4-4
-	#.46 0-8
-	#.62   4-0
 	babbling = True
 	use_sensory = True
 	number_of_legs = 4
@@ -22,7 +19,6 @@ for run_no in range(number_of_all_runs):
 	#phase 1 - babbling on air
 	MuJoCo_model_name = "tendon_quadruped_ws_onair.xml"
 	babbling_signal_duration_in_seconds=.25*60 # babbling duration
-	np.random.seed(0) # setting the seed for numpy's random number generator
 	## generating babbling data
 	babbling_signals = babbling_input_gen_fcn(
 		number_of_signals=8,
@@ -41,7 +37,6 @@ for run_no in range(number_of_all_runs):
 	# phase 2 - babblin on floor
 	MuJoCo_model_name = "tendon_quadruped_ws_onfloor.xml"
 	babbling_signal_duration_in_seconds=.25*60 # babbling duration
-	np.random.seed(1) # setting the seed for numpy's random number generator
 	## generating babbling data
 	babbling_signals = babbling_input_gen_fcn(
 		number_of_signals=8,
@@ -52,7 +47,6 @@ for run_no in range(number_of_all_runs):
 		dt=dt)
 	## running the babbling data through the plant
 	est_activations = babbling_signals
-	#import pdb; pdb.set_trace()
 	[babbling_kinematics_p2, real_attempt_sensorreads_p2, babbling_activations_p2] = run_activations_ws_ol_fcn(
 	MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=False) # this should be ol
 	# concatinating babbling data from two phases
@@ -60,30 +54,24 @@ for run_no in range(number_of_all_runs):
 	babbling_sensorreads = np.concatenate((real_attempt_sensorreads_p1, real_attempt_sensorreads_p2),axis=0)
 	babbling_activations = np.concatenate((babbling_activations_p1, babbling_activations_p2),axis=0)
 	# training the neural network
-	#import pdb; pdb.set_trace()
 	Inverse_ANN_models = inverse_mapping_ws_sepANNs_fcn(
 		babbling_kinematics, babbling_sensorreads, babbling_activations, epochs=10, log_address="./log/{}/{}/".format(experiment_ID,run_no), use_sensory=use_sensory, use_prior_model=True) #
 	# creating the cyclical movement kinematics
 	MuJoCo_model_name = "tendon_quadruped_ws_onfloor.xml"
 	attempt_kinematics = create_cyclical_movements_fcn(omega = 3, attempt_length = 10, timestep = 0.01)
-	#import pdb; pdb.set_trace()
-	#kinematics to activations
-	#est_activations=Inverse_ANN_model.predict(np.concatenate((attempt_kinematics, 000*np.ones((1000,1))),axis=1))
-	#[returned_kinematics, real_attempt_sensorreads, returned_est_activations ] = run_activations_ws_ol_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=True) # this should be cl
 
+	# running the activations created for the cyclical movements
 	[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_sepANNs_fcn(
 	MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), timestep=0.01, use_sensory=use_sensory, Mj_render=False) # this should be cl
-	# running the activations created for the cyclical movements
-	#MuJoCo_model_name = "single_leg_ws_onfloor.xml"
-	# calculating the RSME0
+	# calculating RMSE
 	RMSE = np.sqrt(np.mean(np.square((returned_kinematics[:,:8]-attempt_kinematics[:,:8]))))
 	print("RMSE:", RMSE)
-
 	# concatingating babbling and run data
 	kinematics_all=babbling_kinematics
 	sensory_all=babbling_sensorreads
 	est_activations_all=babbling_activations
 	performances=[RMSE]
+	# the L2 loop
 	for ii in range(10):
 		kinematics_all = np.concatenate((kinematics_all,returned_kinematics),axis=0)
 		sensory_all = np.concatenate((sensory_all,returned_sensorreads),axis=0)
@@ -100,7 +88,6 @@ for run_no in range(number_of_all_runs):
 		print("Run #:", ii)
 		print("RMSE:", RMSE)
 		performances.append(RMSE)
-
 	print(performances)
 	# plt.plot(performances)
 	# plt.show(block=True)
