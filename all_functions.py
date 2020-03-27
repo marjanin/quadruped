@@ -143,7 +143,7 @@ def run_activations_ws_cl_fcn(MuJoCo_model_name, Inverse_ANN_model, attempt_kine
 # 	new_model.set_weights(original_model.get_weights())
 # 	new_model.compile(optimizer=tf.train.AdamOptimizer(0.01),loss='mse',metrics=['mse'])  # mean squared error
 # 	return new_model
-def run_activations_ws_cl_sepANNs_fcn(MuJoCo_model_name, attempt_kinematics, log_address, timestep=0.01, Mj_render=False):
+def run_activations_ws_cl_sepANNs_fcn(MuJoCo_model_name, attempt_kinematics, log_address, timestep=0.01, use_sensory=True, Mj_render=False):
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! the q0 is now the chasis pos. needs to be fixed
 	"""
 	this function runs the predicted activations generatred from running
@@ -185,7 +185,10 @@ def run_activations_ws_cl_sepANNs_fcn(MuJoCo_model_name, attempt_kinematics, log
 			last_sensorydata = sim.data.sensordata
 		for leg_number in range(number_of_legs):
 			Inverse_ANN_model=Inverse_ANN_models[leg_number]
-			input_data = np.append(attempt_kinematics[ii,[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2, 16+leg_number*2,17+leg_number*2]],last_sensorydata[leg_number])
+			if use_sensory:
+				input_data = np.append(attempt_kinematics[ii,[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2, 16+leg_number*2,17+leg_number*2]],last_sensorydata[leg_number])
+			else:
+				input_data = attempt_kinematics[ii,[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2, 16+leg_number*2,17+leg_number*2]]
 			sim.data.ctrl[0+2*leg_number:2+2*leg_number] = Inverse_ANN_model.predict(np.expand_dims(input_data, axis=0))
 		sim.step()
 		# collecting kinematics (pos, vel, and acc) from all joints
@@ -272,7 +275,7 @@ def inverse_mapping_ws_fcn(kinematics, sensorydata, activations, epochs=25, log_
 	model=tf.keras.models.load_model(logdir+"model",compile=False)
 	return model
 
-def inverse_mapping_ws_sepANNs_fcn(kinematics, sensorydata, activations, epochs=25, log_address=None, use_prior_model=False):
+def inverse_mapping_ws_sepANNs_fcn(kinematics, sensorydata, activations, epochs=25, log_address=None, use_sensory=True, use_prior_model=False):
 	"""
 	this function used the babbling data to create an inverse mapping using a
 	MLP NN
@@ -284,12 +287,12 @@ def inverse_mapping_ws_sepANNs_fcn(kinematics, sensorydata, activations, epochs=
 	# input_layer_nodes = determined from the input data
 	for leg_number in range(number_of_legs):
 		leg_kinematics = kinematics[:,[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2, 16+leg_number*2,17+leg_number*2]]
-		if sensorydata==[]:
-			x = leg_kinematics
-		else:
+		if use_sensory:
 			sensorydata_delayed = np.zeros(sensorydata.shape)
 			sensorydata_delayed[1:,:] = sensorydata[:-1,:]
 			x = np.concatenate((leg_kinematics, np.transpose(np.array([sensorydata_delayed[:,leg_number]]))),axis=1)   
+		else:
+			x = leg_kinematics
 		y = activations[:,[0+leg_number*2, 1+leg_number*2]]
 		x_train, x_valid, y_train, y_valid = sklearn.model_selection.train_test_split(x, y, test_size=0.2)
 	

@@ -4,9 +4,9 @@ from matplotlib import pyplot as plt
 import tensorflow as tf
 from all_functions import *
 
+experiment_ID = 'exp1_2'
 number_of_all_runs = 50
 np.zeros(number_of_all_runs,)
-experiment_ID = 'exp1'
 all_performances=[]
 for run_no in range(number_of_all_runs):
 	## initialization
@@ -16,10 +16,9 @@ for run_no in range(number_of_all_runs):
 	#.46 0-8
 	#.62   4-0
 	babbling = True
-	run_no
-	numbeR_of_legs = 4
-
-	ANNs = numbeR_of_legs*[None]
+	use_sensory = True
+	number_of_legs = 4
+	ANNs = number_of_legs*[None]
 	#phase 1 - babbling on air
 	MuJoCo_model_name = "tendon_quadruped_ws_onair.xml"
 	babbling_signal_duration_in_seconds=.25*60 # babbling duration
@@ -38,7 +37,7 @@ for run_no in range(number_of_all_runs):
 	MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=False) # this should be ol
 
 	Inverse_ANN_models = inverse_mapping_ws_sepANNs_fcn(
-		babbling_kinematics_p1, real_attempt_sensorreads_p1, babbling_activations_p1, epochs=10, log_address="./log/{}/".format(run_no), use_prior_model=False) #
+		babbling_kinematics_p1, real_attempt_sensorreads_p1, babbling_activations_p1, epochs=10, log_address="./log/{}/{}/".format(experiment_ID,run_no), use_sensory=use_sensory, use_prior_model=False) #
 	# phase 2 - babblin on floor
 	MuJoCo_model_name = "tendon_quadruped_ws_onfloor.xml"
 	babbling_signal_duration_in_seconds=.25*60 # babbling duration
@@ -63,7 +62,7 @@ for run_no in range(number_of_all_runs):
 	# training the neural network
 	#import pdb; pdb.set_trace()
 	Inverse_ANN_models = inverse_mapping_ws_sepANNs_fcn(
-		babbling_kinematics, babbling_sensorreads, babbling_activations, epochs=10, log_address="./log/{}/".format(run_no), use_prior_model=True) #
+		babbling_kinematics, babbling_sensorreads, babbling_activations, epochs=10, log_address="./log/{}/{}/".format(experiment_ID,run_no), use_sensory=use_sensory, use_prior_model=True) #
 	# creating the cyclical movement kinematics
 	MuJoCo_model_name = "tendon_quadruped_ws_onfloor.xml"
 	attempt_kinematics = create_cyclical_movements_fcn(omega = 3, attempt_length = 10, timestep = 0.01)
@@ -73,7 +72,7 @@ for run_no in range(number_of_all_runs):
 	#[returned_kinematics, real_attempt_sensorreads, returned_est_activations ] = run_activations_ws_ol_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=True) # this should be cl
 
 	[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_sepANNs_fcn(
-	MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/".format(run_no), timestep=0.01, Mj_render=False) # this should be cl
+	MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), timestep=0.01, use_sensory=use_sensory, Mj_render=False) # this should be cl
 	# running the activations created for the cyclical movements
 	#MuJoCo_model_name = "single_leg_ws_onfloor.xml"
 	# calculating the RSME0
@@ -91,12 +90,12 @@ for run_no in range(number_of_all_runs):
 		est_activations_all = np.concatenate((est_activations_all,returned_est_activations),axis=0)
 
 		Inverse_ANN_models = inverse_mapping_ws_sepANNs_fcn(
-		kinematics_all, sensory_all, est_activations_all, epochs=5, log_address="./log/{}/".format(run_no), use_prior_model=True) #
+		kinematics_all, sensory_all, est_activations_all, epochs=5, log_address="./log/{}/{}/".format(experiment_ID,run_no), use_sensory=use_sensory, use_prior_model=True) #
 		Mj_render = False
 		if ii == 11:
 			Mj_render=True
 		[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_sepANNs_fcn(
-		MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/".format(run_no), timestep=0.01, Mj_render=Mj_render) # this should be cl
+		MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), timestep=0.01, use_sensory=use_sensory, Mj_render=Mj_render) # this should be cl
 		RMSE = np.sqrt(np.mean(np.square((returned_kinematics[:,:8]-attempt_kinematics[:,:8]))))
 		print("Run #:", ii)
 		print("RMSE:", RMSE)
@@ -104,7 +103,7 @@ for run_no in range(number_of_all_runs):
 
 	print(performances)
 	# plt.plot(performances)
-	# plt.show()
+	# plt.show(block=True)
 	all_performances.append(performances)
-	np.save('./results/{}_results'.format(experiment_ID),all_performances) 
+np.save('./results/{}_results'.format(experiment_ID),all_performances) 
 #import pdb; pdb.set_trace()
