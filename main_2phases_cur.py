@@ -4,21 +4,22 @@ from matplotlib import pyplot as plt
 import tensorflow as tf
 from all_functions import *
 
-experiment_ID = 'exp1_2'
+experiment_ID = 'test'
 number_of_all_runs = 50
 np.zeros(number_of_all_runs,)
 all_performances=[]
+dt=.01 # time step
 np.random.seed(0) # setting the seed for numpy's random number generator
 for run_no in range(number_of_all_runs):
 	## initialization
-	dt=0.01 # time step
+
 	babbling = True
 	use_sensory = True
 	number_of_legs = 4
 	ANNs = number_of_legs*[None]
 	#phase 1 - babbling on air
 	MuJoCo_model_name = "tendon_quadruped_ws_onair.xml"
-	babbling_signal_duration_in_seconds=.25*60 # babbling duration
+	babbling_signal_duration_in_seconds=1*60 # babbling duration
 	## generating babbling data
 	babbling_signals = babbling_input_gen_fcn(
 		number_of_signals=8,
@@ -31,7 +32,7 @@ for run_no in range(number_of_all_runs):
 	est_activations = babbling_signals
 	[babbling_kinematics_p1, real_attempt_sensorreads_p1, babbling_activations_p1] = run_activations_ws_ol_fcn(
 	MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=False) # this should be ol
-
+	# training the neural network
 	Inverse_ANN_models = inverse_mapping_ws_sepANNs_fcn(
 		babbling_kinematics_p1, real_attempt_sensorreads_p1, babbling_activations_p1, epochs=10, log_address="./log/{}/{}/".format(experiment_ID,run_no), use_sensory=use_sensory, use_prior_model=False) #
 	# phase 2 - babblin on floor
@@ -48,7 +49,7 @@ for run_no in range(number_of_all_runs):
 	## running the babbling data through the plant
 	est_activations = babbling_signals
 	[babbling_kinematics_p2, real_attempt_sensorreads_p2, babbling_activations_p2] = run_activations_ws_ol_fcn(
-	MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=False) # this should be ol
+	MuJoCo_model_name, est_activations, timestep=dt, Mj_render=False) # this should be ol
 	# concatinating babbling data from two phases
 	babbling_kinematics = np.concatenate((babbling_kinematics_p1, babbling_kinematics_p2),axis=0)
 	babbling_sensorreads = np.concatenate((real_attempt_sensorreads_p1, real_attempt_sensorreads_p2),axis=0)
@@ -58,11 +59,11 @@ for run_no in range(number_of_all_runs):
 		babbling_kinematics, babbling_sensorreads, babbling_activations, epochs=10, log_address="./log/{}/{}/".format(experiment_ID,run_no), use_sensory=use_sensory, use_prior_model=True) #
 	# creating the cyclical movement kinematics
 	MuJoCo_model_name = "tendon_quadruped_ws_onfloor.xml"
-	attempt_kinematics = create_cyclical_movements_fcn(omega = 3, attempt_length = 10, timestep = 0.01)
+	attempt_kinematics = create_cyclical_movements_fcn(omega = 3, attempt_length = 10, timestep = dt)
 
 	# running the activations created for the cyclical movements
 	[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_sepANNs_fcn(
-	MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), timestep=0.01, use_sensory=use_sensory, Mj_render=False) # this should be cl
+	MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), timestep=dt, use_sensory=use_sensory, Mj_render=False) # this should be cl
 	# calculating RMSE
 	RMSE = np.sqrt(np.mean(np.square((returned_kinematics[:,:8]-attempt_kinematics[:,:8]))))
 	print("RMSE:", RMSE)
@@ -83,7 +84,7 @@ for run_no in range(number_of_all_runs):
 		if ii == 11:
 			Mj_render=True
 		[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_sepANNs_fcn(
-		MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), timestep=0.01, use_sensory=use_sensory, Mj_render=Mj_render) # this should be cl
+		MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), timestep=dt, use_sensory=use_sensory, Mj_render=Mj_render) # this should be cl
 		RMSE = np.sqrt(np.mean(np.square((returned_kinematics[:,:8]-attempt_kinematics[:,:8]))))
 		print("Run #:", ii)
 		print("RMSE:", RMSE)
