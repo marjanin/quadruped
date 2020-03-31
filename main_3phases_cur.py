@@ -71,7 +71,7 @@ def test_a_task(MuJoCo_model_name, experiment_ID, run_no, use_sensory=True):
 	return RMSE
 
 ## main code
-experiment_ID_base = 'cur3_1_'
+experiment_ID_base = 'cur3_test_'
 all_sensory_cases = [True, False]
 for use_sensory in all_sensory_cases:
 	np.random.seed(0)
