@@ -44,19 +44,23 @@ save_figures = False
 if save_figures:
 	dpi = 600
 	fig1.subplots_adjust(left=.06, bottom=.12, right=.96, top=.92, wspace=.30, hspace=.20)
-	fig1.savefig("./results/{}_figure1.png".format(experiment_ID_base), dpi=dpi)
+	fig1.savefig("./results/{}figure1.png".format(experiment_ID_base), dpi=dpi)
 	fig2.subplots_adjust(bottom=.12, top=.92)
-	fig2.savefig("./results/{}_figure2.png".format(experiment_ID_base), dpi=dpi)
+	fig2.savefig("./results/{}figure2.png".format(experiment_ID_base), dpi=dpi)
+plt.show(block=False)
 
 show_video = False
-#use_sensory = False
-experiment_ID = experiment_ID_base+"wo_sensory"
+use_sensory = False
+if use_sensory:
+	experiment_ID = experiment_ID_base+"w_sensory"
+else:
+	experiment_ID = experiment_ID_base+"wo_sensory"
 run_no = 0
 MuJoCo_model_names = ["tendon_quadruped_ws_onair.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloorloaded.xml"]
 if show_video:
 	for MuJoCo_model_name , ii in zip(MuJoCo_model_names, range(len(MuJoCo_model_names))):
 		tmp = test_a_task(MuJoCo_model_name, experiment_ID, run_no, use_sensory=use_sensory,  Mj_render=True)
-plt.show(block=True)
+
 
 
 #import pdb; pdb.set_trace()
