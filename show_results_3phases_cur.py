@@ -4,7 +4,7 @@ from all_functions import *
 
 fig1, axes1 = plt.subplots(nrows=1, ncols=3, figsize=(12, 3.5))
 fig2, axes2 = plt.subplots(nrows=1, ncols=1, figsize=(6, 3.5))
-experiment_ID_base = 'cur3_1_'
+experiment_ID_base = 'cur3_V2_'
 all_sensory_cases = [True, False]
 for use_sensory in all_sensory_cases:
 	np.random.seed(0)
@@ -47,7 +47,7 @@ if save_figures:
 	fig1.savefig("./results/{}figure1.png".format(experiment_ID_base), dpi=dpi)
 	fig2.subplots_adjust(bottom=.12, top=.92)
 	fig2.savefig("./results/{}figure2.png".format(experiment_ID_base), dpi=dpi)
-plt.show(block=False)
+plt.show(block=True)
 
 show_video = False
 use_sensory = False
@@ -59,8 +59,6 @@ run_no = 0
 MuJoCo_model_names = ["tendon_quadruped_ws_onair.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloorloaded.xml"]
 if show_video:
 	for MuJoCo_model_name , ii in zip(MuJoCo_model_names, range(len(MuJoCo_model_names))):
-		tmp = test_a_task(MuJoCo_model_name, experiment_ID, run_no, use_sensory=use_sensory,  Mj_render=True)
-
-
+		tmp = test_a_task(MuJoCo_model_name, experiment_ID, run_no, use_sensory=use_sensory,  Mj_render=False)
 
 #import pdb; pdb.set_trace()

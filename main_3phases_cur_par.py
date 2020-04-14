@@ -2,11 +2,12 @@ import os
 import pickle
 from matplotlib import pyplot as plt
 import tensorflow as tf
+import multiprocessing as mp
 from all_functions import *
 
 
 ## main code
-experiment_ID_base = 'cur3_V2_'
+experiment_ID_base = 'cur3_par_test_'
 all_sensory_cases = [True, False]
 for use_sensory in all_sensory_cases:
 	np.random.seed(0)
@@ -14,7 +15,7 @@ for use_sensory in all_sensory_cases:
 		experiment_ID = experiment_ID_base+"w_sensory"
 	else:
 		experiment_ID = experiment_ID_base+"wo_sensory"
-	number_of_all_runs = 50
+	number_of_all_runs = 2
 	MuJoCo_model_names = ["tendon_quadruped_ws_onair.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloorloaded.xml"]
 	number_of_refinements = 8
 	errors_all = np.zeros((number_of_all_runs, len(MuJoCo_model_names), number_of_refinements+1))

@@ -5,6 +5,7 @@ from mujoco_py.generated import const
 import sklearn
 import sklearn.model_selection
 import tensorflow as tf
+import matplotlib.pyplot as plt
 
 ## executive functions
 def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, sensory_all, activations_all, number_of_refinements, use_sensory=True):
@@ -428,6 +429,19 @@ def create_cyclical_movements_fcn(omega = 1.5, attempt_length = 10, timestep = 0
 	q1b = sinusoidal_CPG_fcn(w = omega, phi = -np.pi/2, lower_band = -1, upper_band = .8, attempt_length = attempt_length , timestep = 0.01)
 
 	attempt_kinematics_RB = positions_to_kinematics_fcn(q0a, q1a, timestep)
+	
+	# # plotting
+	# plt.plot(q0a[0:100])
+	# plt.title('Proximal')
+	# plt.ylabel('Angle (rads)')
+	# plt.xlabel('Sample #')
+	# plt.figure()
+	# plt.plot(q1a[0:100])
+	# plt.title('Distal')
+	# plt.ylabel('Angle (rads)')
+	# plt.xlabel('Sample #')
+	# plt.show(block=True)
+
 	attempt_kinematics_RF = positions_to_kinematics_fcn(q0b, q1b, timestep)
 	attempt_kinematics_LB = positions_to_kinematics_fcn(q0b, q1b, timestep)
 	attempt_kinematics_LF = positions_to_kinematics_fcn(q0a, q1a, timestep)
