@@ -6,7 +6,7 @@ from all_functions import *
 
 
 ## main code
-experiment_ID_base = 'cur3_V2_'
+experiment_ID_base = 'cur3_test2_'
 all_sensory_cases = [True, False]
 for use_sensory in all_sensory_cases:
 	np.random.seed(0)
