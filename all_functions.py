@@ -53,8 +53,8 @@ def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, 
 	
 	errors = []
 	for ii in range(number_of_refinements):
-		[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_sepANNs_fcn(
-			MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), timestep=dt, use_sensory=use_sensory, Mj_render=False) # this should be cl
+		[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_varANNs_fcn(
+			MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), ANN_structure = ANN_structure, timestep=dt, use_sensory=use_sensory, Mj_render=False) # this should be cl
 		RMSE = np.sqrt(np.mean(np.square((returned_kinematics[int(returned_kinematics.shape[0]/2):,:8]-attempt_kinematics[int(attempt_kinematics.shape[0]/2):,:8])))) # RMSE on the last half of the trial
 		print("Run #:", ii+1)
 		print("RMSE:", RMSE)
@@ -64,18 +64,18 @@ def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, 
 		sensory_all = np.concatenate((sensory_all,returned_sensorreads),axis=0)
 		activations_all = np.concatenate((activations_all,returned_est_activations),axis=0)
 
-		Inverse_ANN_models = inverse_mapping_ws_sepANNs_fcn(
-		kinematics_all, sensory_all, activations_all, epochs=5, log_address="./log/{}/{}/".format(experiment_ID,run_no), use_sensory=use_sensory, use_prior_model=True) #
+		Inverse_ANN_models = inverse_mapping_ws_varANNs_fcn(
+		kinematics_all, sensory_all, activations_all, ANN_structure=ANN_structure, epochs=5, log_address="./log/{}/{}/".format(experiment_ID,run_no), use_sensory=use_sensory, use_prior_model=True) #
 	# test_run (no-training or storing the data)
-	[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_sepANNs_fcn(
-		MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), timestep=dt, use_sensory=use_sensory, Mj_render=False) # this should be cl
+	[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_varANNs_fcn(
+		MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), ANN_structure = ANN_structure, timestep=dt, use_sensory=use_sensory, Mj_render=False) # this should be cl
 	RMSE = np.sqrt(np.mean(np.square((returned_kinematics[int(returned_kinematics.shape[0]/2):,:8]-attempt_kinematics[int(attempt_kinematics.shape[0]/2):,:8]))))
 	print("Run #:", number_of_refinements+1)
 	print("RMSE:", RMSE)
 	errors.append(RMSE)
 	return errors, kinematics_all, sensory_all, activations_all
 
-def test_a_task(MuJoCo_model_name, experiment_ID, run_no, use_sensory=True, Mj_render=False, task_type = "cyclical"):
+def test_a_task(MuJoCo_model_name, experiment_ID, run_no, use_sensory=True, Mj_render=False, task_type = "cyclical", ANN_structure="M"):
 	refinement_duration_in_seconds = 10
 	dt = .01
 	if task_type == "cyclical":
@@ -84,8 +84,8 @@ def test_a_task(MuJoCo_model_name, experiment_ID, run_no, use_sensory=True, Mj_r
 		attempt_kinematics = create_p2p_movements_fcn(number_of_steps = 10, attempt_length = refinement_duration_in_seconds, timestep = dt)
 	else:
 		ValueError("unacceptable task")
-	[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_sepANNs_fcn(
-			MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), timestep=dt, use_sensory=use_sensory, Mj_render=Mj_render) # this should be cl
+	[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_varANNs_fcn(
+			MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), ANN_structure = ANN_structure, timestep=dt, use_sensory=use_sensory, Mj_render=Mj_render) # this should be cl
 	RMSE = np.sqrt(np.mean(np.square((returned_kinematics[int(returned_kinematics.shape[0]/2):,:8]-attempt_kinematics[int(attempt_kinematics.shape[0]/2):,:8])))) # RMSE on the last half of the trial
 	return RMSE
 ## lower level functions
@@ -293,6 +293,107 @@ def run_activations_ws_cl_sepANNs_fcn(MuJoCo_model_name, attempt_kinematics, log
 	real_attempt_kinematics = np.concatenate((real_attempt_positions, real_attempt_velocities, real_attempt_accelerations),axis=1)
 	return real_attempt_kinematics, real_attempt_sensorreads, real_attempt_activations
 
+def run_activations_ws_cl_varANNs_fcn(MuJoCo_model_name, attempt_kinematics, log_address, ANN_structure = "M", timestep=0.01, use_sensory=True, Mj_render=False):
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! the q0 is now the chasis pos. needs to be fixed
+	"""
+	this function runs the predicted activations generatred from running
+	the inverse map on the desired task kinematics
+	"""
+	MuJoCo_model = load_model_from_path("./assets/"+MuJoCo_model_name)
+	sim = MjSim(MuJoCo_model)
+	if Mj_render:
+		viewer = MjViewer(sim)
+		# to move it to the mounted camera
+		viewer.cam.fixedcamid += 1
+		viewer.cam.type = const.CAMERA_FIXED
+		# # to record the video
+		# viewer._record_video = True
+		# # recording path
+		# viewer._video_path = "~/Documents/"+str(time.localtime()[3])+str(time.localtime()[4])+str(time.localtime()[5])
+	sim_state = sim.get_state()
+	control_vector_length=sim.data.ctrl.__len__()
+	sensor_vector_length=sim.data.sensordata.__len__()
+
+
+	number_of_legs = 4
+	number_of_DoFs = number_of_legs*2#sim.data.qpos.__len__()
+	number_of_task_samples=attempt_kinematics.shape[0]
+	real_attempt_positions = np.zeros((number_of_task_samples,number_of_DoFs))
+	real_attempt_velocities = np.zeros((number_of_task_samples,number_of_DoFs))
+	real_attempt_accelerations = np.zeros((number_of_task_samples,number_of_DoFs))
+	real_attempt_activations = np.zeros((number_of_task_samples,control_vector_length))
+	real_attempt_sensorreads = np.zeros((number_of_task_samples,sensor_vector_length))
+	chassis_pos=np.zeros(number_of_task_samples,)
+	sim.set_state(sim_state)
+	tf.keras.backend.clear_session() 
+
+	if ANN_structure=="M":
+		Inverse_ANN_models = number_of_legs*[None]
+		for leg_number in range(number_of_legs):
+			logdir = log_address+"leg_{}/".format(leg_number)
+			Inverse_ANN_models[leg_number] = tf.keras.models.load_model(logdir+"model",compile=False)
+		for ii in range(number_of_task_samples):
+			if ii == 0:
+				last_sensorydata = np.array([0, 0, 0, 0])
+			else:
+				last_sensorydata = sim.data.sensordata
+			for leg_number in range(number_of_legs):
+				Inverse_ANN_model=Inverse_ANN_models[leg_number]
+				if use_sensory:
+					input_data = np.append(attempt_kinematics[ii,[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2, 16+leg_number*2,17+leg_number*2]],last_sensorydata[leg_number])
+				else:
+					input_data = attempt_kinematics[ii,[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2, 16+leg_number*2,17+leg_number*2]]
+				sim.data.ctrl[0+2*leg_number:2+2*leg_number] = Inverse_ANN_model.predict(np.expand_dims(input_data, axis=0))
+			sim.step()
+			joint_names = ["rbthigh", "rbshin"]
+			current_positions_array = np.zeros([len(joint_names),])
+			current_velocity_array = np.zeros([len(joint_names),])
+			current_acceleration_array = np.zeros([len(joint_names),])
+			for joint_name , joint_index in zip(joint_names, range(len(joint_names))):
+				current_positions_array = sim.data.qpos[-8:]#current_positions_array[joint_index] = sim.data.get_joint_qpos(joint_name)
+				current_velocity_array = sim.data.qvel[-8:]#current_velocity_array[joint_index] = sim.data.get_joint_qvel(joint_name)
+				current_acceleration_array = sim.data.qacc[-8:]
+			real_attempt_positions[ii,:] = current_positions_array
+			real_attempt_velocities[ii,:] = current_velocity_array
+			real_attempt_accelerations[ii,:] = current_acceleration_array
+			real_attempt_activations[ii,:] = sim.data.ctrl
+			real_attempt_sensorreads[ii,:] = sim.data.sensordata
+			if Mj_render:
+				viewer.render()
+
+	elif ANN_structure=="S":
+		logdir = log_address+"compound"
+		Inverse_ANN_models = tf.keras.models.load_model(logdir+"model",compile=False)
+		for ii in range(number_of_task_samples):
+			if ii == 0:
+				last_sensorydata = np.array([0, 0, 0, 0])
+			else:
+				last_sensorydata = sim.data.sensordata
+			#import pdb; pdb.set_trace()
+			sim.data.ctrl[:] = est_activations = Inverse_ANN_models.predict(np.array([np.concatenate((attempt_kinematics[ii,:], last_sensorydata))]))
+			sim.step()
+			# collecting kinematics (pos, vel, and acc) from all joints
+			joint_names = ["rbthigh", "rbshin"]
+			current_positions_array = np.zeros([len(joint_names),])
+			current_velocity_array = np.zeros([len(joint_names),])
+			current_acceleration_array = np.zeros([len(joint_names),])
+			for joint_name , joint_index in zip(joint_names, range(len(joint_names))):
+				current_positions_array = sim.data.qpos[-8:]#current_positions_array[joint_index] = sim.data.get_joint_qpos(joint_name)
+				current_velocity_array = sim.data.qvel[-8:]#current_velocity_array[joint_index] = sim.data.get_joint_qvel(joint_name)
+				current_acceleration_array = sim.data.qacc[-8:]
+			real_attempt_positions[ii,:] = current_positions_array
+			real_attempt_velocities[ii,:] = current_velocity_array
+			real_attempt_accelerations[ii,:] = current_acceleration_array
+			real_attempt_activations[ii,:] = sim.data.ctrl
+			real_attempt_sensorreads[ii,:] = sim.data.sensordata
+			if Mj_render:
+				viewer.render()
+	else:
+		ValueError("unacceptable ANN_structure")
+
+	real_attempt_kinematics = np.concatenate((real_attempt_positions, real_attempt_velocities, real_attempt_accelerations),axis=1)
+	return real_attempt_kinematics, real_attempt_sensorreads, real_attempt_activations
+
 def inverse_mapping_ws_fcn(kinematics, sensorydata, activations, epochs=25, log_address=None, **kwargs):
 	"""
 	this function used the babbling data to create an inverse mapping using a
@@ -463,7 +564,7 @@ def inverse_mapping_ws_varANNs_fcn(kinematics, sensorydata, activations, ANN_str
 			checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
 				logdir+"model", monitor='val_loss', verbose=1, save_best_only=True)
 			if use_prior_model:
-				model=tf.keras.models.load_model(logdir+"model",compile=False)
+				model = tf.keras.models.load_model(logdir+"model",compile=False)
 				model.compile(optimizer=tf.keras.optimizers.Adam(0.01),
 				loss='mse',	   # mean squared error
 				metrics=['mse'])  # mean squared error
@@ -512,14 +613,14 @@ def inverse_mapping_ws_varANNs_fcn(kinematics, sensorydata, activations, ANN_str
 		y = activations
 		x_train, x_valid, y_train, y_valid = sklearn.model_selection.train_test_split(x, y, test_size=0.2)
 		
-		logdir = log_address+"compund"
+		logdir = log_address+"compound"
 		tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=logdir)
 		earlystopping_callback = tf.keras.callbacks.EarlyStopping(
 		monitor='val_loss', patience=5, verbose=1)
 		checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
 			logdir+"model", monitor='val_loss', verbose=1, save_best_only=True)
 		if use_prior_model:
-			model = kwargs["prior_model"]
+			model = tf.keras.models.load_model(logdir+"model",compile=False)
 			model.compile(optimizer=tf.keras.optimizers.Adam(0.01),
 			loss='mse',	   # mean squared error
 			metrics=['mse'])  # mean squared error
