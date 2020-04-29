@@ -5,6 +5,7 @@ from matplotlib import pyplot
 from math import cos, sin, atan
 import numpy as np
 
+import tensorflow as tf
 
 class Neuron():
     def __init__(self, x, y):
@@ -81,14 +82,53 @@ class NeuralNetwork():
         pyplot.axis('scaled')
         pyplot.show()
 
+def weight_threshold(weights_matrix, threshold = .7):
+    W_abs=np.abs(weights_matrix)
+    W_max = np.max(W_abs)
+    W_abs_thresholded = W_abs
+    num_of_zeros = 0
+    for col in range(W_abs.shape[1]):
+        for row in range(W_abs.shape[0]):
+            if W_abs_thresholded[row,col] < threshold*W_max:
+                W_abs_thresholded[row,col] = 0
+                num_of_zeros+=1
+    return W_abs_thresholded, num_of_zeros
+
+
+def weight_threshold_colwise(weights_matrix, threshold = .7):
+    W_abs=np.abs(weights_matrix)
+    W_abs_thresholded = W_abs
+    for col in range(W_abs.shape[1]):
+        W_col = W_abs[:,col]
+        W_col_max = np.max(W_col)
+        for row in range(W_abs.shape[0]):
+            if W_col[row] < threshold*W_col_max:
+                W_abs_thresholded[row,col] = 0
+    return W_abs_thresholded
+
+def kin_normalization_fcn(weights_all_0_kinnormalized, num_joints = 8):
+    kinematic_vec_length = 3
+    for kin_order in range (kinematic_vec_length):
+        sub_matrix = weights_all_0_kinnormalized[kin_order*num_joints:(kin_order+1)*num_joints][:]
+        sub_max = np.max(sub_matrix)
+        weights_all_0_kinnormalized[kin_order*num_joints:(kin_order+1)*num_joints][:] = sub_matrix / sub_max
+    # for touch sensors
+    kin_order = kinematic_vec_length
+    #import pdb; pdb.set_trace()
+    sub_matrix = weights_all_0_kinnormalized[kin_order*num_joints:][:]
+    sub_max = np.max(sub_matrix)
+    weights_all_0_kinnormalized[kin_order*num_joints:][:] = sub_matrix / sub_max
+    return weights_all_0_kinnormalized
 
 if __name__ == "__main__":
+    # normalize weights for each kinematical dimention or for each layer in generalo or normilize inputs
     vertical_distance_between_layers = 6
     horizontal_distance_between_neurons = 2
     neuron_radius = 0.5
-    number_of_neurons_in_widest_layer = 4
+    number_of_neurons_in_widest_layer = 28
     network = NeuralNetwork()
     # weights to convert from 10 outputs to 4 (decimal digits to their binary representation)
+    # hard thresholding
     weights1 = np.array([\
                          [0,0,0,0,0,0,0,0,1,1],\
                          [0,0,0,0,1,1,1,1,0,0],\
@@ -97,8 +137,37 @@ if __name__ == "__main__":
 
     weights1 = np.random.random_sample((4,10))
 
+    experiment_ID = "test_run_3"
+    ANN_structure="M"
+    threshold = .7
+    MuJoCo_model_name = "tendon_quadruped_ws_inair.xml"
+    run_no = 0
+    log_address="./log/{}/{}/".format(experiment_ID,run_no)
+    if ANN_structure=="M":
+        logdir = log_address+"leg_0/"
+        num_joints = 2
+    elif ANN_structure=="S":
+        logdir = log_address+"compound/"
+        num_joints = 8
+    else:
+        ValueError("unacceptable ANN_structure")
 
+    Inverse_ANN_models = tf.keras.models.load_model(logdir+"model",compile=False)
+    weights_all = Inverse_ANN_models.get_weights()
+    num_touch_sensors = num_joints/2
+    weights_all_0_kinnormalized = kin_normalization_fcn(weights_all[0], num_joints = num_joints)
+    [W_thresh_2, num_zeros_2] = weight_threshold(weights_all[2], threshold = threshold)
+    [W_thresh_0, num_zeros_0] = weight_threshold(weights_all_0_kinnormalized[:-int(num_touch_sensors)][:], threshold = threshold) # no need to -1 if using no sensory data
+    #W_thresh_0 : 28*24 --- W_thresh_2 : 23*8
+    total_num_elements = np.prod(W_thresh_2.shape)+np.prod(W_thresh_0.shape)
+    nonzero_elements_ratio = (num_zeros_2+num_zeros_0)/total_num_elements
+    print("sparsity ratio:",nonzero_elements_ratio)
+    
+    network.add_layer(W_thresh_2.shape[1], W_thresh_2/np.max(W_thresh_2)) # output layer
+    network.add_layer(W_thresh_0.shape[1], W_thresh_0/np.max(W_thresh_0)) # hidden layer
+    network.add_layer(W_thresh_0.shape[0]) # input layer
 
-    network.add_layer(10, weights1)
-    network.add_layer(4)
+    # network.add_layer(8, weights_all[2]/np.max(weights_all[2]))
+    # network.add_layer(24, weights_all[0][:16,:]/np.max(weights_all[0]))
+    # network.add_layer(16)
     network.draw()
