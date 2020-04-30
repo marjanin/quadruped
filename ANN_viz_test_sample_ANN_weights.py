@@ -4,7 +4,6 @@
 from matplotlib import pyplot
 from math import cos, sin, atan
 import numpy as np
-
 import tensorflow as tf
 
 class Neuron():
@@ -115,59 +114,71 @@ def kin_normalization_fcn(weights_all_0_kinnormalized, num_joints = 8):
     # for touch sensors
     kin_order = kinematic_vec_length
     #import pdb; pdb.set_trace()
-    sub_matrix = weights_all_0_kinnormalized[kin_order*num_joints:][:]
-    sub_max = np.max(sub_matrix)
-    weights_all_0_kinnormalized[kin_order*num_joints:][:] = sub_matrix / sub_max
+    # if sensory exists
+    # sub_matrix = weights_all_0_kinnormalized[kin_order*num_joints:][:]
+    # sub_max = np.max(sub_matrix)
+    # weights_all_0_kinnormalized[kin_order*num_joints:][:] = sub_matrix / sub_max
     return weights_all_0_kinnormalized
 
-if __name__ == "__main__":
-    # normalize weights for each kinematical dimention or for each layer in generalo or normilize inputs
-    vertical_distance_between_layers = 6
-    horizontal_distance_between_neurons = 2
-    neuron_radius = 0.5
-    number_of_neurons_in_widest_layer = 28
-    network = NeuralNetwork()
-    # weights to convert from 10 outputs to 4 (decimal digits to their binary representation)
-    # hard thresholding
-    weights1 = np.array([\
-                         [0,0,0,0,0,0,0,0,1,1],\
-                         [0,0,0,0,1,1,1,1,0,0],\
-                         [0,0,1,1,0,0,1,1,0,0],\
-                         [0,1,0,1,0,1,0,1,0,1]])
-
-    weights1 = np.random.random_sample((4,10))
-
-    experiment_ID = "test_run_3"
-    ANN_structure="M"
-    threshold = .7
-    MuJoCo_model_name = "tendon_quadruped_ws_inair.xml"
-    run_no = 0
-    log_address="./log/{}/{}/".format(experiment_ID,run_no)
-    if ANN_structure=="M":
-        logdir = log_address+"leg_0/"
-        num_joints = 2
-    elif ANN_structure=="S":
-        logdir = log_address+"compound/"
-        num_joints = 8
-    else:
-        ValueError("unacceptable ANN_structure")
-
+def sparsity_calculation_fcn(logdir, threshold, draw_ANN=False):
     Inverse_ANN_models = tf.keras.models.load_model(logdir+"model",compile=False)
     weights_all = Inverse_ANN_models.get_weights()
     num_touch_sensors = num_joints/2
+    #import pdb; pdb.set_trace()
     weights_all_0_kinnormalized = kin_normalization_fcn(weights_all[0], num_joints = num_joints)
     [W_thresh_2, num_zeros_2] = weight_threshold(weights_all[2], threshold = threshold)
-    [W_thresh_0, num_zeros_0] = weight_threshold(weights_all_0_kinnormalized[:-int(num_touch_sensors)][:], threshold = threshold) # no need to -1 if using no sensory data
+    [W_thresh_0, num_zeros_0] = weight_threshold(weights_all_0_kinnormalized[:][:], threshold = threshold) # no need to -1 if using no sensory data
     #W_thresh_0 : 28*24 --- W_thresh_2 : 23*8
     total_num_elements = np.prod(W_thresh_2.shape)+np.prod(W_thresh_0.shape)
-    nonzero_elements_ratio = (num_zeros_2+num_zeros_0)/total_num_elements
-    print("sparsity ratio:",nonzero_elements_ratio)
-    
-    network.add_layer(W_thresh_2.shape[1], W_thresh_2/np.max(W_thresh_2)) # output layer
-    network.add_layer(W_thresh_0.shape[1], W_thresh_0/np.max(W_thresh_0)) # hidden layer
-    network.add_layer(W_thresh_0.shape[0]) # input layer
+    sparsity_ratio = (num_zeros_2+num_zeros_0)/total_num_elements
+    # drawing the ANN
+    if draw_ANN:
+        vertical_distance_between_layers = 6
+        horizontal_distance_between_neurons = 2
+        neuron_radius = 0.5
+        number_of_neurons_in_widest_layer = 28
+        network = NeuralNetwork()
+        network.add_layer(W_thresh_2.shape[1], W_thresh_2/np.max(W_thresh_2)) # output layer
+        network.add_layer(W_thresh_0.shape[1], W_thresh_0/np.max(W_thresh_0)) # hidden layer
+        network.add_layer(W_thresh_0.shape[0]) # input layer
+        network.draw()
+    return sparsity_ratio
 
-    # network.add_layer(8, weights_all[2]/np.max(weights_all[2]))
-    # network.add_layer(24, weights_all[0][:16,:]/np.max(weights_all[0]))
-    # network.add_layer(16)
-    network.draw()
+if __name__ == "__main__":
+    # normalize weights for each kinematical dimention or for each layer in generalo or normilize inputs
+    experiment_ID_base = "sparsityrun_test2_par"
+    ANN_structure="S"#
+    task_type="cyclical"
+    experiment_ID = "wo_Sensory_"+ANN_structure+"_ANN_"+task_type
+    save_log_path = experiment_ID_base+"/"+experiment_ID#
+    threshold = 0.5#
+    total_run_no=50
+
+    if ANN_structure=="M":
+        number_of_legs = 4
+        num_joints = 2
+        sparsity_ratios = np.zeros((number_of_legs, total_run_no))
+        for leg in range(number_of_legs):
+            for run_no in range(total_run_no):
+                print("Leg_{}_MC_no: {}".format(leg, run_no))
+                log_address="./log/{}/{}/".format(save_log_path,run_no)
+                logdir = log_address+"leg_{}/".format(leg)
+                sparsity_ratios[leg, run_no] = sparsity_calculation_fcn(logdir, threshold, draw_ANN=False)
+            mean_sparsity_ratios = np.mean(np.mean(sparsity_ratios))
+    elif ANN_structure=="S":
+        num_joints = 8
+        sparsity_ratios = np.zeros(total_run_no)
+        for run_no in range(total_run_no):
+            print("MC_no:", run_no)
+            log_address="./log/{}/{}/".format(save_log_path,run_no)
+            logdir = log_address+"compound/"
+            sparsity_ratios[run_no] = sparsity_calculation_fcn(logdir, threshold, draw_ANN=False)
+        mean_sparsity_ratios = np.mean(sparsity_ratios)
+    else:
+        ValueError("unacceptable ANN_structure")
+    
+        #print("sparsity ratio:",nonzero_elements_ratio)
+        
+    print("mean:", mean_sparsity_ratios)
+    
+#import pdb; pdb.set_trace()
