@@ -342,7 +342,7 @@ def run_activations_ws_cl_varANNs_fcn(MuJoCo_model_name, attempt_kinematics, log
 			else:
 				last_sensorydata = sim.data.sensordata
 			for leg_number in range(number_of_legs):
-				Inverse_ANN_model=Inverse_ANN_models[leg_number]
+				Inverse_ANN_model = Inverse_ANN_models[leg_number]
 				if use_sensory:
 					input_data = np.append(attempt_kinematics[ii,[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2, 16+leg_number*2,17+leg_number*2]],last_sensorydata[leg_number])
 				else:
