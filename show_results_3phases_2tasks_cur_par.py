@@ -73,19 +73,19 @@ if save_figures:
 	fig2.savefig("./results/{}figure2.png".format(experiment_ID_base), dpi=dpi)
 plt.show(block=True)
 
-show_video = False
-use_sensory = True
-task_type = "p2p"
-if use_sensory:
-	experiment_ID_base2 = experiment_ID_base+"w_sensory_"
-else:
-	experiment_ID_base2 = experiment_ID_base+"wo_sensory_"
-experiment_ID = experiment_ID_base2 + task_type
+# show_video = False
+# use_sensory = True
+# task_type = "p2p"
+# if use_sensory:
+# 	experiment_ID_base2 = experiment_ID_base+"w_sensory_"
+# else:
+# 	experiment_ID_base2 = experiment_ID_base+"wo_sensory_"
+# experiment_ID = experiment_ID_base2 + task_type
 
-run_no = 0
-MuJoCo_model_names = ["tendon_quadruped_ws_inair.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloorloaded.xml"]
-if show_video:
-	for MuJoCo_model_name , ii in zip(MuJoCo_model_names, range(len(MuJoCo_model_names))):
-		tmp = test_a_task(MuJoCo_model_name, experiment_ID, run_no, use_sensory=use_sensory,  Mj_render=True, task_type = task_type)
+# run_no = 0
+# MuJoCo_model_names = ["tendon_quadruped_ws_inair.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloorloaded.xml"]
+# if show_video:
+# 	for MuJoCo_model_name , ii in zip(MuJoCo_model_names, range(len(MuJoCo_model_names))):
+# 		tmp = test_a_task(MuJoCo_model_name, experiment_ID, run_no, use_sensory=use_sensory,  Mj_render=True, task_type = task_type)
 
-#import pdb; pdb.set_trace()
+# #import pdb; pdb.set_trace()

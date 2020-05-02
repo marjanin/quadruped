@@ -29,7 +29,7 @@ def L2_learn_quadruped_experiment(run_no):
 				if use_sensory:
 					experiment_ID = "w_sensory_"+ANN_structure+"_ANN_"+task_type
 				else:
-					experiment_ID = "wo_Sensory_"+ANN_structure+"_ANN_"+task_type
+					experiment_ID = "wo_sensory_"+ANN_structure+"_ANN_"+task_type
 				learning_errors = np.zeros((len(MuJoCo_model_names), number_of_refinements+1))
 				task_errors = np.zeros(len(MuJoCo_model_names))
 				kinematics_all = sensory_all = activations_all = []
@@ -55,7 +55,7 @@ def L2_learn_quadruped_experiment(run_no):
 ## main code
 pool = mp.Pool(mp.cpu_count())
 print(mp.cpu_count())
-number_of_all_runs = 50
+number_of_all_runs = 3
 pool.map_async(L2_learn_quadruped_experiment, [run_no for run_no in range(number_of_all_runs)])
 pool.close()
 pool.join()
