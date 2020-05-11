@@ -46,7 +46,7 @@
     <muscle ctrllimited="true" ctrlrange="0 1" force="100" />
   </default>
   <size nstack="300000" nuser_geom="1"/>
-  <option gravity="0 0 -9.81" timestep="0.01"/> <!-- timestep=0.001 to eliminate shaking -->
+  <option gravity="0 0 -9.81" timestep="0.005"/> <!-- timestep=0.001 to eliminate shaking -->
   <!-- sky and floor -->
   <asset>
     <texture builtin="gradient" height="100" rgb1="1 1 1" rgb2="0 0 0" type="skybox" width="100"/>
@@ -73,7 +73,6 @@
 
       <!-- right -->
       <!-- torso/rbthigh -->
-      
       <site name="SITE_RB_0" pos="-0.35 -0.25 0.25" size="0.01"/>
       <site name="SITE_RB_1" pos="-0.65 -0.25 0.15" size="0.01"/>
       <site name="SITE_RB_2" pos="-0.35 -0.25 0.15" size="0.01"/>   

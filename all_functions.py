@@ -8,8 +8,7 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 
 ## executive functions
-def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, sensory_all, activations_all, number_of_refinements, use_sensory=True, task_type="cyclical", ANN_structure="M", actuation_type="JD"):
-	dt=.01 # time step
+def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, sensory_all, activations_all, number_of_refinements, use_sensory=True, task_type="cyclical", ANN_structure="M", actuation_type="JD",dt=.01):
 	babbling = True
 	number_of_legs = 4
 	if ANN_structure == "M":
@@ -38,13 +37,13 @@ def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, 
 		dt=dt)
 	est_activations = babbling_signals
 	if task_type == "cyclical":
-		attempt_kinematics = create_cyclical_movements_fcn(omega = 3, attempt_length = refinement_duration_in_seconds, timestep = dt)
+		attempt_kinematics = create_cyclical_movements_fcn(omega = 3, attempt_length = refinement_duration_in_seconds, dt=dt)
 	elif task_type == "p2p":
-		attempt_kinematics = create_p2p_movements_fcn(number_of_steps = 10, attempt_length = refinement_duration_in_seconds, timestep = dt)
+		attempt_kinematics = create_p2p_movements_fcn(number_of_steps = 10, attempt_length = refinement_duration_in_seconds, dt=dt)
 	else:
 		ValueError("unacceptable task")
 	[babbling_kinematics, babbling_sensorreads, babbling_activations] = run_activations_ws_ol_fcn(
-	MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=False) # this should be ol
+	MuJoCo_model_name, est_activations, Mj_render=False) # this should be ol
 	if kinematics_all == []: # initialization
 		kinematics_all = babbling_kinematics
 		sensory_all = babbling_sensorreads
@@ -62,7 +61,7 @@ def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, 
 	errors = []
 	for ii in range(number_of_refinements):
 		[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_varANNs_fcn(
-			MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), ANN_structure = ANN_structure, timestep=dt, use_sensory=use_sensory, Mj_render=False, actuation_type=actuation_type) # this should be cl
+			MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), ANN_structure = ANN_structure, use_sensory=use_sensory, Mj_render=False, actuation_type=actuation_type) # this should be cl
 		RMSE = np.sqrt(np.mean(np.square((returned_kinematics[int(returned_kinematics.shape[0]/2):,:8]-attempt_kinematics[int(attempt_kinematics.shape[0]/2):,:8])))) # RMSE on the last half of the trial
 		print("Run #:", ii+1)
 		print("RMSE:", RMSE)
@@ -76,28 +75,27 @@ def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, 
 		kinematics_all, sensory_all, activations_all, ANN_structure=ANN_structure, epochs=5, log_address="./log/{}/{}/".format(experiment_ID,run_no), use_sensory=use_sensory, use_prior_model=True, actuation_type=actuation_type) #
 	# test_run (no-training or storing the data)
 	[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_varANNs_fcn(
-		MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), ANN_structure = ANN_structure, timestep=dt, use_sensory=use_sensory, Mj_render=False, actuation_type=actuation_type) # this should be cl
+		MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), ANN_structure = ANN_structure, use_sensory=use_sensory, Mj_render=False, actuation_type=actuation_type) # this should be cl
 	RMSE = np.sqrt(np.mean(np.square((returned_kinematics[int(returned_kinematics.shape[0]/2):,:8]-attempt_kinematics[int(attempt_kinematics.shape[0]/2):,:8]))))
 	print("Run #:", number_of_refinements+1)
 	print("RMSE:", RMSE)
 	errors.append(RMSE)
 	return errors, kinematics_all, sensory_all, activations_all
 
-def test_a_task(MuJoCo_model_name, experiment_ID, run_no, use_sensory=True, Mj_render=False, task_type = "cyclical", ANN_structure="M"):
+def test_a_task(MuJoCo_model_name, experiment_ID, run_no, use_sensory=True, Mj_render=False, task_type = "cyclical", ANN_structure="M", dt=0.01, actuation_type="JD"):
 	refinement_duration_in_seconds = 10
-	dt = .01
 	if task_type == "cyclical":
-		attempt_kinematics = create_cyclical_movements_fcn(omega = 3, attempt_length = refinement_duration_in_seconds, timestep = dt)
+		attempt_kinematics = create_cyclical_movements_fcn(omega = 3, attempt_length = refinement_duration_in_seconds, dt=dt)
 	elif task_type == "p2p":
-		attempt_kinematics = create_p2p_movements_fcn(number_of_steps = 10, attempt_length = refinement_duration_in_seconds, timestep = dt)
+		attempt_kinematics = create_p2p_movements_fcn(number_of_steps = 10, attempt_length = refinement_duration_in_seconds, dt=dt)
 	else:
 		ValueError("unacceptable task")
 	[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_varANNs_fcn(
-			MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), ANN_structure = ANN_structure, timestep=dt, use_sensory=use_sensory, Mj_render=Mj_render, actuation_type=actuation_type) # this should be cl
+			MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), ANN_structure = ANN_structure, use_sensory=use_sensory, Mj_render=Mj_render, actuation_type=actuation_type) # this should be cl
 	RMSE = np.sqrt(np.mean(np.square((returned_kinematics[int(returned_kinematics.shape[0]/2):,:8]-attempt_kinematics[int(attempt_kinematics.shape[0]/2):,:8])))) # RMSE on the last half of the trial
 	return RMSE
 ## lower level functions
-def babbling_input_gen_fcn(number_of_signals, signal_duration_in_seconds, pass_chance, max_in, min_in, dt):
+def babbling_input_gen_fcn(number_of_signals, signal_duration_in_seconds, pass_chance, max_in, min_in, dt=.01):
 	"""
 	babbling_input_gen_fcn generates the babbling input to be fed to the plant
 
@@ -120,7 +118,7 @@ def babbling_input_gen_fcn(number_of_signals, signal_duration_in_seconds, pass_c
 		babbling_signals[:,jj]=gen_input
 	return babbling_signals
 		
-def run_activations_ws_ol_fcn(MuJoCo_model_name, est_activations, timestep=0.01, Mj_render=False):
+def run_activations_ws_ol_fcn(MuJoCo_model_name, est_activations, Mj_render=False):
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! the q0 is now the chasis pos. needs to be fixed
 	"""
 	this function runs the predicted activations generatred from running
@@ -311,7 +309,7 @@ def inverse_mapping_ws_varANNs_fcn(kinematics, sensorydata, activations, ANN_str
 		ANNs=tf.keras.models.load_model(logdir+"model",compile=False)
 	return ANNs
 
-def run_activations_ws_cl_varANNs_fcn(MuJoCo_model_name, attempt_kinematics, log_address, ANN_structure = "M", timestep=0.01, use_sensory=True, Mj_render=False, actuation_type="JD"):
+def run_activations_ws_cl_varANNs_fcn(MuJoCo_model_name, attempt_kinematics, log_address, ANN_structure = "M", use_sensory=True, Mj_render=False, actuation_type="JD"):
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! the q0 is now the chasis pos. needs to be fixed
 	"""
 	this function runs the predicted activations generatred from running
@@ -419,8 +417,8 @@ def run_activations_ws_cl_varANNs_fcn(MuJoCo_model_name, attempt_kinematics, log
 	real_attempt_kinematics = np.concatenate((real_attempt_positions, real_attempt_velocities, real_attempt_accelerations),axis=1)
 	return real_attempt_kinematics, real_attempt_sensorreads, real_attempt_activations
 
-def sinusoidal_CPG_fcn(w = 1, phi = 0, lower_band = -1, upper_band = 1, attempt_length = 5 , timestep = 0.01):
-	number_of_attempt_samples = int(np.round(attempt_length/timestep))
+def sinusoidal_CPG_fcn(w = 1, phi = 0, lower_band = -1, upper_band = 1, attempt_length = 5 , dt=0.01):
+	number_of_attempt_samples = int(np.round(attempt_length/dt))
 	q0 = np.zeros(number_of_attempt_samples)
 	for ii in range(number_of_attempt_samples):
 		q0[ii]=np.sin((2*np.pi*w*ii/(number_of_attempt_samples/attempt_length))+phi)
@@ -429,8 +427,8 @@ def sinusoidal_CPG_fcn(w = 1, phi = 0, lower_band = -1, upper_band = 1, attempt_
 	q0 = q0 + lower_band
 	return q0
 
-def p2p_positions_gen_fcn(low, high, number_of_positions, duration_of_each_position, timestep):
-	sample_no_of_each_position = duration_of_each_position / timestep
+def p2p_positions_gen_fcn(low, high, number_of_positions, duration_of_each_position, dt=.01):
+	sample_no_of_each_position = duration_of_each_position / dt
 	random_array = np.zeros(int(np.round(number_of_positions*sample_no_of_each_position)),)
 	for ii in range(number_of_positions):
 		random_value = ((high-low)*(np.random.rand(1)[0])) + low
@@ -438,13 +436,13 @@ def p2p_positions_gen_fcn(low, high, number_of_positions, duration_of_each_posit
 		random_array[int(ii*sample_no_of_each_position):int((ii+1)*sample_no_of_each_position)] = random_array_1position
 	return random_array
 
-def create_cyclical_movements_fcn(omega = 1.5, attempt_length = 10, timestep = 0.01):
-	q0a = sinusoidal_CPG_fcn(w = omega, phi = 0, lower_band = -.8, upper_band = .6, attempt_length = attempt_length , timestep = 0.01)
-	q1a = sinusoidal_CPG_fcn(w = omega, phi = np.pi/2, lower_band = -1, upper_band = .8, attempt_length = attempt_length , timestep = 0.01)
+def create_cyclical_movements_fcn(omega=1.5, attempt_length=10, dt=0.01):
+	q0a = sinusoidal_CPG_fcn(w = omega, phi = 0, lower_band = -.8, upper_band = .6, attempt_length = attempt_length , dt=dt)
+	q1a = sinusoidal_CPG_fcn(w = omega, phi = np.pi/2, lower_band = -1, upper_band = .8, attempt_length = attempt_length , dt=dt)
 
-	q0b = sinusoidal_CPG_fcn(w = omega, phi = np.pi, lower_band = -.8, upper_band = .6, attempt_length = attempt_length , timestep = 0.01)
-	q1b = sinusoidal_CPG_fcn(w = omega, phi = -np.pi/2, lower_band = -1, upper_band = .8, attempt_length = attempt_length , timestep = 0.01)
-	attempt_kinematics_RB = positions_to_kinematics_fcn(q0a, q1a, timestep)
+	q0b = sinusoidal_CPG_fcn(w = omega, phi = np.pi, lower_band = -.8, upper_band = .6, attempt_length = attempt_length , dt=dt)
+	q1b = sinusoidal_CPG_fcn(w = omega, phi = -np.pi/2, lower_band = -1, upper_band = .8, attempt_length = attempt_length , dt=dt)
+	attempt_kinematics_RB = positions_to_kinematics_fcn(q0a, q1a, dt)
 	# # plotting
 	# plt.plot(q0a[0:100])
 	# plt.title('Proximal')
@@ -457,38 +455,38 @@ def create_cyclical_movements_fcn(omega = 1.5, attempt_length = 10, timestep = 0
 	# plt.xlabel('Sample #')
 	# plt.show(block=True)
 
-	attempt_kinematics_RF = positions_to_kinematics_fcn(q0b, q1b, timestep)
-	attempt_kinematics_LB = positions_to_kinematics_fcn(q0b, q1b, timestep)
-	attempt_kinematics_LF = positions_to_kinematics_fcn(q0a, q1a, timestep)
+	attempt_kinematics_RF = positions_to_kinematics_fcn(q0b, q1b, dt)
+	attempt_kinematics_LB = positions_to_kinematics_fcn(q0b, q1b, dt)
+	attempt_kinematics_LF = positions_to_kinematics_fcn(q0a, q1a, dt)
 	attempt_kinematics = combine_4leg_kinematics(attempt_kinematics_RB, attempt_kinematics_RF, attempt_kinematics_LB, attempt_kinematics_LF)
 	return attempt_kinematics
 
-def create_p2p_movements_fcn(number_of_steps = 10, attempt_length = 10, timestep = 0.01):
+def create_p2p_movements_fcn(number_of_steps = 10, attempt_length = 10, dt=0.01):
 	step_duration = attempt_length/number_of_steps
-	q0a = p2p_positions_gen_fcn(low = -.8, high = .6, number_of_positions = number_of_steps, duration_of_each_position = step_duration, timestep = 0.01)
-	q1a = p2p_positions_gen_fcn(low = -1, high = .8, number_of_positions = number_of_steps, duration_of_each_position = step_duration, timestep = 0.01)
+	q0a = p2p_positions_gen_fcn(low = -.8, high = .6, number_of_positions = number_of_steps, duration_of_each_position = step_duration, dt=dt)
+	q1a = p2p_positions_gen_fcn(low = -1, high = .8, number_of_positions = number_of_steps, duration_of_each_position = step_duration, dt=dt)
 
-	q0b = p2p_positions_gen_fcn(low = -.8, high = .6, number_of_positions = number_of_steps, duration_of_each_position = step_duration, timestep = 0.01)
-	q1b = p2p_positions_gen_fcn(low = -1, high = .8, number_of_positions = number_of_steps, duration_of_each_position = step_duration, timestep = 0.01)
+	q0b = p2p_positions_gen_fcn(low = -.8, high = .6, number_of_positions = number_of_steps, duration_of_each_position = step_duration, dt=dt)
+	q1b = p2p_positions_gen_fcn(low = -1, high = .8, number_of_positions = number_of_steps, duration_of_each_position = step_duration, dt=dt)
 	
-	attempt_kinematics_RB = positions_to_kinematics_fcn(q0a, q1a, timestep)
-	attempt_kinematics_RF = positions_to_kinematics_fcn(q0b, q1b, timestep)
-	attempt_kinematics_LB = positions_to_kinematics_fcn(q0b, q1b, timestep)
-	attempt_kinematics_LF = positions_to_kinematics_fcn(q0a, q1a, timestep)
+	attempt_kinematics_RB = positions_to_kinematics_fcn(q0a, q1a, dt)
+	attempt_kinematics_RF = positions_to_kinematics_fcn(q0b, q1b, dt)
+	attempt_kinematics_LB = positions_to_kinematics_fcn(q0b, q1b, dt)
+	attempt_kinematics_LF = positions_to_kinematics_fcn(q0a, q1a, dt)
 	attempt_kinematics = combine_4leg_kinematics(attempt_kinematics_RB, attempt_kinematics_RF, attempt_kinematics_LB, attempt_kinematics_LF)
 	return attempt_kinematics
 
 
-def positions_to_kinematics_fcn(q0, q1, timestep = 0.01):
+def positions_to_kinematics_fcn(q0, q1, dt=0.01):
 	kinematics=np.transpose(
 	np.concatenate(
 		(
 			[[q0],
 			[q1],
-			[np.gradient(q0)/timestep],
-			[np.gradient(q1)/timestep],
-			[np.gradient(np.gradient(q0)/timestep)/timestep],
-			[np.gradient(np.gradient(q1)/timestep)/timestep]]),
+			[np.gradient(q0)/dt],
+			[np.gradient(q1)/dt],
+			[np.gradient(np.gradient(q0)/dt)/dt],
+			[np.gradient(np.gradient(q1)/dt)/dt]]),
 		axis=0
 		)
 	)

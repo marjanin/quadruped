@@ -6,8 +6,9 @@ import multiprocessing as mp
 from all_functions import *
 
 def L2_learn_quadruped_experiment(run_no):
-	experiment_ID_base = 'cur3_V4_TD_test'
+	experiment_ID_base = 'cur3_V4_TD_test5'
 # Create target Directory if don't exist
+	dt=.005
 	if not os.path.exists('./results/'+experiment_ID_base):
 		os.mkdir('./results/'+experiment_ID_base)
 	all_sensory_cases = [True]
@@ -21,7 +22,7 @@ def L2_learn_quadruped_experiment(run_no):
 				np.random.seed(run_no)
 				if cur == "_E2H":
 					MuJoCo_model_names =\
-						["tendon_quadruped_ws_inair.xml"]
+						["tendon_quadruped_ws_onfloor.xml"]
 				elif cur == "_H2E":
 					MuJoCo_model_names =\
 						["tendon_quadruped_ws_onfloorloaded.xml",
@@ -52,12 +53,14 @@ def L2_learn_quadruped_experiment(run_no):
 								use_sensory=use_sensory,
 								task_type=task_type,
 								ANN_structure=ANN_structure,
-								actuation_type=actuation_type)
+								actuation_type=actuation_type,
+								dt=dt)
 						learning_errors[ii,:] = errors
 					for MuJoCo_model_name , ii in zip(MuJoCo_model_names, range(len(MuJoCo_model_names))):
-						task_errors[ii] = test_a_task(MuJoCo_model_name, save_log_path, run_no, use_sensory=use_sensory, task_type=task_type, ANN_structure=ANN_structure, Mj_render=True)
+						task_errors[ii] = test_a_task(MuJoCo_model_name, save_log_path, run_no, use_sensory=use_sensory, task_type=task_type, ANN_structure=ANN_structure, Mj_render=True, dt=dt, actuation_type=actuation_type)
 					np.save('./results/{}/MC{}_{}_babble_and_refine_results'.format(experiment_ID_base, run_no, experiment_ID),learning_errors)
 					np.save('./results/{}/MC{}_{}_task_results'.format(experiment_ID_base, run_no, experiment_ID),task_errors)
+					print(learning_errors)
 # main code
 # pool = mp.Pool(mp.cpu_count())
 # print(mp.cpu_count())
@@ -67,4 +70,4 @@ def L2_learn_quadruped_experiment(run_no):
 # pool.join()
 
 #import pdb; pdb.set_trace()
-L2_learn_quadruped_experiment(0)
+L2_learn_quadruped_experiment(1)
