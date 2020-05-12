@@ -119,7 +119,7 @@ def kin_normalization_fcn(weights_all_0_kinnormalized, num_joints = 8):
     # weights_all_0_kinnormalized[kin_order*num_joints:][:] = sub_matrix / sub_max
     return weights_all_0_kinnormalized
 
-def sparsity_calculation_fcn(logdir, threshold, draw_ANN=False):
+def sparsity_calculation_fcn(logdir, threshold, draw_ANN=False, num_joints = 8):
     Inverse_ANN_models = tf.keras.models.load_model(logdir+"model",compile=False)
     weights_all = Inverse_ANN_models.get_weights()
     tf.keras.backend.clear_session()
@@ -133,10 +133,6 @@ def sparsity_calculation_fcn(logdir, threshold, draw_ANN=False):
     sparsity_ratio = (num_zeros_2+num_zeros_0)/total_num_elements
     # drawing the ANN
     if draw_ANN:
-        vertical_distance_between_layers = 6
-        horizontal_distance_between_neurons = 2
-        neuron_radius = 0.5
-        number_of_neurons_in_widest_layer = 28
         network = NeuralNetwork()
         network.add_layer(W_thresh_2.shape[1], W_thresh_2/np.max(W_thresh_2)) # output layer
         network.add_layer(W_thresh_0.shape[1], W_thresh_0/np.max(W_thresh_0)) # hidden layer
@@ -145,58 +141,62 @@ def sparsity_calculation_fcn(logdir, threshold, draw_ANN=False):
     return sparsity_ratio
 
 if __name__ == "__main__":
-    experiment_ID_base = "sparsityrun_V1_par"
-    ANN_structures = ["M"]
-    for ANN_structure in ANN_structures:
-        task_type="cyclical"
-        experiment_ID = "wo_Sensory_"+ANN_structure+"_ANN_"+task_type
-        save_log_path = experiment_ID_base+"/"+experiment_ID#
-        total_run_no=50
-        thresholds = np.arange(0,1.1,.05)
-        means=np.zeros(len(thresholds))
-        stds=np.zeros(len(thresholds))
-        sparsity_ratios_all = np.zeros((total_run_no,len(thresholds)))
-        for threshold, threshold_num in zip(thresholds, range(len(thresholds))):
-            if ANN_structure=="M":
-                number_of_legs = 4
-                num_joints = 2
-                sparsity_ratios = np.zeros((number_of_legs, total_run_no))
-                std_sparsity_ratios = np.zeros((number_of_legs, total_run_no))
-                for leg in range(number_of_legs):
-                    for run_no in range(total_run_no):
-                        print("Leg_{}_MC_no: {}".format(leg, run_no))
-                        log_address="./log/{}/{}/".format(save_log_path,run_no)
-                        logdir = log_address+"leg_{}/".format(leg)
-                        sparsity_ratios[leg, run_no] = sparsity_calculation_fcn(logdir, threshold, draw_ANN=False)
-                        sparsity_ratios_all[run_no,threshold_num] = sparsity_calculation_fcn(logdir, threshold, draw_ANN=False)
-                mean_sparsity_ratios = sparsity_ratios.mean()
-                std_sparsity_ratios = sparsity_ratios.std(axis=1).mean() # calculated across mc runs and averaged across legs
-            elif ANN_structure=="S":
-                num_joints = 8
-                sparsity_ratios = np.zeros(total_run_no)
-                std_sparsity_ratios = np.zeros(total_run_no)
-                for run_no in range(total_run_no):
-                    print("MC_no:", run_no)
-                    log_address="./log/{}/{}/".format(save_log_path,run_no)
-                    logdir = log_address+"compound/"
-                    sparsity_ratios[run_no] = sparsity_calculation_fcn(logdir, threshold, draw_ANN=False)
-                    sparsity_ratios_all[run_no,threshold_num] = sparsity_calculation_fcn(logdir, threshold, draw_ANN=False)
-                mean_sparsity_ratios = sparsity_ratios.mean()
-                std_sparsity_ratios = sparsity_ratios.std()
-            else:
-                ValueError("unacceptable ANN_structure")
-            means[threshold_num] = mean_sparsity_ratios
-            stds[threshold_num] = std_sparsity_ratios
-        np.save("results/"+experiment_ID_base+"/all_means_{}.npy".format(ANN_structure), means)
-        np.save("results/"+experiment_ID_base+"/all_stds_{}.npy".format(ANN_structure), stds)
-        np.save("results/"+experiment_ID_base+"/all_sparsities_{}.npy".format(ANN_structure), sparsity_ratios_all)
+    experiment_ID_base = "cur3_V4_TD_fulltest1"
+    ANN_structures = ["S","M"]
+    cur = "_E2H"
+    task_type="cyclical"
+    just_plot = True
 
-    means_S = np.load("results/"+experiment_ID_base+"/all_means_S.npy")
-    stds_S = np.load("results/"+experiment_ID_base+"/all_stds_S.npy")
-    means_M = np.load("results/"+experiment_ID_base+"/all_means_M.npy")
-    stds_M = np.load("results/"+experiment_ID_base+"/all_stds_M.npy")
-    sparsities_all_S = np.load("results/"+experiment_ID_base+"/all_sparsities_S.npy")
-    sparsities_all_M = np.load("results/"+experiment_ID_base+"/all_sparsities_M.npy")
+    thresholds = np.arange(0,1.1,.05)
+    if not just_plot:
+        for ANN_structure in ANN_structures:
+            experiment_ID = "wo_Sensory_"+ANN_structure+"_ANN_"+task_type+cur
+            save_log_path = experiment_ID_base+"/"+experiment_ID#
+            total_run_no=50        
+            means=np.zeros(len(thresholds))
+            stds=np.zeros(len(thresholds))
+            sparsity_ratios_all = np.zeros((total_run_no,len(thresholds)))
+            for threshold, threshold_num in zip(thresholds, range(len(thresholds))):
+                if ANN_structure=="M":
+                    number_of_legs = 4
+                    num_joints = 2
+                    sparsity_ratios = np.zeros((number_of_legs, total_run_no))
+                    std_sparsity_ratios = np.zeros((number_of_legs, total_run_no))
+                    for leg in range(number_of_legs):
+                        for run_no in range(total_run_no):
+                            print("Threshold: {}, Leg: {}, MC_no: {}".format(threshold, leg, run_no))
+                            log_address="./log/{}/{}/".format(save_log_path,run_no)
+                            logdir = log_address+"leg_{}/".format(leg)
+                            sparsity_ratios[leg, run_no] = sparsity_calculation_fcn(logdir, threshold, draw_ANN=False)
+                            sparsity_ratios_all[run_no,threshold_num] = sparsity_calculation_fcn(logdir, threshold, draw_ANN=False)
+                    mean_sparsity_ratios = sparsity_ratios.mean()
+                    std_sparsity_ratios = sparsity_ratios.std(axis=1).mean() # calculated across mc runs and averaged across legs
+                elif ANN_structure=="S":
+                    num_joints = 8
+                    sparsity_ratios = np.zeros(total_run_no)
+                    std_sparsity_ratios = np.zeros(total_run_no)
+                    for run_no in range(total_run_no):
+                        print("Threshold: {}, MC_no: {}".format( threshold,run_no))
+                        log_address="./log/{}/{}/".format(save_log_path,run_no)
+                        logdir = log_address+"compound/"
+                        sparsity_ratios[run_no] = sparsity_calculation_fcn(logdir, threshold, draw_ANN=False)
+                        sparsity_ratios_all[run_no,threshold_num] = sparsity_calculation_fcn(logdir, threshold, draw_ANN=False)
+                    mean_sparsity_ratios = sparsity_ratios.mean()
+                    std_sparsity_ratios = sparsity_ratios.std()
+                else:
+                    ValueError("unacceptable ANN_structure")
+                means[threshold_num] = mean_sparsity_ratios
+                stds[threshold_num] = std_sparsity_ratios
+            np.save("results/"+experiment_ID_base+"/sparsity_all_means_{}.npy".format(ANN_structure), means)
+            np.save("results/"+experiment_ID_base+"/sparsity_all_stds_{}.npy".format(ANN_structure), stds)
+            np.save("results/"+experiment_ID_base+"/sparsity_all_sparsities_{}.npy".format(ANN_structure), sparsity_ratios_all)
+
+    means_S = np.load("results/"+experiment_ID_base+"/sparsity_all_means_S.npy")
+    stds_S = np.load("results/"+experiment_ID_base+"/sparsity_all_stds_S.npy")
+    means_M = np.load("results/"+experiment_ID_base+"/sparsity_all_means_M.npy")
+    stds_M = np.load("results/"+experiment_ID_base+"/sparsity_all_stds_M.npy")
+    sparsities_all_S = np.load("results/"+experiment_ID_base+"/sparsity_all_sparsities_S.npy")
+    sparsities_all_M = np.load("results/"+experiment_ID_base+"/sparsity_all_sparsities_M.npy")
     
     p_values = np.zeros(len(thresholds))
     F_values = np.zeros(len(thresholds))
@@ -204,7 +204,7 @@ if __name__ == "__main__":
     pyplot.figure(figsize = (7,5))
     pyplot.errorbar(thresholds[3:-2],1-means_S[3:-2], yerr=stds_S[3:-2], capsize=3)
     pyplot.errorbar(thresholds[3:-2],1-means_M[3:-2], yerr=stds_M[3:-2], capsize=3)
-    pyplot.legend(["Single ANN","Individual ANNs"])
+    pyplot.legend(["single ANN","multiple ANNs"])
     # pyplot.errorbar(thresholds[3:-2],(1-means_M[3:-2])/(1-means_S[3:-2]), capsize=3)
 
     # pyplot.figure()
@@ -221,5 +221,31 @@ if __name__ == "__main__":
     pyplot.ylabel("density ratio")
     pyplot.title("ANN densities vs. weight reject threshold")
     pyplot.show(block=True)
+
+    draw_ANN = True
+    if draw_ANN:
+        vertical_distance_between_layers = 6
+        horizontal_distance_between_neurons = 2
+        neuron_radius = 0.5
+        number_of_neurons_in_widest_layer = 28
+
+        threshold = .5
+        run_no = 1
+        experiment_ID = "wo_Sensory_"+ANN_structures[0]+"_ANN_"+task_type+cur
+        save_log_path = experiment_ID_base+"/"+experiment_ID#
+        log_address="./log/{}/{}/".format(save_log_path,run_no)
+        logdir = log_address+"compound/"
+        sparsity = sparsity_calculation_fcn(logdir, threshold, draw_ANN=draw_ANN)
+        print("sparsity: ", sparsity)
+
+        experiment_ID = "wo_Sensory_"+ANN_structures[1]+"_ANN_"+task_type+cur
+        save_log_path = experiment_ID_base+"/"+experiment_ID#
+        log_address="./log/{}/{}/".format(save_log_path,run_no)
+        leg = 0
+        logdir = log_address+"leg_{}/".format(leg)
+        sparsity = sparsity_calculation_fcn(logdir, threshold, draw_ANN=draw_ANN, num_joints = 2)
+        print("sparsity: ", sparsity)
+
+    
     # import pdb; pdb.set_trace()
 

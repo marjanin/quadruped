@@ -6,9 +6,9 @@ experiment_ID_base = 'cur3_V4_TD_fulltest1'
 curriculums = ["_E2H", "_H2E"]
 ANN_structures = ["S","M"]
 task_types = ["cyclical", "p2p"]
-task_type = task_types[0]
-curriculum = curriculums[0]
-ANN_structure = ANN_structures[1]
+task_type = task_types[1]
+curriculum = curriculums[1]
+ANN_structure = ANN_structures[0]
 number_of_refinements = 8
 number_of_all_runs = 50
 
@@ -85,10 +85,10 @@ for use_sensory in all_sensory_cases:
 	         rotation_mode="anchor")
 	axes2.set_ylabel('RMSE')
 	axes2.grid(color='k', linestyle=':', linewidth=.5)
-	axes2.set_ylim(0.2, .77)
+	axes2.set_ylim(0.2, .7)
 	fig2.subplots_adjust(bottom=0.15, top=.92)
 
-save_figures = False
+save_figures = True
 if save_figures:
 	dpi = 600
 	# fig1.subplots_adjust(left=.06, bottom=.12, right=.96, top=.92, wspace=.30, hspace=.20)
@@ -99,7 +99,7 @@ plt.show(block=False)
 
 
 dt=.005
-show_video = True
+show_video = False
 use_sensory = True
 task_type = task_types[0]
 curriculum = curriculums[0]
@@ -114,6 +114,6 @@ run_no = 0
 MuJoCo_model_names = ["tendon_quadruped_ws_inair.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloorloaded.xml"]
 if show_video:
 	for MuJoCo_model_name , ii in zip(MuJoCo_model_names, range(len(MuJoCo_model_names))):
-		tmp = test_a_task(MuJoCo_model_name, save_log_path, run_no, Mj_render=True, use_sensory=use_sensory, task_type=task_type, ANN_structure=ANN_structure, dt=dt, actuation_type=actuation_type)
+		_ = test_a_task(MuJoCo_model_name, save_log_path, run_no, Mj_render=True, use_sensory=use_sensory, task_type=task_type, ANN_structure=ANN_structure, dt=dt, actuation_type=actuation_type)
 
 #import pdb; pdb.set_trace()
