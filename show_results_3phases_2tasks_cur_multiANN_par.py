@@ -8,12 +8,12 @@ ANN_structures = ["S","M"]
 task_types = ["cyclical", "p2p"]
 task_type = task_types[0]
 curriculum = curriculums[0]
-ANN_structure = ANN_structures[0]
+ANN_structure = ANN_structures[1]
 number_of_refinements = 8
 number_of_all_runs = 50
 
 fig1, axes1 = plt.subplots(nrows=1, ncols=3, figsize=(12, 4))
-fig2, axes2 = plt.subplots(nrows=1, ncols=1, figsize=(6, 4))
+fig2, axes2 = plt.subplots(nrows=1, ncols=1, figsize=(6, 4.2))
 all_sensory_cases = [True, False]
 color = "C0"
 for use_sensory in all_sensory_cases:
@@ -25,6 +25,7 @@ for use_sensory in all_sensory_cases:
 		linestyle = ".:"
 		hatch = "//"
 		experiment_ID = "wo_sensory_"+ANN_structure+"_ANN_"+task_type+curriculum
+		color= "C1"
 
 	if curriculum == "_E2H":
 		MuJoCo_model_names = ["tendon_quadruped_ws_inair.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloorloaded.xml"]
@@ -78,33 +79,41 @@ for use_sensory in all_sensory_cases:
 	axes2.boxplot(task_errors_all, positions=positions)
 	axes2.set_title('RMSE vs. Task (test)')
 	axes2.set_xlabel('Task')
+	axes2.set_xticklabels(["w. sen.","w. sen.","w. sen.","w/o. sen.","w/o. sen.","w/o. sen."])
+	# Rotate the tick labels and set their alignment.
+	plt.setp(axes2.get_xticklabels(), rotation=-45, ha="left",
+	         rotation_mode="anchor")
 	axes2.set_ylabel('RMSE')
 	axes2.grid(color='k', linestyle=':', linewidth=.5)
 	axes2.set_ylim(0.2, .77)
-	fig2.subplots_adjust(bottom=0.12, top=.92)
+	fig2.subplots_adjust(bottom=0.15, top=.92)
 
-save_figures = True
+save_figures = False
 if save_figures:
 	dpi = 600
 	# fig1.subplots_adjust(left=.06, bottom=.12, right=.96, top=.92, wspace=.30, hspace=.20)
 	fig1.savefig("./results/{}/{}_figure1.png".format(experiment_ID_base,experiment_ID), dpi=dpi)
 	#fig2.subplots_adjust(bottom=.12, top=.92)
 	fig2.savefig("./results/{}/{}_figure2.png".format(experiment_ID_base,experiment_ID), dpi=dpi)
-plt.show(block=True)
+plt.show(block=False)
 
-# show_video = False
-# use_sensory = True
-# task_type = "p2p"
-# if use_sensory:
-# 	experiment_ID_base2 = experiment_ID_base+"w_sensory_"
-# else:
-# 	experiment_ID_base2 = experiment_ID_base+"wo_sensory_"
-# experiment_ID = experiment_ID_base2 + task_type
 
-# run_no = 0
-# MuJoCo_model_names = ["tendon_quadruped_ws_inair.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloorloaded.xml"]
-# if show_video:
-# 	for MuJoCo_model_name , ii in zip(MuJoCo_model_names, range(len(MuJoCo_model_names))):
-# 		tmp = test_a_task(MuJoCo_model_name, experiment_ID, run_no, use_sensory=use_sensory,  Mj_render=True, task_type = task_type)
+dt=.005
+show_video = True
+use_sensory = True
+task_type = task_types[0]
+curriculum = curriculums[0]
+ANN_structure = ANN_structures[1]
+actuation_type = "TD"
+if use_sensory:
+	experiment_ID = "w_sensory_"+ANN_structure+"_ANN_"+task_type+curriculum
+else:
+	experiment_ID = "wo_sensory_"+ANN_structure+"_ANN_"+task_type+curriculum
+save_log_path = experiment_ID_base+"/"+experiment_ID
+run_no = 0
+MuJoCo_model_names = ["tendon_quadruped_ws_inair.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloorloaded.xml"]
+if show_video:
+	for MuJoCo_model_name , ii in zip(MuJoCo_model_names, range(len(MuJoCo_model_names))):
+		tmp = test_a_task(MuJoCo_model_name, save_log_path, run_no, Mj_render=True, use_sensory=use_sensory, task_type=task_type, ANN_structure=ANN_structure, dt=dt, actuation_type=actuation_type)
 
 #import pdb; pdb.set_trace()
