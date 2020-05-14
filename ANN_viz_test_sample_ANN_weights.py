@@ -229,7 +229,7 @@ if __name__ == "__main__":
         neuron_radius = 0.5
         number_of_neurons_in_widest_layer = 28
 
-        threshold = .5
+        threshold = .75
         run_no = 1
         experiment_ID = "wo_Sensory_"+ANN_structures[0]+"_ANN_"+task_type+cur
         save_log_path = experiment_ID_base+"/"+experiment_ID#

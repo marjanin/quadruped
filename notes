@@ -1,3 +1,0 @@
-- increase dt next and make simulations work not by # samples but by seconds
-- add tendons to other xml files (on floor and on floor with load)
-- run all experiments
