@@ -2,19 +2,25 @@ import numpy as np
 from matplotlib import pyplot as plt
 from all_functions import *
 
-experiment_ID_base = 'cur3_V4_TD_fulltest1'
+experiment_ID_base = 'cur3_V5_TD_full_1'
+
 curriculums = ["_E2H", "_H2E"]
 ANN_structures = ["S","M"]
 task_types = ["cyclical", "p2p"]
+
+all_sensory_cases = [True, False]
+#all_sensory_cases = [True]
+
+
 task_type = task_types[1]
 curriculum = curriculums[0]
 ANN_structure = ANN_structures[1]
-number_of_refinements = 8
-number_of_all_runs = 50
+number_of_refinements = 9
+number_of_all_runs = 16
 
 fig1, axes1 = plt.subplots(nrows=1, ncols=3, figsize=(12, 4))
 fig2, axes2 = plt.subplots(nrows=1, ncols=1, figsize=(6, 4.2))
-all_sensory_cases = [True, False]
+
 color = "C0"
 for use_sensory in all_sensory_cases:
 	if use_sensory:
@@ -53,8 +59,8 @@ for use_sensory in all_sensory_cases:
 	task_errors_all_std = np.std(task_errors_all, axis=0)
 
 	for ii in range(3):
-		axes1[ii].errorbar(x=np.arange(9), y=learning_errors_all_mean[ii], yerr=learning_errors_all_std[ii], capsize=2, animated=True, alpha=.3, color=color)
-		axes1[ii].plot(np.arange(9), learning_errors_all_mean[ii],linestyle, alpha=.7, color=color)
+		axes1[ii].errorbar(x=np.arange(number_of_refinements+1), y=learning_errors_all_mean[ii], yerr=learning_errors_all_std[ii], capsize=2, animated=True, alpha=.3, color=color)
+		axes1[ii].plot(np.arange(number_of_refinements+1), learning_errors_all_mean[ii],linestyle, alpha=.7, color=color)
 
 		axes1[ii].set_title(MuJoCo_model_names_short[ii])
 		axes1[ii].set_xlabel('Refinement #')
@@ -88,22 +94,22 @@ for use_sensory in all_sensory_cases:
 	axes2.set_ylim(0.2, .7)
 	fig2.subplots_adjust(bottom=0.15, top=.92)
 
-save_figures = True
+save_figures = False
 if save_figures:
 	dpi = 600
 	# fig1.subplots_adjust(left=.06, bottom=.12, right=.96, top=.92, wspace=.30, hspace=.20)
 	fig1.savefig("./results/{}/{}_figure1.png".format(experiment_ID_base,experiment_ID), dpi=dpi)
 	#fig2.subplots_adjust(bottom=.12, top=.92)
 	fig2.savefig("./results/{}/{}_figure2.png".format(experiment_ID_base,experiment_ID), dpi=dpi)
-plt.show(block=False)
+plt.show(block=True)
 
 
 dt=.005
 show_video = False
 use_sensory = True
-task_type = task_types[1]
+task_type = task_types[0]
 curriculum = curriculums[0]
-ANN_structure = ANN_structures[1]
+ANN_structure = ANN_structures[0]
 actuation_type = "TD"
 if use_sensory:
 	experiment_ID = "w_sensory_"+ANN_structure+"_ANN_"+task_type+curriculum

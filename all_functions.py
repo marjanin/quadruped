@@ -44,12 +44,21 @@ def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, 
 		ValueError("unacceptable task")
 	[babbling_kinematics, babbling_sensorreads, babbling_activations] = run_activations_ws_ol_fcn(
 	MuJoCo_model_name, est_activations, Mj_render=False) # this should be ol
+	errors = []
 	if kinematics_all == []: # initialization
 		kinematics_all = babbling_kinematics
 		sensory_all = babbling_sensorreads
 		activations_all = babbling_activations
 		use_prior_model_babbling = False
 	else:
+		# asses the before babbling error
+		[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_varANNs_fcn(
+			MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), ANN_structure = ANN_structure, use_sensory=use_sensory, Mj_render=False, actuation_type=actuation_type) # this should be cl
+		RMSE = np.sqrt(np.mean(np.square((returned_kinematics[int(returned_kinematics.shape[0]/2):,:8]-attempt_kinematics[int(attempt_kinematics.shape[0]/2):,:8])))) # RMSE on the last half of the trial
+		print("Pre-babbling error>")
+		print("RMSE:", RMSE)
+		errors.append(RMSE)
+		# concatinating all data
 		kinematics_all = np.concatenate((kinematics_all,babbling_kinematics),axis=0)
 		sensory_all = np.concatenate((sensory_all,babbling_sensorreads),axis=0)
 		activations_all = np.concatenate((activations_all,babbling_activations),axis=0)
@@ -58,7 +67,7 @@ def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, 
 	Inverse_ANN_models = inverse_mapping_ws_varANNs_fcn(
 	kinematics_all, sensory_all, activations_all, ANN_structure=ANN_structure, epochs=25, log_address="./log/{}/{}/".format(experiment_ID,run_no), use_sensory=use_sensory, use_prior_model=use_prior_model_babbling, actuation_type=actuation_type) #
 	
-	errors = []
+	
 	for ii in range(number_of_refinements):
 		[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_varANNs_fcn(
 			MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), ANN_structure = ANN_structure, use_sensory=use_sensory, Mj_render=False, actuation_type=actuation_type) # this should be cl
