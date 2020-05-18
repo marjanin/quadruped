@@ -203,6 +203,7 @@ def inverse_mapping_ws_varANNs_fcn(kinematics, sensorydata, activations, ANN_str
 			if use_sensory:
 				sensorydata_delayed = np.zeros(sensorydata.shape)
 				sensorydata_delayed[1:,:] = sensorydata[:-1,:]
+				import pdb; pdb.set_trace()
 				x = np.concatenate((leg_kinematics, np.transpose(np.array([sensorydata_delayed[:,leg_number]]))),axis=1)   
 			else:
 				x = leg_kinematics
@@ -262,12 +263,12 @@ def inverse_mapping_ws_varANNs_fcn(kinematics, sensorydata, activations, ANN_str
 			ANNs[leg_number] = model
 		return ANNs
 	else: # ANN_structure == "S"
-		if sensorydata==[]:
-			x = kinematics
-		else:
+		if use_sensory:
 			sensorydata_delayed = np.zeros(sensorydata.shape)
 			sensorydata_delayed[1:,:] = sensorydata[:-1,:]
-			x = np.concatenate((kinematics, sensorydata_delayed),axis=1)
+			x = np.concatenate((kinematics, sensorydata_delayed), axis=1)   
+		else:
+			x = kinematics
 		y = activations
 		x_train, x_valid, y_train, y_valid = sklearn.model_selection.train_test_split(x, y, test_size=0.2)
 		
@@ -401,8 +402,10 @@ def run_activations_ws_cl_varANNs_fcn(MuJoCo_model_name, attempt_kinematics, log
 				last_sensorydata = np.array([0, 0, 0, 0])
 			else:
 				last_sensorydata = sim.data.sensordata
-			#import pdb; pdb.set_trace()
-			sim.data.ctrl[:] = est_activations = Inverse_ANN_models.predict(np.array([np.concatenate((attempt_kinematics[ii,:], last_sensorydata))]))
+			if use_sensory:
+				sim.data.ctrl[:] = Inverse_ANN_models.predict(np.array([np.concatenate((attempt_kinematics[ii,:], last_sensorydata))]))
+			else:
+				sim.data.ctrl[:] = Inverse_ANN_models.predict(np.array([attempt_kinematics[ii,:]]))
 			sim.step()
 			# collecting kinematics (pos, vel, and acc) from all joints
 			joint_names = ["rbthigh", "rbshin"]

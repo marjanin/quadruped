@@ -6,16 +6,16 @@ import multiprocessing as mp
 from all_functions import *
 
 def L2_learn_quadruped_experiment(run_no):
-	experiment_ID_base = 'cur3_V5_TD_full_2'
+	experiment_ID_base = 'cur3_V5_TD_test_2'
 # Create target Directory if don't exist
 	dt=.005
 	if not os.path.exists('./results/'+experiment_ID_base):
 		os.mkdir('./results/'+experiment_ID_base)
 	all_sensory_cases = [True, False]
-	curriculums = ["_E2H", "_H2E"]
-	ANN_structures = ["S","M"]
+	curriculums = ["_E2H"]
+	ANN_structures = ["S"]
 	actuation_type = "TD"
-	number_of_refinements = 8
+	number_of_refinements = 3
 	for cur in curriculums:
 		for ANN_structure in ANN_structures:
 			for use_sensory in all_sensory_cases:
@@ -66,12 +66,12 @@ def L2_learn_quadruped_experiment(run_no):
 					np.save('./results/{}/MC{}_{}_babble_and_refine_results'.format(experiment_ID_base, run_no, experiment_ID),learning_errors)
 					np.save('./results/{}/MC{}_{}_task_results'.format(experiment_ID_base, run_no, experiment_ID),task_errors)
 # main code
-pool = mp.Pool(mp.cpu_count())
-print(mp.cpu_count())
-number_of_all_runs = 14
-pool.map_async(L2_learn_quadruped_experiment, [run_no for run_no in range(number_of_all_runs)])
-pool.close()
-pool.join()
+# pool = mp.Pool(mp.cpu_count())
+# print(mp.cpu_count())
+# number_of_all_runs = 50
+# pool.map_async(L2_learn_quadruped_experiment, [run_no for run_no in range(16,number_of_all_runs)])
+# pool.close()
+# pool.join()
 
 #import pdb; pdb.set_trace()
-#L2_learn_quadruped_experiment(0)
+L2_learn_quadruped_experiment(1)
