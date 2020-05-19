@@ -2,7 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from all_functions import *
 
-experiment_ID_base = 'cur3_V5_TD_full_1'
+experiment_ID_base = 'cur3_V5_TD_full_2'
 
 curriculums = ["_E2H", "_H2E"]
 ANN_structures = ["S","M"]
@@ -16,7 +16,7 @@ task_type = task_types[0]
 curriculum = curriculums[0]
 ANN_structure = ANN_structures[1]
 number_of_refinements = 9
-number_of_all_runs = 50
+number_of_all_runs = 14
 
 fig1, axes1 = plt.subplots(nrows=1, ncols=3, figsize=(12, 4))
 fig2, axes2 = plt.subplots(nrows=1, ncols=1, figsize=(6, 4.2))
@@ -74,7 +74,7 @@ for use_sensory in all_sensory_cases:
 		axes1[ii].set_title(MuJoCo_model_names_short[ii])
 		axes1[ii].set_xlabel('Refinement #')
 		axes1[ii].set_ylabel('RMSE')
-		axes1[ii].set_ylim(0.2, .9)
+		axes1[ii].set_ylim(0.2, 1)
 		axes1[ii].set_xlim(-0.50, 9.5)
 		axes1[ii].grid(color='k', linestyle=':', linewidth=.5)
 

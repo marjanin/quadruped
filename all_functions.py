@@ -203,7 +203,6 @@ def inverse_mapping_ws_varANNs_fcn(kinematics, sensorydata, activations, ANN_str
 			if use_sensory:
 				sensorydata_delayed = np.zeros(sensorydata.shape)
 				sensorydata_delayed[1:,:] = sensorydata[:-1,:]
-				import pdb; pdb.set_trace()
 				x = np.concatenate((leg_kinematics, np.transpose(np.array([sensorydata_delayed[:,leg_number]]))),axis=1)   
 			else:
 				x = leg_kinematics
