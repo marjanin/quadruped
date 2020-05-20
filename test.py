@@ -11,9 +11,9 @@ def L2_learn_quadruped_experiment(run_no):
 	dt=.005
 	if not os.path.exists('./results/'+experiment_ID_base):
 		os.mkdir('./results/'+experiment_ID_base)
-	all_sensory_cases = [True, False]
+	all_sensory_cases = [True]
 	curriculums = ["_E2H"]
-	ANN_structures = ["S"]
+	ANN_structures = ["M"]
 	actuation_type = "TD"
 	number_of_refinements = 3
 	for cur in curriculums:
@@ -30,7 +30,7 @@ def L2_learn_quadruped_experiment(run_no):
 						["tendon_quadruped_ws_onfloorloaded.xml",
 						"tendon_quadruped_ws_onfloor.xml",
 						"tendon_quadruped_ws_inair.xml"]
-				task_types = ["cyclical", "p2p"]
+				task_types = ["p2p"]
 				for task_type in task_types:
 					if use_sensory:
 						experiment_ID = "w_sensory_"+ANN_structure+"_ANN_"+task_type+cur
@@ -62,7 +62,7 @@ def L2_learn_quadruped_experiment(run_no):
 						else:
 							learning_errors[ii,:] = errors
 					for MuJoCo_model_name , ii in zip(MuJoCo_model_names, range(len(MuJoCo_model_names))):
-						task_errors[ii] = test_a_task(MuJoCo_model_name, save_log_path, run_no, use_sensory=use_sensory, task_type=task_type, ANN_structure=ANN_structure, dt=dt, actuation_type=actuation_type)
+						task_errors[ii] = test_a_task(MuJoCo_model_name, save_log_path, run_no, use_sensory=use_sensory, Mj_render=True, task_type=task_type, ANN_structure=ANN_structure, dt=dt, actuation_type=actuation_type)
 					np.save('./results/{}/MC{}_{}_babble_and_refine_results'.format(experiment_ID_base, run_no, experiment_ID),learning_errors)
 					np.save('./results/{}/MC{}_{}_task_results'.format(experiment_ID_base, run_no, experiment_ID),task_errors)
 # main code
@@ -74,4 +74,4 @@ def L2_learn_quadruped_experiment(run_no):
 # pool.join()
 
 #import pdb; pdb.set_trace()
-L2_learn_quadruped_experiment(1)
+L2_learn_quadruped_experiment(0)

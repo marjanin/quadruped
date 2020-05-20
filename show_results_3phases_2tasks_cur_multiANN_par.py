@@ -2,7 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from all_functions import *
 
-experiment_ID_base = 'cur3_V5_TD_full_2'
+experiment_ID_base = 'cur3_V5_TD_test_2'
 
 curriculums = ["_E2H", "_H2E"]
 ANN_structures = ["S","M"]
@@ -12,11 +12,11 @@ all_sensory_cases = [True, False]
 #all_sensory_cases = [True]
 
 
-task_type = task_types[0]
+task_type = task_types[1]
 curriculum = curriculums[0]
 ANN_structure = ANN_structures[1]
 number_of_refinements = 9
-number_of_all_runs = 14
+number_of_all_runs = 30
 
 fig1, axes1 = plt.subplots(nrows=1, ncols=3, figsize=(12, 4))
 fig2, axes2 = plt.subplots(nrows=1, ncols=1, figsize=(6, 4.2))
@@ -107,14 +107,14 @@ for use_sensory in all_sensory_cases:
 axes1[2].legend((line1,line2),('with sensory','without sensory'))
 
 
-save_figures = False
+save_figures = True
 if save_figures:
 	dpi = 600
 	# fig1.subplots_adjust(left=.06, bottom=.12, right=.96, top=.92, wspace=.30, hspace=.20)
 	fig1.savefig("./results/{}/{}_figure1.png".format(experiment_ID_base,experiment_ID), dpi=dpi)
 	#fig2.subplots_adjust(bottom=.12, top=.92)
 	fig2.savefig("./results/{}/{}_figure2.png".format(experiment_ID_base,experiment_ID), dpi=dpi)
-plt.show(block=True)
+plt.show(block=False)
 
 
 dt=.005

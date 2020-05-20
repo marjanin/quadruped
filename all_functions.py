@@ -1,5 +1,6 @@
 import pickle
 import numpy as np
+from scipy import signal
 from mujoco_py import load_model_from_path, MjSim, MjViewer
 from mujoco_py.generated import const
 import sklearn
@@ -39,7 +40,8 @@ def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, 
 	if task_type == "cyclical":
 		attempt_kinematics = create_cyclical_movements_fcn(omega = 3, attempt_length = refinement_duration_in_seconds, dt=dt)
 	elif task_type == "p2p":
-		attempt_kinematics = create_p2p_movements_fcn(number_of_steps = 10, attempt_length = refinement_duration_in_seconds, dt=dt)
+		filtfilt_N = 4
+		attempt_kinematics = create_p2p_movements_fcn(number_of_steps = 10, attempt_length = refinement_duration_in_seconds, dt=dt, filtfilt_N=filtfilt_N)
 	else:
 		ValueError("unacceptable task")
 	[babbling_kinematics, babbling_sensorreads, babbling_activations] = run_activations_ws_ol_fcn(
@@ -472,7 +474,7 @@ def create_cyclical_movements_fcn(omega=1.5, attempt_length=10, dt=0.01):
 	attempt_kinematics = combine_4leg_kinematics(attempt_kinematics_RB, attempt_kinematics_RF, attempt_kinematics_LB, attempt_kinematics_LF)
 	return attempt_kinematics
 
-def create_p2p_movements_fcn(number_of_steps = 10, attempt_length = 10, dt=0.01):
+def create_p2p_movements_fcn(number_of_steps = 10, attempt_length = 10, dt=0.01, filtfilt_N=1):
 	step_duration = attempt_length/number_of_steps
 	q0a = p2p_positions_gen_fcn(low = -.8, high = .6, number_of_positions = number_of_steps, duration_of_each_position = step_duration, dt=dt)
 	q1a = p2p_positions_gen_fcn(low = -1, high = .8, number_of_positions = number_of_steps, duration_of_each_position = step_duration, dt=dt)
@@ -480,6 +482,13 @@ def create_p2p_movements_fcn(number_of_steps = 10, attempt_length = 10, dt=0.01)
 	q0b = p2p_positions_gen_fcn(low = -.8, high = .6, number_of_positions = number_of_steps, duration_of_each_position = step_duration, dt=dt)
 	q1b = p2p_positions_gen_fcn(low = -1, high = .8, number_of_positions = number_of_steps, duration_of_each_position = step_duration, dt=dt)
 	
+	if filtfilt_N>1:
+		b=np.ones(filtfilt_N)/filtfilt_N
+		q0a = signal.filtfilt(b,1,q0a)
+		q1a = signal.filtfilt(b,1,q1a)
+		q0b = signal.filtfilt(b,1,q0b)
+		q1b = signal.filtfilt(b,1,q1b)
+
 	attempt_kinematics_RB = positions_to_kinematics_fcn(q0a, q1a, dt)
 	attempt_kinematics_RF = positions_to_kinematics_fcn(q0b, q1b, dt)
 	attempt_kinematics_LB = positions_to_kinematics_fcn(q0b, q1b, dt)
