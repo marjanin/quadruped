@@ -127,7 +127,6 @@
     <motor gear="120" joint="lfthigh" name="lfthigh"/>
     <motor gear="60" joint="lfshin" name="lfshin"/>
   </actuator>
-
   <sensor>
      <touch name="rb_sensor" site="rb_sensor_site" />
      <touch name="rf_sensor" site="rf_sensor_site" />
