@@ -34,7 +34,7 @@ def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, 
 		signal_duration_in_seconds=babbling_signal_duration_in_seconds,
 		pass_chance=dt,
 		max_in=1,
-		min_in=-1,
+		min_in=-1, #### needs to be 0 for TD
 		dt=dt)
 	est_activations = babbling_signals
 	if task_type == "cyclical":
@@ -204,7 +204,7 @@ def inverse_mapping_ws_varANNs_fcn(kinematics, sensorydata, activations, ANN_str
 			leg_kinematics = kinematics[:,[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2, 16+leg_number*2,17+leg_number*2]]
 			if use_sensory:
 				sensorydata_delayed = np.zeros(sensorydata.shape)
-				sensorydata_delayed[1:,:] = sensorydata[:-1,:]
+				sensorydata_delayed[1:,:] = sensorydata[:-1,:] # this is needed since we use observed sensory when inputing desired kinematics
 				x = np.concatenate((leg_kinematics, np.transpose(np.array([sensorydata_delayed[:,leg_number]]))),axis=1)   
 			else:
 				x = leg_kinematics
@@ -266,7 +266,7 @@ def inverse_mapping_ws_varANNs_fcn(kinematics, sensorydata, activations, ANN_str
 	else: # ANN_structure == "S"
 		if use_sensory:
 			sensorydata_delayed = np.zeros(sensorydata.shape)
-			sensorydata_delayed[1:,:] = sensorydata[:-1,:]
+			sensorydata_delayed[1:,:] = sensorydata[:-1,:] # this is needed since we use observed sensory when inputing desired kinematics
 			x = np.concatenate((kinematics, sensorydata_delayed), axis=1)   
 		else:
 			x = kinematics
@@ -383,7 +383,7 @@ def run_activations_ws_cl_varANNs_fcn(MuJoCo_model_name, attempt_kinematics, log
 			current_positions_array = np.zeros([len(joint_names),])
 			current_velocity_array = np.zeros([len(joint_names),])
 			current_acceleration_array = np.zeros([len(joint_names),])
-			for joint_name , joint_index in zip(joint_names, range(len(joint_names))):
+			for joint_name , joint_index in zip(joint_names, range(len(joint_names))): ####
 				current_positions_array = sim.data.qpos[-8:]#current_positions_array[joint_index] = sim.data.get_joint_qpos(joint_name)
 				current_velocity_array = sim.data.qvel[-8:]#current_velocity_array[joint_index] = sim.data.get_joint_qvel(joint_name)
 				current_acceleration_array = sim.data.qacc[-8:]
@@ -412,7 +412,7 @@ def run_activations_ws_cl_varANNs_fcn(MuJoCo_model_name, attempt_kinematics, log
 			joint_names = ["rbthigh", "rbshin"]
 			current_positions_array = np.zeros([len(joint_names),])
 			current_velocity_array = np.zeros([len(joint_names),])
-			current_acceleration_array = np.zeros([len(joint_names),])
+			current_acceleration_array = np.zeros([len(joint_names),]) ###
 			for joint_name , joint_index in zip(joint_names, range(len(joint_names))):
 				current_positions_array = sim.data.qpos[-8:]#current_positions_array[joint_index] = sim.data.get_joint_qpos(joint_name)
 				current_velocity_array = sim.data.qvel[-8:]#current_velocity_array[joint_index] = sim.data.get_joint_qvel(joint_name)
