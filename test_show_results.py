@@ -2,21 +2,15 @@ import numpy as np
 from matplotlib import pyplot as plt
 from all_functions import *
 
-experiment_ID_base = 'cur3_V5_TD_full_2'
-
-curriculums = ["_E2H", "_H2E"]
-ANN_structures = ["S","M"]
-task_types = ["cyclical", "p2p"]
+experiment_ID_base = 'cur3_V5_TD_test2'
 
 all_sensory_cases = [True, False]
-#all_sensory_cases = [True]
-
-
-task_type = task_types[1]
-curriculum = curriculums[0]
-ANN_structure = ANN_structures[1]
-number_of_refinements = 9
-number_of_all_runs = 30
+curriculum = "_E2H"
+ANN_structure = "S"
+actuation_type = "TD"
+task_type = "cyclical"
+number_of_refinements = 8+1
+number_of_all_runs = 1
 
 fig1, axes1 = plt.subplots(nrows=1, ncols=3, figsize=(12, 4))
 fig2, axes2 = plt.subplots(nrows=1, ncols=1, figsize=(6, 4.2))
@@ -116,22 +110,17 @@ if save_figures:
 	fig2.savefig("./results/{}/{}_figure2.png".format(experiment_ID_base,experiment_ID), dpi=dpi)
 plt.show(block=True)
 
-
-dt=.005
-show_video = False
-use_sensory = True
-task_type = task_types[0]
-curriculum = curriculums[0]
-ANN_structure = ANN_structures[0]
-actuation_type = "TD"
-if use_sensory:
-	experiment_ID = "w_sensory_"+ANN_structure+"_ANN_"+task_type+curriculum
-else:
-	experiment_ID = "wo_sensory_"+ANN_structure+"_ANN_"+task_type+curriculum
-save_log_path = experiment_ID_base+"/"+experiment_ID
-run_no = 0
-MuJoCo_model_names = ["tendon_quadruped_ws_inair.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloorloaded.xml"]
+show_video=False
 if show_video:
+	dt=.005
+	use_sensory = True
+	if use_sensory:
+		experiment_ID = "w_sensory_"+ANN_structure+"_ANN_"+task_type+curriculum
+	else:
+		experiment_ID = "wo_sensory_"+ANN_structure+"_ANN_"+task_type+curriculum
+	save_log_path = experiment_ID_base+"/"+experiment_ID
+	run_no = 0
+	MuJoCo_model_names = ["tendon_quadruped_ws_inair.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloorloaded.xml"]
 	for MuJoCo_model_name , ii in zip(MuJoCo_model_names, range(len(MuJoCo_model_names))):
 		_ = test_a_task(MuJoCo_model_name, save_log_path, run_no, Mj_render=True, use_sensory=use_sensory, task_type=task_type, ANN_structure=ANN_structure, dt=dt, actuation_type=actuation_type)
 
