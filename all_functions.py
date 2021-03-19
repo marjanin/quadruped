@@ -9,7 +9,7 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 
 ## executive functions
-def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, sensory_all, activations_all, number_of_refinements, use_sensory=True, task_type="cyclical", ANN_structure="M", actuation_type="JD",dt=.01):
+def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, sensory_all, activations_all, number_of_refinements, use_sensory=True, use_feedback=False, task_type="cyclical", ANN_structure="M", actuation_type="JD",dt=.01):
 	babbling = True
 	number_of_legs = 4
 	if ANN_structure == "M":
@@ -21,8 +21,10 @@ def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, 
 
 	if actuation_type == "TD":
 		number_of_signals = 12
+		min_in=0
 	elif actuation_type == "JD":
 		number_of_signals = 8
+		min_in=-1
 	else:
 		ValueError("unacceptable actuation_type")
 
@@ -34,7 +36,7 @@ def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, 
 		signal_duration_in_seconds=babbling_signal_duration_in_seconds,
 		pass_chance=dt,
 		max_in=1,
-		min_in=-1, #### needs to be 0 for TD
+		min_in=min_in, #### needs to be 0 for TD
 		dt=dt)
 	est_activations = babbling_signals
 	if task_type == "cyclical":
@@ -160,24 +162,20 @@ def run_activations_ws_ol_fcn(MuJoCo_model_name, est_activations, Mj_render=Fals
 	chassis_pos=np.zeros(number_of_task_samples,)
 	sim.set_state(sim_state)
 	for ii in range(number_of_task_samples):
-	    sim.data.ctrl[:] = est_activations[ii,:]
-	    sim.step()
-	    # collecting kinematics (pos, vel, and acc) from all joints
-	    joint_names = ["rbthigh", "rbshin"]
-	    current_positions_array = np.zeros([len(joint_names),])
-	    current_velocity_array = np.zeros([len(joint_names),])
-	    current_acceleration_array = np.zeros([len(joint_names),])
-	    for joint_name , joint_index in zip(joint_names, range(len(joint_names))):
-	    	current_positions_array = sim.data.qpos[-number_of_DoFs:]#current_positions_array[joint_index] = sim.data.get_joint_qpos(joint_name)
-	    	current_velocity_array = sim.data.qvel[-number_of_DoFs:]#current_velocity_array[joint_index] = sim.data.get_joint_qvel(joint_name)
-	    	current_acceleration_array = sim.data.qacc[-number_of_DoFs:]
-	    real_attempt_positions[ii,:] = current_positions_array
-	    real_attempt_velocities[ii,:] = current_velocity_array
-	    real_attempt_accelerations[ii,:] = current_acceleration_array
-	    real_attempt_activations[ii,:] = sim.data.ctrl
-	    real_attempt_sensorreads[ii,:] = sim.data.sensordata
-	    if Mj_render:
-	    	viewer.render()
+		sim.data.ctrl[:] = est_activations[ii,:]
+		sim.step()
+		# collecting kinematics (pos, vel, and acc) from all joints
+		# joint_names = ["rbthigh", "rbshin"]
+		current_positions_array = sim.data.qpos[-number_of_DoFs:]#current_positions_array[joint_index] = sim.data.get_joint_qpos(joint_name)
+		current_velocity_array = sim.data.qvel[-number_of_DoFs:]#current_velocity_array[joint_index] = sim.data.get_joint_qvel(joint_name)
+		current_acceleration_array = sim.data.qacc[-number_of_DoFs:]
+		real_attempt_positions[ii,:] = current_positions_array
+		real_attempt_velocities[ii,:] = current_velocity_array
+		real_attempt_accelerations[ii,:] = current_acceleration_array
+		real_attempt_activations[ii,:] = sim.data.ctrl
+		real_attempt_sensorreads[ii,:] = sim.data.sensordata
+		if Mj_render:
+			viewer.render()
 	real_attempt_kinematics = np.concatenate((real_attempt_positions, real_attempt_velocities, real_attempt_accelerations),axis=1)
 	return real_attempt_kinematics, real_attempt_sensorreads, real_attempt_activations
 
@@ -296,6 +294,7 @@ def inverse_mapping_ws_varANNs_fcn(kinematics, sensorydata, activations, ANN_str
 		else:
 			model = tf.keras.Sequential()
 			# Adds a densely-connected layer with 15 units to the model:
+			#model.add(tf.keras.layers.BatchNormalization(input_shape= x_train.shape[1:]))
 			model.add(tf.keras.layers.Dense(hidden_layer_nodes, activation='linear', input_shape= x_train.shape[1:]))
 			# Add a softmax layer with 3 output units:
 			model.add(tf.keras.layers.Dense(output_layer_nodes, activation='linear'))
@@ -320,7 +319,7 @@ def inverse_mapping_ws_varANNs_fcn(kinematics, sensorydata, activations, ANN_str
 		ANNs=tf.keras.models.load_model(logdir+"model",compile=False)
 	return ANNs
 
-def run_activations_ws_cl_varANNs_fcn(MuJoCo_model_name, attempt_kinematics, log_address, ANN_structure = "M", use_sensory=True, Mj_render=False, actuation_type="JD"):
+def run_activations_ws_cl_varANNs_fcn(MuJoCo_model_name, attempt_kinematics, log_address, ANN_structure = "M", use_sensory=True, use_feedback=False, Mj_render=False, actuation_type="JD"):
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! the q0 is now the chasis pos. needs to be fixed
 	"""
 	this function runs the predicted activations generatred from running
@@ -383,10 +382,9 @@ def run_activations_ws_cl_varANNs_fcn(MuJoCo_model_name, attempt_kinematics, log
 			current_positions_array = np.zeros([len(joint_names),])
 			current_velocity_array = np.zeros([len(joint_names),])
 			current_acceleration_array = np.zeros([len(joint_names),])
-			for joint_name , joint_index in zip(joint_names, range(len(joint_names))): ####
-				current_positions_array = sim.data.qpos[-8:]#current_positions_array[joint_index] = sim.data.get_joint_qpos(joint_name)
-				current_velocity_array = sim.data.qvel[-8:]#current_velocity_array[joint_index] = sim.data.get_joint_qvel(joint_name)
-				current_acceleration_array = sim.data.qacc[-8:]
+			current_positions_array = sim.data.qpos[-number_of_DoFs:]#current_positions_array[joint_index] = sim.data.get_joint_qpos(joint_name)
+			current_velocity_array = sim.data.qvel[-number_of_DoFs:]#current_velocity_array[joint_index] = sim.data.get_joint_qvel(joint_name)
+			current_acceleration_array = sim.data.qacc[-number_of_DoFs:]
 			real_attempt_positions[ii,:] = current_positions_array
 			real_attempt_velocities[ii,:] = current_velocity_array
 			real_attempt_accelerations[ii,:] = current_acceleration_array
@@ -398,9 +396,16 @@ def run_activations_ws_cl_varANNs_fcn(MuJoCo_model_name, attempt_kinematics, log
 	elif ANN_structure=="S":
 		logdir = log_address+"compound/"
 		Inverse_ANN_models = tf.keras.models.load_model(logdir+"model",compile=False)
+		if use_feedback:
+			P=10
+			I=3
+		else:
+			P=0
+			I=0
 		for ii in range(number_of_task_samples):
 			if ii == 0:
 				last_sensorydata = np.array([0, 0, 0, 0])
+				current_control_kinematics = attempt_kinematics[ii,:]
 			else:
 				last_sensorydata = sim.data.sensordata
 			if use_sensory:
@@ -413,10 +418,10 @@ def run_activations_ws_cl_varANNs_fcn(MuJoCo_model_name, attempt_kinematics, log
 			current_positions_array = np.zeros([len(joint_names),])
 			current_velocity_array = np.zeros([len(joint_names),])
 			current_acceleration_array = np.zeros([len(joint_names),]) ###
-			for joint_name , joint_index in zip(joint_names, range(len(joint_names))):
-				current_positions_array = sim.data.qpos[-8:]#current_positions_array[joint_index] = sim.data.get_joint_qpos(joint_name)
-				current_velocity_array = sim.data.qvel[-8:]#current_velocity_array[joint_index] = sim.data.get_joint_qvel(joint_name)
-				current_acceleration_array = sim.data.qacc[-8:]
+			#for joint_name , joint_index in zip(joint_names, range(len(joint_names))):
+			current_positions_array = sim.data.qpos[-number_of_DoFs:]#current_positions_array[joint_index] = sim.data.get_joint_qpos(joint_name)
+			current_velocity_array = sim.data.qvel[-number_of_DoFs:]#current_velocity_array[joint_index] = sim.data.get_joint_qvel(joint_name)
+			current_acceleration_array = sim.data.qacc[-number_of_DoFs:]
 			real_attempt_positions[ii,:] = current_positions_array
 			real_attempt_velocities[ii,:] = current_velocity_array
 			real_attempt_accelerations[ii,:] = current_acceleration_array

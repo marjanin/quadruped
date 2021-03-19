@@ -6,13 +6,13 @@ import multiprocessing as mp
 from all_functions import *
 
 def L2_learn_quadruped_experiment(run_no):
-	experiment_ID_base = 'cur3_V5_TD_full_2_tmp'
+	experiment_ID_base = 'cur3_V5_TD_full_3'
 # Create target Directory if don't exist
 	dt=.005
 	if not os.path.exists('./results/'+experiment_ID_base):
 		os.mkdir('./results/'+experiment_ID_base)
 	all_sensory_cases = [True, False]
-	curriculums = ["_E2H", "_H2E"]
+	curriculums = ["_E2H"]#, "_H2E"]
 	ANN_structures = ["S","M"]
 	actuation_type = "TD"
 	number_of_refinements = 8
@@ -30,7 +30,7 @@ def L2_learn_quadruped_experiment(run_no):
 						["tendon_quadruped_ws_onfloorloaded.xml",
 						"tendon_quadruped_ws_onfloor.xml",
 						"tendon_quadruped_ws_inair.xml"]
-				task_types = ["cyclical", "p2p"]
+				task_types = ["cyclical"]#, "p2p"]
 				for task_type in task_types:
 					if use_sensory:
 						experiment_ID = "w_sensory_"+ANN_structure+"_ANN_"+task_type+cur
@@ -68,7 +68,7 @@ def L2_learn_quadruped_experiment(run_no):
 # main code
 pool = mp.Pool(mp.cpu_count())
 print(mp.cpu_count())
-number_of_all_runs = 16+14
+number_of_all_runs = 15
 pool.map_async(L2_learn_quadruped_experiment, [run_no for run_no in range(number_of_all_runs)])
 pool.close()
 pool.join()
