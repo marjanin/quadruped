@@ -2,14 +2,14 @@ import numpy as np
 from matplotlib import pyplot as plt
 from all_functions import *
 
-experiment_ID_base = 'cur3_V5_TD_test8_BN'
+experiment_ID_base = 'cur3_V5_TD_test18'
 
 all_sensory_cases = [True, False]
 curriculum = "_E2H"
 ANN_structure = "S"
 actuation_type = "TD"
 task_type = "cyclical"
-number_of_refinements = 2+1
+number_of_refinements = 8+1
 number_of_all_runs = 1
 
 fig1, axes1 = plt.subplots(nrows=1, ncols=3, figsize=(12, 4))
@@ -110,14 +110,14 @@ if save_figures:
 	fig2.savefig("./results/{}/{}_figure2.png".format(experiment_ID_base,experiment_ID), dpi=dpi)
 plt.show(block=True)
 
-show_video=False
+show_video=True
 if show_video:
 	dt=.005
 	use_sensory = True
 	if use_sensory:
-		experiment_ID = "w_sensory_"+ANN_structure+"_ANN_"+task_type+curriculum
+		experiment_ID = "w_sensory_"+"wo_feedback_"+ANN_structure+"_ANN_"+task_type+curriculum
 	else:
-		experiment_ID = "wo_sensory_"+ANN_structure+"_ANN_"+task_type+curriculum
+		experiment_ID = "wo_sensory_"+"wo_feedback_"+ANN_structure+"_ANN_"+task_type+curriculum
 	save_log_path = experiment_ID_base+"/"+experiment_ID
 	run_no = 0
 	MuJoCo_model_names = ["tendon_quadruped_ws_inair.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloorloaded.xml"]
