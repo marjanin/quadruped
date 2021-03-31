@@ -549,6 +549,5 @@ def kin2pva_fcn(kinematics, number_of_DoFs):
 	p_vec = p_vec_all[-number_of_DoFs:]
 	v_vec = v_vec_all[-number_of_DoFs:]
 	a_vec = a_vec_all[-number_of_DoFs:]
-
 	return p_vec, v_vec, a_vec
 #import pdb; pdb.set_trace()
