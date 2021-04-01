@@ -57,7 +57,7 @@ def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, 
 	else:
 		# asses the before babbling error
 		[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_varANNs_fcn(
-			MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), ANN_structure = ANN_structure, use_sensory=use_sensory, use_feedback=use_feedback, Mj_render=False, actuation_type=actuation_type) # this should be cl
+			MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), dt=dt, ANN_structure = ANN_structure, use_sensory=use_sensory, use_feedback=use_feedback, Mj_render=False, actuation_type=actuation_type) # this should be cl
 		RMSE = np.sqrt(np.mean(np.square((returned_kinematics[int(returned_kinematics.shape[0]/2):,:8]-attempt_kinematics[int(attempt_kinematics.shape[0]/2):,:8])))) # RMSE on the last half of the trial
 		print("Pre-babbling error>")
 		print("RMSE:", RMSE)
@@ -74,7 +74,7 @@ def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, 
 	
 	for ii in range(number_of_refinements):
 		[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_varANNs_fcn(
-			MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), ANN_structure = ANN_structure, use_sensory=use_sensory, use_feedback=use_feedback, Mj_render=False, actuation_type=actuation_type) # this should be cl
+			MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), dt=dt, ANN_structure = ANN_structure, use_sensory=use_sensory, use_feedback=use_feedback, Mj_render=False, actuation_type=actuation_type) # this should be cl
 		RMSE = np.sqrt(np.mean(np.square((returned_kinematics[int(returned_kinematics.shape[0]/2):,:8]-attempt_kinematics[int(attempt_kinematics.shape[0]/2):,:8])))) # RMSE on the last half of the trial
 		print("Run #:", ii+1)
 		print("RMSE:", RMSE)
@@ -88,7 +88,7 @@ def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, 
 		kinematics_all, sensory_all, activations_all, ANN_structure=ANN_structure, epochs=5, log_address="./log/{}/{}/".format(experiment_ID,run_no), use_sensory=use_sensory, use_prior_model=True, actuation_type=actuation_type) #
 	# test_run (no-training or storing the data)
 	[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_varANNs_fcn(
-		MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), ANN_structure = ANN_structure, use_sensory=use_sensory, use_feedback=use_feedback, Mj_render=False, actuation_type=actuation_type) # this should be cl
+		MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), dt=dt, ANN_structure = ANN_structure, use_sensory=use_sensory, use_feedback=use_feedback, Mj_render=False, actuation_type=actuation_type) # this should be cl
 	RMSE = np.sqrt(np.mean(np.square((returned_kinematics[int(returned_kinematics.shape[0]/2):,:8]-attempt_kinematics[int(attempt_kinematics.shape[0]/2):,:8]))))
 	print("Run #:", number_of_refinements+1)
 	print("RMSE:", RMSE)
@@ -104,7 +104,7 @@ def test_a_task(MuJoCo_model_name, experiment_ID, run_no, use_sensory=True, use_
 	else:
 		ValueError("unacceptable task")
 	[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_varANNs_fcn(
-			MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), ANN_structure = ANN_structure, use_sensory=use_sensory, use_feedback=use_feedback, Mj_render=Mj_render, actuation_type=actuation_type) # this should be cl
+			MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), dt=dt, ANN_structure = ANN_structure, use_sensory=use_sensory, use_feedback=use_feedback, Mj_render=Mj_render, actuation_type=actuation_type) # this should be cl
 	RMSE = np.sqrt(np.mean(np.square((returned_kinematics[int(returned_kinematics.shape[0]/2):,:8]-attempt_kinematics[int(attempt_kinematics.shape[0]/2):,:8])))) # RMSE on the last half of the trial
 	return RMSE
 ## lower level functions
@@ -319,7 +319,7 @@ def inverse_mapping_ws_varANNs_fcn(kinematics, sensorydata, activations, ANN_str
 		ANNs=tf.keras.models.load_model(logdir+"model",compile=False)
 	return ANNs
 
-def run_activations_ws_cl_varANNs_fcn(MuJoCo_model_name, attempt_kinematics, log_address, ANN_structure = "M", use_sensory=True, use_feedback=False, Mj_render=False, actuation_type="JD"):
+def run_activations_ws_cl_varANNs_fcn(MuJoCo_model_name, attempt_kinematics, log_address, dt, ANN_structure = "M", use_sensory=True, use_feedback=False, Mj_render=False, actuation_type="JD"):
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! the q0 is now the chasis pos. needs to be fixed
 	"""
 	this function runs the predicted activations generatred from running
@@ -400,10 +400,13 @@ def run_activations_ws_cl_varANNs_fcn(MuJoCo_model_name, attempt_kinematics, log
 			if ii == 0:
 				last_sensorydata = np.array([0, 0, 0, 0])
 				current_control_kinematics = attempt_kinematics[ii,:]
+				p_vec_error = 0
+				p_vec_error_integ = 0
 			else:
 				last_sensorydata = sim.data.sensordata
 				if use_feedback == True:
-					current_control_kinematics = create_control_kinematics_fcn(attempt_kinematics[ii,:], sim.data, number_of_DoFs, P=4,I=0)
+					[current_control_kinematics, p_vec_error, p_vec_error_integ] = \
+					create_control_kinematics_fcn(attempt_kinematics[ii,:], sim.data, number_of_DoFs, p_vec_error, p_vec_error_integ, dt=dt, P=10, I=5, D=.015)
 				else:
 					current_control_kinematics = attempt_kinematics[ii,:]
 				#import pdb; pdb.set_trace()
@@ -527,14 +530,16 @@ def combine_4leg_kinematics(attempt_kinematics_RB, attempt_kinematics_RF, attemp
 	)
 	return attempt_kinematics
 
-def create_control_kinematics_fcn(current_desired_kinematics, current_sim_data, number_of_DoFs, P=0, I=0):
+def create_control_kinematics_fcn(current_desired_kinematics, current_sim_data, number_of_DoFs, prev_p_vec_error, prev_p_vec_error_int, dt, P=0, I=0, D=0,):
 #	current_sim_kinematics = pva2kin_fcn(current_sim_data.qpos, current_sim_data.qvel, current_sim_data.qacc, number_of_DoFs)
 	[current_desired_p, current_desired_v, current_desired_a] = kin2pva_fcn(current_desired_kinematics, number_of_DoFs)
-	p_vec_diff = current_desired_p - current_sim_data.qpos[-number_of_DoFs:]
-	current_control_v = current_desired_v + P*p_vec_diff
+	p_vec_error = current_desired_p - current_sim_data.qpos[-number_of_DoFs:]
+	p_vec_error_integ = prev_p_vec_error_int + p_vec_error*dt
+	p_vec_error_der = (p_vec_error-prev_p_vec_error)/dt
+	current_control_v = current_desired_v + P*p_vec_error + I*p_vec_error_integ + D*p_vec_error_der
 	current_control_kinematics = pva2kin_fcn(current_desired_p, current_control_v, current_desired_a, number_of_DoFs)
 	#import pdb; pdb.set_trace()
-	return current_control_kinematics
+	return current_control_kinematics, p_vec_error, p_vec_error_integ
 	
 
 def pva2kin_fcn(p_vec,v_vec,a_vec,number_of_DoFs):

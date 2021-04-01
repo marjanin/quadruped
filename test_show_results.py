@@ -2,14 +2,14 @@ import numpy as np
 from matplotlib import pyplot as plt
 from all_functions import *
 
-experiment_ID_base = 'cur3_V5_TD_test18'
+experiment_ID_base = 'cur3_V5_TD_test19'
 
 all_sensory_cases = [True, False]
 curriculum = "_E2H"
 ANN_structure = "S"
 actuation_type = "TD"
 task_type = "cyclical"
-number_of_refinements = 8+1
+number_of_refinements = 4+1
 number_of_all_runs = 1
 
 fig1, axes1 = plt.subplots(nrows=1, ncols=3, figsize=(12, 4))
@@ -20,11 +20,11 @@ for use_sensory in all_sensory_cases:
 	if use_sensory:
 		linestyle = ".:"
 		hatch = ""
-		experiment_ID = "w_sensory_"+"wo_feedback_"+ANN_structure+"_ANN_"+task_type+curriculum
+		experiment_ID = "w_sensory_"+"w_feedback_"+ANN_structure+"_ANN_"+task_type+curriculum
 	else:
 		linestyle = ".:"
 		hatch = "//"
-		experiment_ID = "wo_sensory_"+"wo_feedback_"+ANN_structure+"_ANN_"+task_type+curriculum
+		experiment_ID = "wo_sensory_"+"w_feedback_"+ANN_structure+"_ANN_"+task_type+curriculum
 		color= "C1"
 
 	if curriculum == "_E2H":
