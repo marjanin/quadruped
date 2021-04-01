@@ -95,7 +95,7 @@ def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, 
 	errors.append(RMSE)
 	return errors, kinematics_all, sensory_all, activations_all
 
-def test_a_task(MuJoCo_model_name, experiment_ID, run_no, use_sensory=True, Mj_render=False, task_type = "cyclical", ANN_structure="M", dt=0.01, actuation_type="JD"):
+def test_a_task(MuJoCo_model_name, experiment_ID, run_no, use_sensory=True, use_feedback=False, Mj_render=False, task_type = "cyclical", ANN_structure="M", dt=0.01, actuation_type="JD"):
 	refinement_duration_in_seconds = 10
 	if task_type == "cyclical":
 		attempt_kinematics = create_cyclical_movements_fcn(omega = 3, attempt_length = refinement_duration_in_seconds, dt=dt)

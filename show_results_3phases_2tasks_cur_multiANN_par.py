@@ -2,20 +2,21 @@ import numpy as np
 from matplotlib import pyplot as plt
 from all_functions import *
 
-experiment_ID_base = 'cur3_V5_TD_full_2'
+experiment_ID_base = 'cur3_V5_TD_full_test_2'
 
 curriculums = ["_E2H", "_H2E"]
 ANN_structures = ["S","M"]
 task_types = ["cyclical", "p2p"]
 
 all_sensory_cases = [True, False]
+use_feedback=True
 #all_sensory_cases = [True]
 
 
 task_type = task_types[0]
 curriculum = curriculums[0]
 ANN_structure = ANN_structures[0]
-number_of_refinements = 9
+number_of_refinements = 6
 number_of_all_runs = 15
 
 fig1, axes1 = plt.subplots(nrows=1, ncols=3, figsize=(12, 4))
@@ -26,11 +27,17 @@ for use_sensory in all_sensory_cases:
 	if use_sensory:
 		linestyle = ".:"
 		hatch = ""
-		experiment_ID = "w_sensory_"+ANN_structure+"_ANN_"+task_type+curriculum
+		if use_feedback==True:
+			experiment_ID = "w_sensory_"+"w_feedback_"+ANN_structure+"_ANN_"+task_type+curriculum
+		else:
+			experiment_ID = "w_sensory_"+"wo_feedback_"+ANN_structure+"_ANN_"+task_type+curriculum
 	else:
 		linestyle = ".:"
 		hatch = "//"
-		experiment_ID = "wo_sensory_"+ANN_structure+"_ANN_"+task_type+curriculum
+		if use_feedback==True:
+			experiment_ID = "wo_sensory_"+"w_feedback_"+ANN_structure+"_ANN_"+task_type+curriculum
+		else:
+			experiment_ID = "wo_sensory_"+"wo_feedback_"+ANN_structure+"_ANN_"+task_type+curriculum
 		color= "C1"
 
 	if curriculum == "_E2H":

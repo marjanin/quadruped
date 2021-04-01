@@ -6,17 +6,17 @@ import multiprocessing as mp
 from all_functions import *
 
 def L2_learn_quadruped_experiment(run_no):
-	experiment_ID_base = 'cur3_V5_TD_full_test_1'
+	experiment_ID_base = 'cur3_V5_TD_full_test_2'
 # Create target Directory if don't exist
 	dt=.005
 	if not os.path.exists('./results/'+experiment_ID_base):
 		os.mkdir('./results/'+experiment_ID_base)
 	all_sensory_cases = [True, False]
-	all_feedback_cases = [False, True]
+	all_feedback_cases = [True, False]
 	curriculums = ["_E2H"]#, "_H2E"]
 	ANN_structures = ["S"]
 	actuation_type = "TD"
-	number_of_refinements = 4
+	number_of_refinements = 5
 	for cur in curriculums:
 		for ANN_structure in ANN_structures:
 			for use_sensory in all_sensory_cases:
@@ -71,7 +71,7 @@ def L2_learn_quadruped_experiment(run_no):
 							else:
 								learning_errors[ii,:] = errors
 						for MuJoCo_model_name , ii in zip(MuJoCo_model_names, range(len(MuJoCo_model_names))):
-							task_errors[ii] = test_a_task(MuJoCo_model_name, save_log_path, run_no, use_sensory=use_sensory, task_type=task_type, ANN_structure=ANN_structure, dt=dt, actuation_type=actuation_type)
+							task_errors[ii] = test_a_task(MuJoCo_model_name, save_log_path, run_no, use_sensory=use_sensory, use_feedback=use_feedback, task_type=task_type, ANN_structure=ANN_structure, dt=dt, actuation_type=actuation_type)
 						np.save('./results/{}/MC{}_{}_babble_and_refine_results'.format(experiment_ID_base, run_no, experiment_ID),learning_errors)
 						np.save('./results/{}/MC{}_{}_task_results'.format(experiment_ID_base, run_no, experiment_ID),task_errors)
 # main code
@@ -82,5 +82,5 @@ pool.map_async(L2_learn_quadruped_experiment, [run_no for run_no in range(number
 pool.close()
 pool.join()
 
-#import pdb; pdb.set_trace()
-#L2_learn_quadruped_experiment(0)
+# import pdb; pdb.set_trace()
+# L2_learn_quadruped_experiment(0)
