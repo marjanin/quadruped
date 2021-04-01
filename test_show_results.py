@@ -5,6 +5,7 @@ from all_functions import *
 experiment_ID_base = 'cur3_V5_TD_test19'
 
 all_sensory_cases = [True, False]
+use_feedback = True
 curriculum = "_E2H"
 ANN_structure = "S"
 actuation_type = "TD"
@@ -101,14 +102,14 @@ fig2.subplots_adjust(bottom=0.15, top=.92)
 axes1[2].legend((line1,line2),('with sensory','without sensory'))
 
 
-save_figures = True
+save_figures = False
 if save_figures:
 	dpi = 600
 	# fig1.subplots_adjust(left=.06, bottom=.12, right=.96, top=.92, wspace=.30, hspace=.20)
 	fig1.savefig("./results/{}/{}_figure1.png".format(experiment_ID_base,experiment_ID), dpi=dpi)
 	#fig2.subplots_adjust(bottom=.12, top=.92)
 	fig2.savefig("./results/{}/{}_figure2.png".format(experiment_ID_base,experiment_ID), dpi=dpi)
-plt.show(block=True)
+plt.show(block=False)
 
 show_video=True
 if show_video:
@@ -122,7 +123,7 @@ if show_video:
 	run_no = 0
 	MuJoCo_model_names = ["tendon_quadruped_ws_inair.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloorloaded.xml"]
 	for MuJoCo_model_name , ii in zip(MuJoCo_model_names, range(len(MuJoCo_model_names))):
-		_ = test_a_task(MuJoCo_model_name, save_log_path, run_no, Mj_render=True, use_sensory=use_sensory, task_type=task_type, ANN_structure=ANN_structure, dt=dt, actuation_type=actuation_type)
-
+		test_run_RMSE = test_a_task(MuJoCo_model_name, save_log_path, run_no, Mj_render=True, use_sensory=use_sensory, use_feedback=use_feedback, task_type=task_type, ANN_structure=ANN_structure, dt=dt, actuation_type=actuation_type)
+		print(MuJoCo_model_name,"RMSE: " ,test_run_RMSE)
 #import pdb; pdb.set_trace()
 

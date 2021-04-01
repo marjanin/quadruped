@@ -406,7 +406,7 @@ def run_activations_ws_cl_varANNs_fcn(MuJoCo_model_name, attempt_kinematics, log
 				last_sensorydata = sim.data.sensordata
 				if use_feedback == True:
 					[current_control_kinematics, p_vec_error, p_vec_error_integ] = \
-					create_control_kinematics_fcn(attempt_kinematics[ii,:], sim.data, number_of_DoFs, p_vec_error, p_vec_error_integ, dt=dt, P=10, I=5, D=.015)
+					create_control_kinematics_fcn(attempt_kinematics[ii,:], sim.data, number_of_DoFs, p_vec_error, p_vec_error_integ, dt=dt, P=10, I=25, D=.05)
 				else:
 					current_control_kinematics = attempt_kinematics[ii,:]
 				#import pdb; pdb.set_trace()
