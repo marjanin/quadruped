@@ -1,0 +1,10 @@
+done - extend pid to multiple ANNs
+adding the plot_position_curves to the test_a_task code (also change its name to test_a_task_fcn)
+- comparing with and without FB
+- modify the xml file
+
+
+'cur3_V5_TD_full_test_fb_2'
+PID=10-25-.05
+'cur3_V5_TD_full_test_fb_2'
+PID=4-5-.015

@@ -6,7 +6,7 @@ import multiprocessing as mp
 from all_functions import *
 
 def L2_learn_quadruped_experiment(run_no):
-	experiment_ID_base = 'cur3_V5_TD_full_test_3'
+	experiment_ID_base = 'cur3_V5_TD_full_test_fb_2'
 # Create target Directory if don't exist
 	dt=.005
 	if not os.path.exists('./results/'+experiment_ID_base):
@@ -14,9 +14,9 @@ def L2_learn_quadruped_experiment(run_no):
 	all_sensory_cases = [True, False]
 	all_feedback_cases = [True, False]
 	curriculums = ["_E2H"]#, "_H2E"]
-	ANN_structures = ["S"]
+	ANN_structures = ["S","M"]
 	actuation_type = "TD"
-	number_of_refinements = 5
+	number_of_refinements = 8
 	for cur in curriculums:
 		for ANN_structure in ANN_structures:
 			for use_sensory in all_sensory_cases:

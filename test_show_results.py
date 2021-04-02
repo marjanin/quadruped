@@ -2,36 +2,43 @@ import numpy as np
 from matplotlib import pyplot as plt
 from all_functions import *
 
-experiment_ID_base = 'cur3_V5_TD_test19'
+experiment_ID_base = 'cur3_V5_TD_test24'
+show_video=True
 
 all_sensory_cases = [True, False]
 use_feedback = True
-curriculum = "_E2H"
-ANN_structure = "S"
+cur = "_E2H"
+ANN_structure = "M"
 actuation_type = "TD"
 task_type = "cyclical"
-number_of_refinements = 4+1
+number_of_refinements = 8+1
 number_of_all_runs = 1
 
 fig1, axes1 = plt.subplots(nrows=1, ncols=3, figsize=(12, 4))
 fig2, axes2 = plt.subplots(nrows=1, ncols=1, figsize=(6, 4.2))
 
-color = "C0"
 for use_sensory in all_sensory_cases:
 	if use_sensory:
 		linestyle = ".:"
 		hatch = ""
-		experiment_ID = "w_sensory_"+"w_feedback_"+ANN_structure+"_ANN_"+task_type+curriculum
+		color = "C0"
+		if use_feedback:
+			experiment_ID = "w_sensory_"+"w_feedback_"+ANN_structure+"_ANN_"+task_type+cur
+		else:
+			experiment_ID = "w_sensory_"+"wo_feedback_"+ANN_structure+"_ANN_"+task_type+cur
 	else:
 		linestyle = ".:"
 		hatch = "//"
-		experiment_ID = "wo_sensory_"+"w_feedback_"+ANN_structure+"_ANN_"+task_type+curriculum
 		color= "C1"
+		if use_feedback:
+			experiment_ID = "wo_sensory_"+"w_feedback_"+ANN_structure+"_ANN_"+task_type+cur
+		else:
+			experiment_ID = "wo_sensory_"+"wo_feedback_"+ANN_structure+"_ANN_"+task_type+cur
 
-	if curriculum == "_E2H":
+	if cur == "_E2H":
 		MuJoCo_model_names = ["tendon_quadruped_ws_inair.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloorloaded.xml"]
 		MuJoCo_model_names_short = ["In Air", "On Floor", "On Floor With Load"]
-	elif curriculum == "_H2E":
+	elif cur == "_H2E":
 		MuJoCo_model_names = ["tendon_quadruped_ws_onfloorloaded.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_inair.xml"]
 		MuJoCo_model_names_short = ["On Floor with Load", "On Floor", "In Air"]
 	else:
@@ -44,7 +51,6 @@ for use_sensory in all_sensory_cases:
 	for run_no in range(number_of_all_runs):
 		learning_errors_all[run_no,:,:]=np.load('./results/{}/MC{}_{}_babble_and_refine_results.npy'.format(experiment_ID_base, run_no, experiment_ID))
 		task_errors_all[run_no,:]=np.load('./results/{}/MC{}_{}_task_results.npy'.format(experiment_ID_base, run_no, experiment_ID))
-
 	# errors_all = learning_errors_all
 	# task_errors_all = task_errors_all_all
 
@@ -102,7 +108,7 @@ fig2.subplots_adjust(bottom=0.15, top=.92)
 axes1[2].legend((line1,line2),('with sensory','without sensory'))
 
 
-save_figures = False
+save_figures = True
 if save_figures:
 	dpi = 600
 	# fig1.subplots_adjust(left=.06, bottom=.12, right=.96, top=.92, wspace=.30, hspace=.20)
@@ -111,19 +117,24 @@ if save_figures:
 	fig2.savefig("./results/{}/{}_figure2.png".format(experiment_ID_base,experiment_ID), dpi=dpi)
 plt.show(block=False)
 
-show_video=True
 if show_video:
 	dt=.005
 	use_sensory = True
 	if use_sensory:
-		experiment_ID = "w_sensory_"+"wo_feedback_"+ANN_structure+"_ANN_"+task_type+curriculum
+		if use_feedback:
+			experiment_ID = "w_sensory_"+"w_feedback_"+ANN_structure+"_ANN_"+task_type+cur
+		else:
+			experiment_ID = "w_sensory_"+"wo_feedback_"+ANN_structure+"_ANN_"+task_type+cur
 	else:
-		experiment_ID = "wo_sensory_"+"wo_feedback_"+ANN_structure+"_ANN_"+task_type+curriculum
+		if use_feedback:
+			experiment_ID = "wo_sensory_"+"w_feedback_"+ANN_structure+"_ANN_"+task_type+cur
+		else:
+			experiment_ID = "wo_sensory_"+"wo_feedback_"+ANN_structure+"_ANN_"+task_type+cur
 	save_log_path = experiment_ID_base+"/"+experiment_ID
 	run_no = 0
 	MuJoCo_model_names = ["tendon_quadruped_ws_inair.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloorloaded.xml"]
 	for MuJoCo_model_name , ii in zip(MuJoCo_model_names, range(len(MuJoCo_model_names))):
-		test_run_RMSE = test_a_task(MuJoCo_model_name, save_log_path, run_no, Mj_render=True, use_sensory=use_sensory, use_feedback=use_feedback, task_type=task_type, ANN_structure=ANN_structure, dt=dt, actuation_type=actuation_type)
+		test_run_RMSE = test_a_task(MuJoCo_model_name, save_log_path, run_no, Mj_render=False, use_sensory=use_sensory, use_feedback=use_feedback, plot_position_curves=True, task_type=task_type, ANN_structure=ANN_structure, dt=dt, actuation_type=actuation_type)
 		print(MuJoCo_model_name,"RMSE: " ,test_run_RMSE)
 #import pdb; pdb.set_trace()
 
