@@ -2,13 +2,13 @@ import numpy as np
 from matplotlib import pyplot as plt
 from all_functions import *
 
-experiment_ID_base = 'cur3_V5_TD_test24'
-show_video=True
+experiment_ID_base = 'cur3_V5_TD_test26'
+show_video=False
 
 all_sensory_cases = [True, False]
 use_feedback = True
 cur = "_E2H"
-ANN_structure = "M"
+ANN_structure = "S"
 actuation_type = "TD"
 task_type = "cyclical"
 number_of_refinements = 8+1
@@ -115,7 +115,7 @@ if save_figures:
 	fig1.savefig("./results/{}/{}_figure1.png".format(experiment_ID_base,experiment_ID), dpi=dpi)
 	#fig2.subplots_adjust(bottom=.12, top=.92)
 	fig2.savefig("./results/{}/{}_figure2.png".format(experiment_ID_base,experiment_ID), dpi=dpi)
-plt.show(block=False)
+plt.show(block=True)
 
 if show_video:
 	dt=.005

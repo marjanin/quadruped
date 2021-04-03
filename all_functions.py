@@ -542,7 +542,7 @@ def combine_4leg_kinematics(attempt_kinematics_RB, attempt_kinematics_RF, attemp
 	)
 	return attempt_kinematics
 
-def create_control_kinematics_fcn(current_desired_kinematics, current_sim_data, number_of_DoFs, prev_p_vec_error, prev_p_vec_error_int, dt, P=4, I=5, D=0.015):
+def create_control_kinematics_fcn(current_desired_kinematics, current_sim_data, number_of_DoFs, prev_p_vec_error, prev_p_vec_error_int, dt, P=4, I=5, D=0.05):
 #	current_sim_kinematics = pva2kin_fcn(current_sim_data.qpos, current_sim_data.qvel, current_sim_data.qacc, number_of_DoFs)
 	[current_desired_p, current_desired_v, current_desired_a] = kin2pva_fcn(current_desired_kinematics, number_of_DoFs)
 	p_vec_error = current_desired_p - current_sim_data.qpos[-number_of_DoFs:]

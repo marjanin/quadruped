@@ -7,4 +7,4 @@ adding the plot_position_curves to the test_a_task code (also change its name to
 'cur3_V5_TD_full_test_fb_1'
 PID=10-25-.05
 'cur3_V5_TD_full_test_fb_2'
-PID=4-5-.015
+PID=4-5-.05
