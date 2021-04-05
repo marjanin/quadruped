@@ -9,9 +9,8 @@ ANN_structures = ["S","M"]
 task_types = ["cyclical", "p2p"]
 
 all_sensory_cases = [True, False]
-use_feedback=True
-#all_sensory_cases = [True]
-
+use_feedback = False
+show_video = False
 
 task_type = task_types[0]
 curriculum = curriculums[0]
@@ -125,7 +124,6 @@ plt.show(block=True)
 
 
 dt=.005
-show_video = True
 use_sensory = True
 task_type = task_types[0]
 curriculum = curriculums[0]
