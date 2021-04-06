@@ -29,7 +29,7 @@ def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, 
 		ValueError("unacceptable actuation_type")
 
 	ANNs = number_of_ANNs*[None]
-	babbling_signal_duration_in_seconds= 1*80
+	babbling_signal_duration_in_seconds= 1*10
 	refinement_duration_in_seconds = 10
 	babbling_signals = babbling_input_gen_fcn(
 		number_of_signals=number_of_signals,
