@@ -2,13 +2,13 @@ import numpy as np
 from matplotlib import pyplot as plt
 from all_functions import *
 
-experiment_ID_base = 'cur3_V5_TD_test26'
-show_video=False
+experiment_ID_base = 'cur3_V5_TD_test28'
+show_video=True
 
 all_sensory_cases = [True, False]
 use_feedback = True
 cur = "_E2H"
-ANN_structure = "S"
+ANN_structure = "M"
 actuation_type = "TD"
 task_type = "cyclical"
 number_of_refinements = 8+1
@@ -134,7 +134,7 @@ if show_video:
 	run_no = 0
 	MuJoCo_model_names = ["tendon_quadruped_ws_inair.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloorloaded.xml"]
 	for MuJoCo_model_name , ii in zip(MuJoCo_model_names, range(len(MuJoCo_model_names))):
-		test_run_RMSE = test_a_task(MuJoCo_model_name, save_log_path, run_no, Mj_render=False, use_sensory=use_sensory, use_feedback=use_feedback, plot_position_curves=True, task_type=task_type, ANN_structure=ANN_structure, dt=dt, actuation_type=actuation_type)
+		test_run_RMSE = test_a_task(MuJoCo_model_name, save_log_path, run_no, Mj_render=True, use_sensory=use_sensory, use_feedback=use_feedback, plot_position_curves=True, task_type=task_type, ANN_structure=ANN_structure, dt=dt, actuation_type=actuation_type)
 		print(MuJoCo_model_name,"RMSE: " ,test_run_RMSE)
 #import pdb; pdb.set_trace()
 
