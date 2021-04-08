@@ -2,14 +2,14 @@ import numpy as np
 from matplotlib import pyplot as plt
 from all_functions import *
 
-experiment_ID_base = 'cur3_V5_TD_full_test_nonstiff_1'
+experiment_ID_base = 'cur3_V5_TD_full_test_nonstiff_3'
 
 curriculums = ["_E2H", "_H2E"]
 ANN_structures = ["S","M"]
 task_types = ["cyclical", "p2p"]
 
 all_sensory_cases = [True, False]
-use_feedback = False
+use_feedback = True
 show_video = True
 
 task_type = task_types[0]

@@ -2,6 +2,8 @@ done - extend pid to multiple ANNs
 adding the plot_position_curves to the test_a_task code (also change its name to test_a_task_fcn)
 - comparing with and without FB
 - modify the xml file
+-- make parameters physically realistic
+-- make the system more stable by not letting legs go all the way back
 
 
 'cur3_V5_TD_full_test_fb_1'
