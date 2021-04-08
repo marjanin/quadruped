@@ -67,7 +67,7 @@
       <joint armature="0" axis="0 1 0" damping="0" limited="false" name="rooty_rot" pos="0 0 0" stiffness="0" type="hinge"/>
       <joint armature="0" axis="1 0 0" damping="0" limited="false" name="rootx_rot" pos="0 0 0" stiffness="0" type="hinge"/>
       <geom name="torso" size=".5 .25 .05" type="box"/>
-      <geom name="load" pos=".00 0 .075" size=".2 .2 .05" type="box" rgba="1 .4 .4 1" density="1000"/>
+      <geom name="load" pos=".00 0 .075" size=".2 .2 .05" type="box" rgba="1 .4 .4 1" density="2000"/>
       <geom axisangle="0 1 0 .87" density="10" name="neck" pos=".5 0 .075" size="0.046 .075" type="capsule"/>
       <geom axisangle="0 1 0 1.7" density="10" name="head" pos=".6 0 .18" size="0.08 .095 0.2" type="ellipsoid"/>
       <geom axisangle="0 1 0 -.87" density="10" name="tail" pos="-.53 0 .075" size="0.026 .035" type="capsule"/>
