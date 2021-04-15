@@ -1,0 +1,21 @@
+done - extend pid to multiple ANNs
+adding the plot_position_curves to the test_a_task code (also change its name to test_a_task_fcn)
+- comparing with and without FB
+- modify the xml file
+-- make parameters physically realistic
+-- make the system more stable by not letting legs go all the way back
+
+
+'cur3_V5_TD_full_test_fb_1'
+PID=10-25-.05
+'cur3_V5_TD_full_test_fb_2'
+PID=4-5-.05
+
+'cur3_V5_TD_full_test_nonstiff_1'
+non stiff - extra DoF - Load density 1000 - 80 seconds babbling (usual)
+
+'cur3_V5_TD_full_test_nonstiff_2'
+non stiff - extra DoF - Load density 1000 - 10 secodns babbling
+
+'cur3_V5_TD_full_test_nonstiff_3'
+non stiff - extra DoF - Load density 2000 - 10 secodns babbling

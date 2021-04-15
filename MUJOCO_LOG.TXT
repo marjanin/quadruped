@@ -1,3 +1,4 @@
-Mon Mar 15 17:05:52 2021
-ERROR: Expired activation key
+
+Wed Mar 31 14:12:47 2021
+ERROR: Could not open activation key file mjkey.txt
 
