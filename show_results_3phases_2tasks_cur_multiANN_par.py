@@ -2,19 +2,19 @@ import numpy as np
 from matplotlib import pyplot as plt
 from all_functions import *
 
-experiment_ID_base = 'cur3_V5_TD_full_test_nonstiff_3'
+experiment_ID_base = 'cur3_V5_TD_full_test_nonstiff_1'
 
 curriculums = ["_E2H", "_H2E"]
 ANN_structures = ["S","M"]
 task_types = ["cyclical", "p2p"]
 
 all_sensory_cases = [True, False]
-use_feedback = True
+use_feedback = False
 show_video = True
 
 task_type = task_types[0]
 curriculum = curriculums[0]
-ANN_structure = ANN_structures[1]
+ANN_structure = ANN_structures[0]
 number_of_refinements = 8+1
 number_of_all_runs = 14
 

@@ -6,7 +6,7 @@ import multiprocessing as mp
 from all_functions import *
 
 def L2_learn_quadruped_experiment(run_no):
-	experiment_ID_base = 'cur3_V5_TD_test35'
+	experiment_ID_base = 'cur3_V5_TD_test36'
 # Create target Directory if don't exist
 	dt=.005
 	if not os.path.exists('./results/'+experiment_ID_base):
@@ -24,7 +24,7 @@ def L2_learn_quadruped_experiment(run_no):
 		for ANN_structure in ANN_structures:
 			for use_sensory in all_sensory_cases:
 				for use_feedback in all_feedback_cases:
-					np.random.seed(5)
+					np.random.seed(10)
 					if cur == "_E2H":
 						MuJoCo_model_names =\
 							["tendon_quadruped_ws_inair.xml",
