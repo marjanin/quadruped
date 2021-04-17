@@ -6,7 +6,8 @@ experiment_ID_base = 'cur3_V5_TD_test41'
 show_video = True
 
 all_sensory_cases = [True, False]
-use_feedback = True
+use_feedback = False
+use_acc=True
 cur = "_E2H"
 ANN_structure = "M"
 actuation_type = "TD"
@@ -75,7 +76,7 @@ for use_sensory in all_sensory_cases:
 		axes1[ii].set_title(MuJoCo_model_names_short[ii])
 		axes1[ii].set_xlabel('Refinement #')
 		axes1[ii].set_ylabel('RMSE')
-		axes1[ii].set_ylim(0.2, 1)
+		axes1[ii].set_ylim(0.0, 1)
 		axes1[ii].set_xlim(-0.50, 9.5)
 		axes1[ii].grid(color='k', linestyle=':', linewidth=.5)
 
@@ -103,7 +104,7 @@ plt.setp(axes2.get_xticklabels(), rotation=-45, ha="left",
          rotation_mode="anchor")
 axes2.set_ylabel('RMSE')
 axes2.grid(color='k', linestyle=':', linewidth=.5)
-axes2.set_ylim(0.2, .7)
+axes2.set_ylim(0.0, .7)
 fig2.subplots_adjust(bottom=0.15, top=.92)
 axes1[2].legend((line1,line2),('with sensory','without sensory'))
 
@@ -134,7 +135,7 @@ if show_video:
 	run_no = 0
 	MuJoCo_model_names = ["tendon_quadruped_ws_inair.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloorloaded.xml"]
 	for MuJoCo_model_name , ii in zip(MuJoCo_model_names, range(len(MuJoCo_model_names))):
-		test_run_RMSE = test_a_task(MuJoCo_model_name, save_log_path, run_no, Mj_render=False, use_sensory=use_sensory, use_feedback=use_feedback, plot_position_curves=True, task_type=task_type, ANN_structure=ANN_structure, dt=dt, actuation_type=actuation_type)
+		test_run_RMSE = test_a_task(MuJoCo_model_name, save_log_path, run_no, Mj_render=True, use_sensory=use_sensory, use_feedback=use_feedback, plot_position_curves=True, task_type=task_type, ANN_structure=ANN_structure, dt=dt, actuation_type=actuation_type, use_acc=use_acc)
 		print(MuJoCo_model_name,"RMSE: " ,test_run_RMSE)
 #import pdb; pdb.set_trace()
 
