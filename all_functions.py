@@ -437,11 +437,14 @@ def run_activations_ws_cl_varANNs_fcn(MuJoCo_model_name, attempt_kinematics, log
 					create_control_kinematics_fcn(attempt_kinematics[ii,:], sim.data, number_of_DoFs, p_vec_error, p_vec_error_integ, dt=dt)
 				else:
 					current_control_kinematics = attempt_kinematics[ii,:]
-				#import pdb; pdb.set_trace()
-			if use_sensory:
-				sim.data.ctrl[:] = Inverse_ANN_models.predict(np.array([np.concatenate((current_control_kinematics, last_sensorydata))]))
+			if use_acc:
+				current_control_kinematics_to_use = current_control_kinematics
 			else:
-				sim.data.ctrl[:] = Inverse_ANN_models.predict(np.array([current_control_kinematics]))
+				current_control_kinematics_to_use = current_control_kinematics[:-8]
+			if use_sensory:
+				sim.data.ctrl[:] = Inverse_ANN_models.predict(np.array([np.concatenate((current_control_kinematics_to_use, last_sensorydata))]))
+			else:
+				sim.data.ctrl[:] = Inverse_ANN_models.predict(np.array([current_control_kinematics_to_use]))
 			sim.step()
 			# collecting kinematics (pos, vel, and acc) from all joints
 			joint_names = ["rbthigh", "rbshin"]
