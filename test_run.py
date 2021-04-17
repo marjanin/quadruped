@@ -18,7 +18,7 @@ def L2_learn_quadruped_experiment(run_no):
 	all_feedback_cases = [True, False]
 	use_acc=False
 	curriculums = ["_E2H"]
-	ANN_structures = ["S"]
+	ANN_structures = ["M"]
 	actuation_type = "TD"
 	number_of_refinements = 8
 	for cur in curriculums:

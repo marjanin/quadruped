@@ -20,11 +20,18 @@ non stiff - extra DoF - Load density 1000 - 10 secodns babbling
 'cur3_V5_TD_full_test_nonstiff_3'
 non stiff - extra DoF - Load density 2000 - 10 secodns babbling
 
+'cur3_V5_TD_full_test_nonstiff_modifiedRoM_useACCtest_2'
+use_acc=False
 
-
+'cur3_V5_TD_full_test_nonstiff_modifiedRoM_useACCtest_1'
+use_acc=True
 
 
 cur3_V5_TD_test41
 testimg a lower frequency (omega=1.5)
 cur3_V5_TD_test42
 no acc + testimg a lower frequency (omega=1.5)
+cur3_V5_TD_test43
+with normalization + no acc + testimg a lower frequency (omega=1.5)
+
+generalize normalization -> especially in the feedback create_control_kinematics_fcn

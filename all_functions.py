@@ -109,9 +109,9 @@ def test_a_task(MuJoCo_model_name, experiment_ID, run_no, use_sensory=True, use_
 	if plot_position_curves:
 		# import pdb; pdb.set_trace()
 		fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(6, 4.2))
-		axes[0].plot(np.arange(1000),returned_kinematics[int(returned_kinematics.shape[0]/2):,0+16], np.arange(1000), attempt_kinematics[int(attempt_kinematics.shape[0]/2):,0+16])
+		axes[0].plot(np.arange(1000),returned_kinematics[int(returned_kinematics.shape[0]/2):,0], np.arange(1000), attempt_kinematics[int(attempt_kinematics.shape[0]/2):,0])
 		axes[0].set_title('proximal')
-		axes[1].plot(np.arange(1000), returned_kinematics[int(returned_kinematics.shape[0]/2):,1+16], np.arange(1000), attempt_kinematics[int(attempt_kinematics.shape[0]/2):,1+16])
+		axes[1].plot(np.arange(1000), returned_kinematics[int(returned_kinematics.shape[0]/2):,1], np.arange(1000), attempt_kinematics[int(attempt_kinematics.shape[0]/2):,1])
 		axes[1].set_title('distal')
 		plt.show(block=True)
 
@@ -208,17 +208,19 @@ def inverse_mapping_ws_varANNs_fcn(kinematics, sensorydata, activations, ANN_str
 	# input_layer_nodes = determined from the input data
 	if ANN_structure == "M":
 		for leg_number in range(number_of_legs):
+			# normalization
+			normalization_vector = np.hstack((np.full((1,8),1),np.full((1,8),10),np.full((1,8),1000)))
+			kinematics_norm=kinematics#np.squeeze(kinematics/normalization_vector)
 			if use_acc:
-				leg_kinematics = kinematics[:,[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2, 16+leg_number*2,17+leg_number*2]]
+				leg_kinematics = kinematics_norm[:,[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2, 16+leg_number*2,17+leg_number*2]]
 			else:
-				leg_kinematics = kinematics[:,[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2]]
+				leg_kinematics = kinematics_norm[:,[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2]]
 			if use_sensory:
 				sensorydata_delayed = np.zeros(sensorydata.shape)
-				sensorydata_delayed[1:,:] = sensorydata[:-1,:] # this is needed since we use observed sensory when inputing desired kinematics
+				sensorydata_delayed[1:,:] = sensorydata[:-1,:]#/400 # this is needed since we use observed sensory when inputing desired kinematics
 				x = np.concatenate((leg_kinematics, np.transpose(np.array([sensorydata_delayed[:,leg_number]]))),axis=1)   
 			else:
 				x = leg_kinematics
-
 			if actuation_type == "TD":
 				y = activations[:,0+leg_number*3:3+leg_number*3]
 			elif actuation_type == "JD":
@@ -381,24 +383,27 @@ def run_activations_ws_cl_varANNs_fcn(MuJoCo_model_name, attempt_kinematics, log
 				p_vec_error = 0
 				p_vec_error_integ = 0
 			else:
-				last_sensorydata = sim.data.sensordata
+				last_sensorydata = sim.data.sensordata#/400
 				if use_feedback == True:
 					[current_control_kinematics, p_vec_error, p_vec_error_integ] = \
 					create_control_kinematics_fcn(attempt_kinematics[ii,:], sim.data, number_of_DoFs, p_vec_error, p_vec_error_integ, dt=dt)
 				else:
 					current_control_kinematics = attempt_kinematics[ii,:]
+			normalization_vector = np.hstack((np.full((1,8),1),np.full((1,8),10),np.full((1,8),1000)))
+			current_control_kinematics_normalized=current_control_kinematics#np.squeeze(current_control_kinematics/normalization_vector)
+			#import pdb; pdb.set_trace()
 			for leg_number in range(number_of_legs):
 				Inverse_ANN_model = Inverse_ANN_models[leg_number]
 				if use_sensory:
 					if use_acc:
-						input_data = np.append(current_control_kinematics[[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2, 16+leg_number*2,17+leg_number*2]],last_sensorydata[leg_number])
+						input_data = np.append(current_control_kinematics_normalized[[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2, 16+leg_number*2,17+leg_number*2]],last_sensorydata[leg_number])
 					else:
-						input_data = np.append(current_control_kinematics[[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2]],last_sensorydata[leg_number])
+						input_data = np.append(current_control_kinematics_normalized[[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2]],last_sensorydata[leg_number])
 				else:
 					if use_acc:
-						input_data = current_control_kinematics[[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2, 16+leg_number*2,17+leg_number*2]]
+						input_data = current_control_kinematics_normalized[[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2, 16+leg_number*2,17+leg_number*2]]
 					else:
-						input_data = current_control_kinematics[[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2]]
+						input_data = current_control_kinematics_normalized[[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2]]
 				if actuation_type == "TD":
 					sim.data.ctrl[0+3*leg_number:3+3*leg_number] = Inverse_ANN_model.predict(np.expand_dims(input_data, axis=0))
 				elif actuation_type == "JD":
