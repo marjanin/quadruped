@@ -40,7 +40,7 @@ def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, 
 		dt=dt)
 	est_activations = babbling_signals
 	if task_type == "cyclical":
-		attempt_kinematics = create_cyclical_movements_fcn(omega = 3, attempt_length = refinement_duration_in_seconds, dt=dt)
+		attempt_kinematics = create_cyclical_movements_fcn(omega = 1.5, attempt_length = refinement_duration_in_seconds, dt=dt)
 	elif task_type == "p2p":
 		filtfilt_N = 4
 		attempt_kinematics = create_p2p_movements_fcn(number_of_steps = 10, attempt_length = refinement_duration_in_seconds, dt=dt, filtfilt_N=filtfilt_N)
@@ -106,12 +106,15 @@ def test_a_task(MuJoCo_model_name, experiment_ID, run_no, use_sensory=True, use_
 	[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_varANNs_fcn(
 			MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), dt=dt, ANN_structure = ANN_structure, use_sensory=use_sensory, use_feedback=use_feedback, Mj_render=Mj_render, actuation_type=actuation_type) # this should be cl
 	RMSE = np.sqrt(np.mean(np.square((returned_kinematics[int(returned_kinematics.shape[0]/2):,:8]-attempt_kinematics[int(attempt_kinematics.shape[0]/2):,:8])))) # RMSE on the last half of the trial
-	# if plot_position_curves:
-	# 	import pdb; pdb.set_trace()
-	# 	fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(6, 4.2))
-	# 	axes[0].plot(returned_kinematics[int(returned_kinematics.shape[0]/2):,-2], attempt_kinematics[int(attempt_kinematics.shape[0]/2):,-2])
-	# 	axes[1].plot(returned_kinematics[int(returned_kinematics.shape[0]/2):,-1], attempt_kinematics[int(attempt_kinematics.shape[0]/2):,-1])
-	# 	plt.show(block=True)
+	if plot_position_curves:
+		# import pdb; pdb.set_trace()
+		fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(6, 4.2))
+		axes[0].plot(np.arange(1000),returned_kinematics[int(returned_kinematics.shape[0]/2):,0], np.arange(1000), attempt_kinematics[int(attempt_kinematics.shape[0]/2):,0])
+		axes[0].set_title('proximal')
+		axes[1].plot(np.arange(1000), returned_kinematics[int(returned_kinematics.shape[0]/2):,1], np.arange(1000), attempt_kinematics[int(attempt_kinematics.shape[0]/2):,1])
+		axes[1].set_title('distal')
+		plt.show(block=True)
+
 	return RMSE
 ## lower level functions
 def babbling_input_gen_fcn(number_of_signals, signal_duration_in_seconds, pass_chance, max_in, min_in, dt=.01):
@@ -185,7 +188,7 @@ def run_activations_ws_ol_fcn(MuJoCo_model_name, est_activations, Mj_render=Fals
 	real_attempt_kinematics = np.concatenate((real_attempt_positions, real_attempt_velocities, real_attempt_accelerations),axis=1)
 	return real_attempt_kinematics, real_attempt_sensorreads, real_attempt_activations
 
-def inverse_mapping_ws_varANNs_fcn(kinematics, sensorydata, activations, ANN_structure="M", epochs=25, log_address=None, use_sensory=True, use_prior_model=False, actuation_type = "JD"):
+def inverse_mapping_ws_varANNs_fcn(kinematics, sensorydata, activations, ANN_structure="M", epochs=25, log_address=None, use_sensory=True, use_prior_model=False, actuation_type = "JD", use_acc=False):
 	"""
 	this function used the babbling data to create an inverse mapping using a
 	MLP NN
@@ -205,7 +208,10 @@ def inverse_mapping_ws_varANNs_fcn(kinematics, sensorydata, activations, ANN_str
 	# input_layer_nodes = determined from the input data
 	if ANN_structure == "M":
 		for leg_number in range(number_of_legs):
-			leg_kinematics = kinematics[:,[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2, 16+leg_number*2,17+leg_number*2]]
+			if use_acc:
+				leg_kinematics = kinematics[:,[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2, 16+leg_number*2,17+leg_number*2]]
+			else:
+				leg_kinematics = kinematics[:,[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2]]
 			if use_sensory:
 				sensorydata_delayed = np.zeros(sensorydata.shape)
 				sensorydata_delayed[1:,:] = sensorydata[:-1,:] # this is needed since we use observed sensory when inputing desired kinematics
@@ -268,12 +274,16 @@ def inverse_mapping_ws_varANNs_fcn(kinematics, sensorydata, activations, ANN_str
 			ANNs[leg_number] = model
 		return ANNs
 	else: # ANN_structure == "S"
+		if use_acc:
+			kinematics_to_use = kinematics
+		else:
+			kinematics_to_use = kinematics[:,:-8]
 		if use_sensory:
 			sensorydata_delayed = np.zeros(sensorydata.shape)
 			sensorydata_delayed[1:,:] = sensorydata[:-1,:] # this is needed since we use observed sensory when inputing desired kinematics
-			x = np.concatenate((kinematics, sensorydata_delayed), axis=1)   
+			x = np.concatenate((kinematics_to_use, sensorydata_delayed), axis=1)   
 		else:
-			x = kinematics
+			x = kinematics_to_use
 		y = activations
 		x_train, x_valid, y_train, y_valid = sklearn.model_selection.train_test_split(x, y, test_size=0.2)
 		
@@ -325,7 +335,7 @@ def inverse_mapping_ws_varANNs_fcn(kinematics, sensorydata, activations, ANN_str
 		ANNs=tf.keras.models.load_model(logdir+"model",compile=False)
 	return ANNs
 
-def run_activations_ws_cl_varANNs_fcn(MuJoCo_model_name, attempt_kinematics, log_address, dt, ANN_structure = "M", use_sensory=True, use_feedback=False, Mj_render=False, actuation_type="JD"):
+def run_activations_ws_cl_varANNs_fcn(MuJoCo_model_name, attempt_kinematics, log_address, dt, ANN_structure = "M", use_sensory=True, use_feedback=False, Mj_render=False, actuation_type="JD", use_acc=False):
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! the q0 is now the chasis pos. needs to be fixed
 	"""
 	this function runs the predicted activations generatred from running
@@ -380,9 +390,15 @@ def run_activations_ws_cl_varANNs_fcn(MuJoCo_model_name, attempt_kinematics, log
 			for leg_number in range(number_of_legs):
 				Inverse_ANN_model = Inverse_ANN_models[leg_number]
 				if use_sensory:
-					input_data = np.append(current_control_kinematics[[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2, 16+leg_number*2,17+leg_number*2]],last_sensorydata[leg_number])
+					if use_acc:
+						input_data = np.append(current_control_kinematics[[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2, 16+leg_number*2,17+leg_number*2]],last_sensorydata[leg_number])
+					else:
+						input_data = np.append(current_control_kinematics[[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2]],last_sensorydata[leg_number])
 				else:
-					input_data = current_control_kinematics[[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2, 16+leg_number*2,17+leg_number*2]]
+					if use_acc:
+						input_data = current_control_kinematics[[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2, 16+leg_number*2,17+leg_number*2]]
+					else:
+						input_data = current_control_kinematics[[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2]]
 				if actuation_type == "TD":
 					sim.data.ctrl[0+3*leg_number:3+3*leg_number] = Inverse_ANN_model.predict(np.expand_dims(input_data, axis=0))
 				elif actuation_type == "JD":
@@ -469,11 +485,11 @@ def p2p_positions_gen_fcn(low, high, number_of_positions, duration_of_each_posit
 	return random_array
 
 def create_cyclical_movements_fcn(omega=1.5, attempt_length=10, dt=0.01):
-	q0a = sinusoidal_CPG_fcn(w = omega, phi = 0, lower_band = -.8, upper_band = .6, attempt_length = attempt_length , dt=dt)
-	q1a = sinusoidal_CPG_fcn(w = omega, phi = np.pi/2, lower_band = -1, upper_band = .8, attempt_length = attempt_length , dt=dt)
+	q0a = sinusoidal_CPG_fcn(w = omega, phi = 0, lower_band = -.9, upper_band = 0, attempt_length = attempt_length , dt=dt)
+	q1a = sinusoidal_CPG_fcn(w = omega, phi = np.pi/2, lower_band = -.7, upper_band = 0, attempt_length = attempt_length , dt=dt)
 
-	q0b = sinusoidal_CPG_fcn(w = omega, phi = np.pi, lower_band = -.8, upper_band = .6, attempt_length = attempt_length , dt=dt)
-	q1b = sinusoidal_CPG_fcn(w = omega, phi = -np.pi/2, lower_band = -1, upper_band = .8, attempt_length = attempt_length , dt=dt)
+	q0b = sinusoidal_CPG_fcn(w = omega, phi = np.pi, lower_band = -.9, upper_band = 0, attempt_length = attempt_length , dt=dt)
+	q1b = sinusoidal_CPG_fcn(w = omega, phi = -np.pi/2, lower_band = -.7, upper_band = 0, attempt_length = attempt_length , dt=dt)
 	attempt_kinematics_RB = positions_to_kinematics_fcn(q0a, q1a, dt)
 	# # plotting
 	# plt.plot(q0a[0:100])
