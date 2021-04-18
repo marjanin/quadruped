@@ -6,7 +6,7 @@ import multiprocessing as mp
 from all_functions import *
 
 def L2_learn_quadruped_experiment(run_no):
-	experiment_ID_base = 'cur3_V5_TD_test44'
+	experiment_ID_base = 'cur3_V5_TD_test46'
 # Create target Directory if don't exist
 	dt=.005
 	if not os.path.exists('./results/'+experiment_ID_base):
@@ -16,11 +16,12 @@ def L2_learn_quadruped_experiment(run_no):
 	# ANN_structures = ["S","M"]
 	all_sensory_cases = [True, False]
 	all_feedback_cases = [True, False]
-	use_acc=False
+	use_acc = True
+	normalize = False
 	curriculums = ["_E2H"]
-	ANN_structures = ["M"]
+	ANN_structures = ["S"]
 	actuation_type = "TD"
-	number_of_refinements = 8
+	number_of_refinements = 4
 	for cur in curriculums:
 		for ANN_structure in ANN_structures:
 			for use_sensory in all_sensory_cases:
@@ -66,6 +67,7 @@ def L2_learn_quadruped_experiment(run_no):
 									number_of_refinements,
 									use_sensory=use_sensory,
 									use_feedback=use_feedback,
+									normalize=normalize,
 									task_type=task_type,
 									ANN_structure=ANN_structure,
 									actuation_type=actuation_type,
@@ -76,7 +78,7 @@ def L2_learn_quadruped_experiment(run_no):
 							else:
 								learning_errors[ii,:] = errors
 						for MuJoCo_model_name , ii in zip(MuJoCo_model_names, range(len(MuJoCo_model_names))):
-							task_errors[ii] = test_a_task(MuJoCo_model_name, save_log_path, run_no, use_sensory=use_sensory, use_feedback=use_feedback, plot_position_curves=False, task_type=task_type, ANN_structure=ANN_structure, dt=dt, actuation_type=actuation_type, use_acc=use_acc)
+							task_errors[ii] = test_a_task(MuJoCo_model_name, save_log_path, run_no, use_sensory=use_sensory, use_feedback=use_feedback,normalize=normalize, plot_position_curves=False, task_type=task_type, ANN_structure=ANN_structure, dt=dt, actuation_type=actuation_type, use_acc=use_acc)
 						np.save('./results/{}/MC{}_{}_babble_and_refine_results'.format(experiment_ID_base, run_no, experiment_ID),learning_errors)
 						np.save('./results/{}/MC{}_{}_task_results'.format(experiment_ID_base, run_no, experiment_ID),task_errors)
 # main code

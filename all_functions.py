@@ -8,12 +8,11 @@ import sklearn.model_selection
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
-global normalization_vector_w_sen_w_acc, normalization_vector_w_sen_wo_acc, normalization_vector_wo_sen_w_acc, normalization_vector_wo_sen_wo_acc
-normalization_vector = np.hstack((np.full((1,8),1),np.full((1,8),10),np.full((1,8),1000)))
-sensory_normalization_coefficient = 400
+global normalization_vector_w_acc_global, normalization_vector_wo_acc_global, sensory_normalization_coefficient_global
+normalization_vector_global = np.hstack((np.full((1,8),1),np.full((1,8),10),np.full((1,8),1000)))
+sensory_normalization_coef_global = 400
 ## executive functions
-def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, sensory_all, activations_all, number_of_refinements, use_sensory=True, use_feedback=False, task_type="cyclical", ANN_structure="M", actuation_type="JD",use_acc=False, dt=.01):
-	print(xyz)
+def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, sensory_all, activations_all, number_of_refinements, use_sensory=True, use_feedback=False, normalize=True, task_type="cyclical", ANN_structure="M", actuation_type="JD",use_acc=False, dt=.01):
 	babbling = True
 	number_of_legs = 4
 	if ANN_structure == "M":
@@ -61,7 +60,7 @@ def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, 
 	else:
 		# asses the before babbling error
 		[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_varANNs_fcn(
-			MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), dt=dt, ANN_structure = ANN_structure, use_sensory=use_sensory, use_feedback=use_feedback, Mj_render=False, actuation_type=actuation_type, use_acc=use_acc) # this should be cl
+			MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), dt=dt, ANN_structure = ANN_structure, use_sensory=use_sensory, use_feedback=use_feedback, normalize=normalize, Mj_render=False, actuation_type=actuation_type, use_acc=use_acc) # this should be cl
 		RMSE = np.sqrt(np.mean(np.square((returned_kinematics[int(returned_kinematics.shape[0]/2):,:8]-attempt_kinematics[int(attempt_kinematics.shape[0]/2):,:8])))) # RMSE on the last half of the trial
 		print("Pre-babbling error>")
 		print("RMSE:", RMSE)
@@ -73,12 +72,12 @@ def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, 
 		use_prior_model_babbling = True
 
 	Inverse_ANN_models = inverse_mapping_ws_varANNs_fcn(
-	kinematics_all, sensory_all, activations_all, ANN_structure=ANN_structure, epochs=25, log_address="./log/{}/{}/".format(experiment_ID,run_no), use_sensory=use_sensory, use_prior_model=use_prior_model_babbling, actuation_type=actuation_type, use_acc=use_acc) #
+	kinematics_all, sensory_all, activations_all, ANN_structure=ANN_structure, epochs=25, log_address="./log/{}/{}/".format(experiment_ID,run_no), use_sensory=use_sensory, normalize=normalize, use_prior_model=use_prior_model_babbling, actuation_type=actuation_type, use_acc=use_acc) #
 	
 	
 	for ii in range(number_of_refinements):
 		[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_varANNs_fcn(
-			MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), dt=dt, ANN_structure = ANN_structure, use_sensory=use_sensory, use_feedback=use_feedback, Mj_render=False, actuation_type=actuation_type, use_acc=use_acc) # this should be cl
+			MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), dt=dt, ANN_structure = ANN_structure, use_sensory=use_sensory, use_feedback=use_feedback, normalize=normalize, Mj_render=False, actuation_type=actuation_type, use_acc=use_acc) # this should be cl
 		RMSE = np.sqrt(np.mean(np.square((returned_kinematics[int(returned_kinematics.shape[0]/2):,:8]-attempt_kinematics[int(attempt_kinematics.shape[0]/2):,:8])))) # RMSE on the last half of the trial
 		print("Run #:", ii+1)
 		print("RMSE:", RMSE)
@@ -89,17 +88,17 @@ def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, 
 		activations_all = np.concatenate((activations_all,returned_est_activations),axis=0)
 
 		Inverse_ANN_models = inverse_mapping_ws_varANNs_fcn(
-		kinematics_all, sensory_all, activations_all, ANN_structure=ANN_structure, epochs=5, log_address="./log/{}/{}/".format(experiment_ID,run_no), use_sensory=use_sensory, use_prior_model=True, actuation_type=actuation_type, use_acc=use_acc) #
+		kinematics_all, sensory_all, activations_all, ANN_structure=ANN_structure, epochs=5, log_address="./log/{}/{}/".format(experiment_ID,run_no), use_sensory=use_sensory, normalize=normalize, use_prior_model=True, actuation_type=actuation_type, use_acc=use_acc) #
 	# test_run (no-training or storing the data)
 	[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_varANNs_fcn(
-		MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), dt=dt, ANN_structure = ANN_structure, use_sensory=use_sensory, use_feedback=use_feedback, Mj_render=False, actuation_type=actuation_type, use_acc=use_acc) # this should be cl
+		MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), dt=dt, ANN_structure = ANN_structure, use_sensory=use_sensory, use_feedback=use_feedback, normalize=normalize, Mj_render=False, actuation_type=actuation_type, use_acc=use_acc) # this should be cl
 	RMSE = np.sqrt(np.mean(np.square((returned_kinematics[int(returned_kinematics.shape[0]/2):,:8]-attempt_kinematics[int(attempt_kinematics.shape[0]/2):,:8]))))
 	print("Run #:", number_of_refinements+1)
 	print("RMSE:", RMSE)
 	errors.append(RMSE)
 	return errors, kinematics_all, sensory_all, activations_all
 
-def test_a_task(MuJoCo_model_name, experiment_ID, run_no, use_sensory=True, use_feedback=False, Mj_render=False, plot_position_curves=False, task_type = "cyclical", ANN_structure="M", dt=0.01, actuation_type="JD", use_acc=False):
+def test_a_task(MuJoCo_model_name, experiment_ID, run_no, use_sensory=True, use_feedback=False, normalize=True, Mj_render=False, plot_position_curves=False, task_type = "cyclical", ANN_structure="M", dt=0.01, actuation_type="JD", use_acc=False):
 	refinement_duration_in_seconds = 10
 	if task_type == "cyclical":
 		attempt_kinematics = create_cyclical_movements_fcn(omega = 1.5, attempt_length = refinement_duration_in_seconds, dt=dt)
@@ -108,7 +107,7 @@ def test_a_task(MuJoCo_model_name, experiment_ID, run_no, use_sensory=True, use_
 	else:
 		ValueError("unacceptable task")
 	[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_varANNs_fcn(
-			MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), dt=dt, ANN_structure = ANN_structure, use_sensory=use_sensory, use_feedback=use_feedback, Mj_render=Mj_render, actuation_type=actuation_type, use_acc=use_acc) # this should be cl
+			MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), dt=dt, ANN_structure = ANN_structure, use_sensory=use_sensory, use_feedback=use_feedback, normalize=normalize, Mj_render=Mj_render, actuation_type=actuation_type, use_acc=use_acc) # this should be cl
 	RMSE = np.sqrt(np.mean(np.square((returned_kinematics[int(returned_kinematics.shape[0]/2):,:8]-attempt_kinematics[int(attempt_kinematics.shape[0]/2):,:8])))) # RMSE on the last half of the trial
 	if plot_position_curves:
 		# import pdb; pdb.set_trace()
@@ -192,7 +191,7 @@ def run_activations_ws_ol_fcn(MuJoCo_model_name, est_activations, Mj_render=Fals
 	real_attempt_kinematics = np.concatenate((real_attempt_positions, real_attempt_velocities, real_attempt_accelerations),axis=1)
 	return real_attempt_kinematics, real_attempt_sensorreads, real_attempt_activations
 
-def inverse_mapping_ws_varANNs_fcn(kinematics, sensorydata, activations, ANN_structure="M", epochs=25, log_address=None, use_sensory=True, use_prior_model=False, actuation_type = "JD", use_acc=False):
+def inverse_mapping_ws_varANNs_fcn(kinematics, sensorydata, activations, ANN_structure="M", epochs=25, log_address=None, use_sensory=True, normalize=True, use_prior_model=False, actuation_type = "JD", use_acc=False):
 	"""
 	this function used the babbling data to create an inverse mapping using a
 	MLP NN
@@ -209,21 +208,24 @@ def inverse_mapping_ws_varANNs_fcn(kinematics, sensorydata, activations, ANN_str
 	output_layer_nodes = activations.shape[1]/number_of_ANNs
 	ANNs = number_of_ANNs*[None]
 	
+	if normalize:
+		normalization_vector = normalization_vector_global
+		sensory_normalization_coef = sensory_normalization_coef_global
+	else:
+		normalization_vector = 1
+		sensory_normalization_coef = 1
+	kinematics_normalized=np.squeeze(kinematics/normalization_vector)
 	# input_layer_nodes = determined from the input data
 	if ANN_structure == "M":
 		for leg_number in range(number_of_legs):
 			# normalization
-			if normalize==True:
-				kinematics_norm=np.squeeze(kinematics/normalization_vector)
-			else:
-				kinematics_norm=kinematics
 			if use_acc:
-				leg_kinematics = kinematics_norm[:,[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2, 16+leg_number*2,17+leg_number*2]]
+				leg_kinematics = kinematics_normalized[:,[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2, 16+leg_number*2,17+leg_number*2]]
 			else:
-				leg_kinematics = kinematics_norm[:,[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2]]
+				leg_kinematics = kinematics_normalized[:,[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2]]
 			if use_sensory:
 				sensorydata_delayed = np.zeros(sensorydata.shape)
-				sensorydata_delayed[1:,:] = sensorydata[:-1,:]#/400 # this is needed since we use observed sensory when inputing desired kinematics
+				sensorydata_delayed[1:,:] = sensorydata[:-1,:]/sensory_normalization_coef#/400 # this is needed since we use observed sensory when inputing desired kinematics
 				x = np.concatenate((leg_kinematics, np.transpose(np.array([sensorydata_delayed[:,leg_number]]))),axis=1)   
 			else:
 				x = leg_kinematics
@@ -283,12 +285,12 @@ def inverse_mapping_ws_varANNs_fcn(kinematics, sensorydata, activations, ANN_str
 		return ANNs
 	else: # ANN_structure == "S"
 		if use_acc:
-			kinematics_to_use = kinematics
+			kinematics_to_use = kinematics_normalized
 		else:
-			kinematics_to_use = kinematics[:,:-8]
+			kinematics_to_use = kinematics_normalized[:,:-8]
 		if use_sensory:
 			sensorydata_delayed = np.zeros(sensorydata.shape)
-			sensorydata_delayed[1:,:] = sensorydata[:-1,:] # this is needed since we use observed sensory when inputing desired kinematics
+			sensorydata_delayed[1:,:] = sensorydata[:-1,:]/sensory_normalization_coef # this is needed since we use observed sensory when inputing desired kinematics
 			x = np.concatenate((kinematics_to_use, sensorydata_delayed), axis=1)   
 		else:
 			x = kinematics_to_use
@@ -343,12 +345,19 @@ def inverse_mapping_ws_varANNs_fcn(kinematics, sensorydata, activations, ANN_str
 		ANNs=tf.keras.models.load_model(logdir+"model",compile=False)
 	return ANNs
 
-def run_activations_ws_cl_varANNs_fcn(MuJoCo_model_name, attempt_kinematics, log_address, dt, ANN_structure = "M", use_sensory=True, use_feedback=False, Mj_render=False, actuation_type="JD", use_acc=False):
+def run_activations_ws_cl_varANNs_fcn(MuJoCo_model_name, attempt_kinematics, log_address, dt, ANN_structure = "M", use_sensory=True, use_feedback=False, normalize=True, Mj_render=False, actuation_type="JD", use_acc=False):
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! the q0 is now the chasis pos. needs to be fixed
 	"""
 	this function runs the predicted activations generatred from running
 	the inverse map on the desired task kinematics
 	"""
+	if normalize:
+		normalization_vector = normalization_vector_global
+		sensory_normalization_coef = sensory_normalization_coef_global
+	else:
+		normalization_vector = 1
+		sensory_normalization_coef = 1
+
 	MuJoCo_model = load_model_from_path("./assets/"+MuJoCo_model_name)
 	sim = MjSim(MuJoCo_model)
 	if Mj_render:
@@ -389,16 +398,13 @@ def run_activations_ws_cl_varANNs_fcn(MuJoCo_model_name, attempt_kinematics, log
 				p_vec_error = 0
 				p_vec_error_integ = 0
 			else:
-				last_sensorydata = sim.data.sensordata#/400
+				last_sensorydata = sim.data.sensordata/sensory_normalization_coef
 				if use_feedback == True:
 					[current_control_kinematics, p_vec_error, p_vec_error_integ] = \
 					create_control_kinematics_fcn(attempt_kinematics[ii,:], sim.data, number_of_DoFs, p_vec_error, p_vec_error_integ, dt=dt)
 				else:
 					current_control_kinematics = attempt_kinematics[ii,:]
-			if normalize == True:
-				current_control_kinematics_normalized = np.squeeze(current_control_kinematics/normalization_vector)
-			else:
-				current_control_kinematics_normalized = current_control_kinematics
+			current_control_kinematics_normalized = np.squeeze(current_control_kinematics/normalization_vector)
 			#import pdb; pdb.set_trace()
 			for leg_number in range(number_of_legs):
 				Inverse_ANN_model = Inverse_ANN_models[leg_number]
@@ -444,16 +450,17 @@ def run_activations_ws_cl_varANNs_fcn(MuJoCo_model_name, attempt_kinematics, log
 				p_vec_error = 0
 				p_vec_error_integ = 0
 			else:
-				last_sensorydata = sim.data.sensordata
+				last_sensorydata = sim.data.sensordata/sensory_normalization_coef
 				if use_feedback == True:
 					[current_control_kinematics, p_vec_error, p_vec_error_integ] = \
 					create_control_kinematics_fcn(attempt_kinematics[ii,:], sim.data, number_of_DoFs, p_vec_error, p_vec_error_integ, dt=dt)
 				else:
 					current_control_kinematics = attempt_kinematics[ii,:]
+			current_control_kinematics_normalized = np.squeeze(current_control_kinematics/normalization_vector)
 			if use_acc:
-				current_control_kinematics_to_use = current_control_kinematics
+				current_control_kinematics_to_use = current_control_kinematics_normalized
 			else:
-				current_control_kinematics_to_use = current_control_kinematics[:-8]
+				current_control_kinematics_to_use = current_control_kinematics_normalized[:-8]
 			if use_sensory:
 				sim.data.ctrl[:] = Inverse_ANN_models.predict(np.array([np.concatenate((current_control_kinematics_to_use, last_sensorydata))]))
 			else:

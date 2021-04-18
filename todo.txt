@@ -34,4 +34,13 @@ no acc + testimg a lower frequency (omega=1.5)
 cur3_V5_TD_test43
 with normalization + no acc + testimg a lower frequency (omega=1.5)
 
+cur3_V5_TD_test44
+	all_sensory_cases = [True, False]
+	all_feedback_cases = [True, False]
+	use_acc = False
+	normalize = False
+	ANN_structures = ["S"]
+	number_of_refinements = 4
+cur3_V5_TD_test45
+	same as 44 but without norm
 generalize normalization -> especially in the feedback create_control_kinematics_fcn
