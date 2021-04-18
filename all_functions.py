@@ -8,8 +8,12 @@ import sklearn.model_selection
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
+global normalization_vector_w_sen_w_acc, normalization_vector_w_sen_wo_acc, normalization_vector_wo_sen_w_acc, normalization_vector_wo_sen_wo_acc
+normalization_vector = np.hstack((np.full((1,8),1),np.full((1,8),10),np.full((1,8),1000)))
+sensory_normalization_coefficient = 400
 ## executive functions
 def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, sensory_all, activations_all, number_of_refinements, use_sensory=True, use_feedback=False, task_type="cyclical", ANN_structure="M", actuation_type="JD",use_acc=False, dt=.01):
+	print(xyz)
 	babbling = True
 	number_of_legs = 4
 	if ANN_structure == "M":
@@ -209,8 +213,10 @@ def inverse_mapping_ws_varANNs_fcn(kinematics, sensorydata, activations, ANN_str
 	if ANN_structure == "M":
 		for leg_number in range(number_of_legs):
 			# normalization
-			normalization_vector = np.hstack((np.full((1,8),1),np.full((1,8),10),np.full((1,8),1000)))
-			kinematics_norm=kinematics#np.squeeze(kinematics/normalization_vector)
+			if normalize==True:
+				kinematics_norm=np.squeeze(kinematics/normalization_vector)
+			else:
+				kinematics_norm=kinematics
 			if use_acc:
 				leg_kinematics = kinematics_norm[:,[0+leg_number*2, 1+leg_number*2, 8+leg_number*2, 9+leg_number*2, 16+leg_number*2,17+leg_number*2]]
 			else:
@@ -389,8 +395,10 @@ def run_activations_ws_cl_varANNs_fcn(MuJoCo_model_name, attempt_kinematics, log
 					create_control_kinematics_fcn(attempt_kinematics[ii,:], sim.data, number_of_DoFs, p_vec_error, p_vec_error_integ, dt=dt)
 				else:
 					current_control_kinematics = attempt_kinematics[ii,:]
-			normalization_vector = np.hstack((np.full((1,8),1),np.full((1,8),10),np.full((1,8),1000)))
-			current_control_kinematics_normalized=current_control_kinematics#np.squeeze(current_control_kinematics/normalization_vector)
+			if normalize == True:
+				current_control_kinematics_normalized = np.squeeze(current_control_kinematics/normalization_vector)
+			else:
+				current_control_kinematics_normalized = current_control_kinematics
 			#import pdb; pdb.set_trace()
 			for leg_number in range(number_of_legs):
 				Inverse_ANN_model = Inverse_ANN_models[leg_number]

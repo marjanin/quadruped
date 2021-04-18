@@ -2,19 +2,20 @@ import numpy as np
 from matplotlib import pyplot as plt
 from all_functions import *
 
-experiment_ID_base = 'cur3_V5_TD_full_test_nonstiff_1'
+experiment_ID_base = 'cur3_V5_TD_full_test_nonstiff_modifiedRoM_useACCtest_2'
 
 curriculums = ["_E2H", "_H2E"]
 ANN_structures = ["S","M"]
 task_types = ["cyclical", "p2p"]
 
 all_sensory_cases = [True, False]
-use_feedback = False
-show_video = True
+use_feedback = True
+use_acc = False
+show_video = False
 
 task_type = task_types[0]
 curriculum = curriculums[0]
-ANN_structure = ANN_structures[0]
+ANN_structure = ANN_structures[1]
 number_of_refinements = 8+1
 number_of_all_runs = 14
 
@@ -80,7 +81,7 @@ for use_sensory in all_sensory_cases:
 		axes1[ii].set_title(MuJoCo_model_names_short[ii])
 		axes1[ii].set_xlabel('Refinement #')
 		axes1[ii].set_ylabel('RMSE')
-		axes1[ii].set_ylim(0.2, 1)
+		axes1[ii].set_ylim(0, 1)
 		axes1[ii].set_xlim(-0.50, 9.5)
 		axes1[ii].grid(color='k', linestyle=':', linewidth=.5)
 
@@ -108,7 +109,7 @@ plt.setp(axes2.get_xticklabels(), rotation=-45, ha="left",
          rotation_mode="anchor")
 axes2.set_ylabel('RMSE')
 axes2.grid(color='k', linestyle=':', linewidth=.5)
-axes2.set_ylim(0.2, .7)
+axes2.set_ylim(0, .7)
 fig2.subplots_adjust(bottom=0.15, top=.92)
 axes1[2].legend((line1,line2),('with sensory','without sensory'))
 
@@ -144,7 +145,7 @@ run_no = 0
 MuJoCo_model_names = ["tendon_quadruped_ws_inair.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloorloaded.xml"]
 if show_video:
 	for MuJoCo_model_name , ii in zip(MuJoCo_model_names, range(len(MuJoCo_model_names))):
-		_ = test_a_task(MuJoCo_model_name, save_log_path, run_no, Mj_render=True, use_sensory=use_sensory, use_feedback=use_feedback, task_type=task_type, ANN_structure=ANN_structure, dt=dt, actuation_type=actuation_type)
+		_ = test_a_task(MuJoCo_model_name, save_log_path, run_no, Mj_render=True, use_sensory=use_sensory, use_feedback=use_feedback, task_type=task_type, ANN_structure=ANN_structure, dt=dt, actuation_type=actuation_type, use_acc=use_acc)
 
 #import pdb; pdb.set_trace()
 
