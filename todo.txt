@@ -4,7 +4,8 @@ adding the plot_position_curves to the test_a_task code (also change its name to
 - modify the xml file
 -- make parameters physically realistic
 -- make the system more stable by not letting legs go all the way back
-
+-- modify the range of motions
+-- test more muscle force and its effect on maing a difference across environments
 
 'cur3_V5_TD_full_test_fb_1'
 PID=10-25-.05
@@ -20,11 +21,23 @@ non stiff - extra DoF - Load density 1000 - 10 secodns babbling
 'cur3_V5_TD_full_test_nonstiff_3'
 non stiff - extra DoF - Load density 2000 - 10 secodns babbling
 
-'cur3_V5_TD_full_test_nonstiff_modifiedRoM_useACCtest_2'
-use_acc=False
 
 'cur3_V5_TD_full_test_nonstiff_modifiedRoM_useACCtest_1'
 use_acc=True
+normaliz=false (not implemented)
+
+'cur3_V5_TD_full_test_nonstiff_modifiedRoM_useACCtest_2'
+use_acc=False
+normaliz=false (not implemented)
+
+'cur3_V5_TD_full_test_nonstiff_modifiedRoM_useACCtest_3'
+use_acc=True
+normalize=True
+
+'cur3_V5_TD_full_test_nonstiff_modifiedRoM_useACCtest_4'
+use_acc=False
+normalize=True
+
 
 
 cur3_V5_TD_test41

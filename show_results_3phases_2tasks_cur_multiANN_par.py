@@ -2,17 +2,18 @@ import numpy as np
 from matplotlib import pyplot as plt
 from all_functions import *
 
-experiment_ID_base = 'cur3_V5_TD_full_test_nonstiff_modifiedRoM_useACCtest_2'
+experiment_ID_base = 'cur3_V5_TD_full_test_nonstiff_modifiedRoM_useACCtest_4'
 
 curriculums = ["_E2H", "_H2E"]
 ANN_structures = ["S","M"]
 task_types = ["cyclical", "p2p"]
 
 all_sensory_cases = [True, False]
-use_feedback = True
+use_feedback = False
 use_acc = False
-show_video = False
+normalize = True
 
+show_video = False
 task_type = task_types[0]
 curriculum = curriculums[0]
 ANN_structure = ANN_structures[1]
@@ -145,7 +146,8 @@ run_no = 0
 MuJoCo_model_names = ["tendon_quadruped_ws_inair.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloorloaded.xml"]
 if show_video:
 	for MuJoCo_model_name , ii in zip(MuJoCo_model_names, range(len(MuJoCo_model_names))):
-		_ = test_a_task(MuJoCo_model_name, save_log_path, run_no, Mj_render=True, use_sensory=use_sensory, use_feedback=use_feedback, task_type=task_type, ANN_structure=ANN_structure, dt=dt, actuation_type=actuation_type, use_acc=use_acc)
+		test_run_RMSE = test_a_task(MuJoCo_model_name, save_log_path, run_no, Mj_render=True, use_sensory=use_sensory, use_feedback=use_feedback, normalize=normalize, plot_position_curves=True, task_type=task_type, ANN_structure=ANN_structure, dt=dt, actuation_type=actuation_type, use_acc=use_acc)
+		print(MuJoCo_model_name,"RMSE: " ,test_run_RMSE)
 
 #import pdb; pdb.set_trace()
 
