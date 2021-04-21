@@ -78,8 +78,8 @@
       <site name="SITE_RB_1" pos="-0.65 -0.25 0.15" size="0.01"/>
       <site name="SITE_RB_2" pos="-0.35 -0.25 0.15" size="0.01"/>   
       <body name="rbthigh" pos="-.5 -.25 0">
-        <joint axis="0 1 0" damping="1.5" name="rbthigh" pos="0 0 0" range="-1 0" stiffness="0" type="hinge"/>
-        <geom name="RB_HIP" type="cylinder" pos="0 0 0" zaxis="0 1 0" size=".075 .05" rgba="1 1 1 .5"/>
+        <joint axis="0 1 0" damping="5" name="rbthigh" pos="0 0 0" range="-.96 -.2" stiffness="0" type="hinge"/>
+        <geom name="RB_HIP" type="cylinder" pos="0 0 0" zaxis="0 1 0" size=".025 .05" rgba="1 1 1 .5"/>
         <geom axisangle="0 1 0 .52" name="rbthigh" pos="-.07 0 -.12" size="0.046 .133" type="capsule"/>
         <!-- [cos(theta) -sin(theta); sin(theta) cos(theta)]*[x0;y0] and theta = -.52,.6, x0=.15, .05,-.05 y0=0, -.085-->
         <site name="SIDESITE_RB_0" pos="-0.1050 0 0.1179" size="0.01" rgba="0.7 0.8 0.95 .8" group="1"/>
@@ -89,8 +89,8 @@
         <site name="SITE_RB_5" pos=" -.0661 0 -.1154" size="0.01"/>
         <!-- torso/rbthigh/rbshin -->
         <body name="rbshin" pos="-.14 0 -.24">
-          <joint axis="0 1 0" damping="1" name="rbshin" pos="0 0 0" range="-.8 0" stiffness="0" type="hinge"/>
-          <geom name="RB_KNEE" type="cylinder" pos="0 0 0" zaxis="0 1 0" size=".075 .05" rgba="1 1 1 .5"/>
+          <joint axis="0 1 0" damping="4" name="rbshin" pos="0 0 0" range=".1 .6" stiffness="0" type="hinge"/>
+          <geom name="RB_KNEE" type="cylinder" pos="0 0 0" zaxis="0 1 0" size=".025 .05" rgba="1 1 1 .5"/>
           <geom axisangle="0 1 0 -.6" name="rbshin" pos=".065 0 -.09" rgba="0.9 0.6 0.6 1" size="0.046 .106" type="capsule"/>
           <site axisangle="0 1 0 -.6" name="rb_sensor_site" pos=".12 0 -.17" rgba="0 1 0 .1" size="0.05 .010" type="capsule"/>
           <site name="SIDESITE_RB_2" pos="-0.1238 0 -0.0847" size="0.01" rgba="0.7 0.8 0.95 .8" group="1"/>
@@ -104,8 +104,8 @@
       <site name="SITE_RF_1" pos="0.35 -.25 .15" size="0.01"/>
       <site name="SITE_RF_2" pos=".65 -.25 .15" size="0.01"/>
       <body name="rfthigh" pos=".5 -.25 0">
-        <joint axis="0 1 0" damping="1.5" name="rfthigh" pos="0 0 0" range="-1 0" stiffness="0" type="hinge"/>
-        <geom name="RF_HIP" type="cylinder" pos="0 0 0" zaxis="0 1 0" size=".075 .05" rgba="1 1 1 .5"/>
+        <joint axis="0 1 0" damping="5" name="rfthigh" pos="0 0 0" range="-.96 -.2" stiffness="0" type="hinge"/>
+        <geom name="RF_HIP" type="cylinder" pos="0 0 0" zaxis="0 1 0" size=".025 .05" rgba="1 1 1 .5"/>
         <geom axisangle="0 1 0 .52" name="rfthigh" pos="-.07 0 -.12" size="0.046 .133" type="capsule"/>
         <site name="SIDESITE_RF_0" pos="-0.1050 0 0.1179" size="0.01" rgba="0.7 0.8 0.95 .8" group="1"/>
         <site name="SIDESITE_RF_1" pos="0.1550 0 -0.0311" size="0.01" rgba="0.7 0.8 0.95 .8" group="1"/>
@@ -114,8 +114,8 @@
         <site name="SITE_RF_5" pos=" -.0661 0 -.1154" size="0.01"/>
         <!-- torso/rfthigh/rfshin -->
         <body name="rfshin" pos="-.14 0 -.24">
-          <joint axis="0 1 0" damping="1" name="rfshin" pos="0 0 0" range="-.8 0" stiffness="0" type="hinge"/>
-          <geom name="RF_KNEE" type="cylinder" pos="0 0 0" zaxis="0 1 0" size=".075 .05" rgba="1 1 1 .5"/>
+          <joint axis="0 1 0" damping="4" name="rfshin" pos="0 0 0" range=".1 .6" stiffness="0" type="hinge"/>
+          <geom name="RF_KNEE" type="cylinder" pos="0 0 0" zaxis="0 1 0" size=".025 .05" rgba="1 1 1 .5"/>
           <geom axisangle="0 1 0 -.6" name="rfshin" pos=".065 0 -.09" rgba="0.9 0.6 0.6 1" size="0.046 .106" type="capsule"/>
           <site axisangle="0 1 0 -.6" name="rf_sensor_site" pos=".12 0 -.17" rgba="0 1 0 .1" size="0.05 .010" type="capsule"/>
           <site name="SIDESITE_RF_2" pos="-0.1238 0 -0.0847" size="0.01" rgba="0.7 0.8 0.95 .8" group="1"/>
@@ -131,8 +131,8 @@
       <site name="SITE_LB_1" pos="-0.65 0.25 0.15" size="0.01"/>
       <site name="SITE_LB_2" pos="-0.35 0.25 0.15" size="0.01"/>   
       <body name="lbthigh" pos="-.5 0.25 0">
-        <joint axis="0 1 0" damping="1.5" name="lbthigh" pos="0 0 0" range="-1 0" stiffness="0" type="hinge"/>
-        <geom name="LB_HIP" type="cylinder" pos="0 0 0" zaxis="0 1 0" size=".075 .05" rgba="1 1 1 .5"/>
+        <joint axis="0 1 0" damping="5" name="lbthigh" pos="0 0 0" range="-.96 -.2" stiffness="0" type="hinge"/>
+        <geom name="LB_HIP" type="cylinder" pos="0 0 0" zaxis="0 1 0" size=".025 .05" rgba="1 1 1 .5"/>
         <geom axisangle="0 1 0 .52" name="lbthigh" pos="-.07 0 -.12" size="0.046 .133" type="capsule"/>
         <site name="SIDESITE_LB_0" pos="-0.1050 0 0.1179" size="0.01" rgba="0.7 0.8 0.95 .8" group="1"/>
         <site name="SIDESITE_LB_1" pos="0.1550 0 -0.0311" size="0.01" rgba="0.7 0.8 0.95 .8" group="1"/>
@@ -141,8 +141,8 @@
         <site name="SITE_LB_5" pos=" -.0661 0 -.1154" size="0.01"/>
         <!-- torso/lbthigh/lbshin -->
         <body name="lbshin" pos="-.14 0 -.24">
-          <joint axis="0 1 0" damping="1" name="lbshin" pos="0 0 0" range="-.8 0" stiffness="0" type="hinge"/>
-          <geom name="LB_KNEE" type="cylinder" pos="0 0 0" zaxis="0 1 0" size=".075 .05" rgba="1 1 1 .5"/>
+          <joint axis="0 1 0" damping="4" name="lbshin" pos="0 0 0" range=".1 .6" stiffness="0" type="hinge"/>
+          <geom name="LB_KNEE" type="cylinder" pos="0 0 0" zaxis="0 1 0" size=".025 .05" rgba="1 1 1 .5"/>
           <geom axisangle="0 1 0 -.6" name="lbshin" pos=".065 0 -.09" rgba="0.9 0.6 0.6 1" size="0.046 .106" type="capsule"/>
           <site axisangle="0 1 0 -.6" name="lb_sensor_site" pos=".12 0 -.17" rgba="0 1 0 .1" size="0.05 .010" type="capsule"/>
           <site name="SIDESITE_LB_2" pos="-0.1238 0 -0.0847" size="0.01" rgba="0.7 0.8 0.95 .8" group="1"/>
@@ -156,8 +156,8 @@
       <site name="SITE_LF_1" pos="0.35 .25 .15" size="0.01"/>
       <site name="SITE_LF_2" pos=".65 .25 .15" size="0.01"/>
       <body name="lfthigh" pos=".5 .25 0">
-        <joint axis="0 1 0" damping="1.5" name="lfthigh" pos="0 0 0" range="-1 0" stiffness="0" type="hinge"/>
-        <geom name="LF_HIP" type="cylinder" pos="0 0 0" zaxis="0 1 0" size=".075 .05" rgba="1 1 1 .5"/>
+        <joint axis="0 1 0" damping="5" name="lfthigh" pos="0 0 0" range="-.96 -.2" stiffness="0" type="hinge"/>
+        <geom name="LF_HIP" type="cylinder" pos="0 0 0" zaxis="0 1 0" size=".025 .05" rgba="1 1 1 .5"/>
         <geom axisangle="0 1 0 .52" name="lfthigh" pos="-.07 0 -.12" size="0.046 .133" type="capsule"/>
         <site name="SIDESITE_LF_0" pos="-0.1050 0 0.1179" size="0.01" rgba="0.7 0.8 0.95 .8" group="1"/>
         <site name="SIDESITE_LF_1" pos="0.1550 0 -0.0311" size="0.01" rgba="0.7 0.8 0.95 .8" group="1"/>
@@ -167,8 +167,8 @@
 
         <!-- torso/lfthigh/lfshin -->
         <body name="lfshin" pos="-.14 0 -.24">
-          <joint axis="0 1 0" damping="1" name="lfshin" pos="0 0 0" range="-.8 0" stiffness="0" type="hinge"/>
-          <geom name="LF_KNEE" type="cylinder" pos="0 0 0" zaxis="0 1 0" size=".075 .05" rgba="1 1 1 .5"/>
+          <joint axis="0 1 0" damping="4" name="lfshin" pos="0 0 0" range=".1 .6" stiffness="0" type="hinge"/>
+          <geom name="LF_KNEE" type="cylinder" pos="0 0 0" zaxis="0 1 0" size=".025 .05" rgba="1 1 1 .5"/>
           <geom axisangle="0 1 0 -.6" name="lfshin" pos=".065 0 -.09" rgba="0.9 0.6 0.6 1" size="0.046 .106" type="capsule"/>
           <site axisangle="0 1 0 -.6" name="lf_sensor_site" pos=".12 0 -.17" rgba="0 1 0 .1" size="0.05 .010" type="capsule"/>
           <site name="SIDESITE_LF_2" pos="-0.1238 0 -0.0847" size="0.01" rgba="0.7 0.8 0.95 .8" group="1"/>

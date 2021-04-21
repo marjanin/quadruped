@@ -2,7 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from all_functions import *
 
-experiment_ID_base = 'cur3_V5_TD_test61'
+experiment_ID_base = 'cur3_V5_TD_test62'
 show_video = True
 
 all_sensory_cases = [True, False]

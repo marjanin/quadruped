@@ -499,22 +499,22 @@ def sinusoidal_CPG_fcn(w = 1, phi = 0, lower_band = -1, upper_band = 1, attempt_
 	q0 = q0 + lower_band
 	return q0
 
-def p2p_positions_gen_fcn(low, high, number_of_positions, duration_of_each_position, random_seed, dt=.01):
+def p2p_positions_gen_fcn(lower_band, upper_band, number_of_positions, duration_of_each_position, random_seed, dt=.01):
 	np.random.seed(random_seed)
 	sample_no_of_each_position = duration_of_each_position / dt
 	random_array = np.zeros(int(np.round(number_of_positions*sample_no_of_each_position)),)
 	for ii in range(number_of_positions):
-		random_value = ((high-low)*(np.random.rand(1)[0])) + low
+		random_value = ((upper_band-lower_band)*(np.random.rand(1)[0])) + lower_band
 		random_array_1position = np.repeat(random_value,sample_no_of_each_position)
 		random_array[int(ii*sample_no_of_each_position):int((ii+1)*sample_no_of_each_position)] = random_array_1position
 	return random_array
 
 def create_cyclical_movements_fcn(omega=1.5, attempt_length=10, dt=0.01):
-	q0a = sinusoidal_CPG_fcn(w = omega, phi = 0, lower_band = -.9, upper_band = -.1, attempt_length = attempt_length , dt=dt)
-	q1a = sinusoidal_CPG_fcn(w = omega, phi = np.pi/2, lower_band = -.7, upper_band = -.1, attempt_length = attempt_length , dt=dt)
+	q0a = sinusoidal_CPG_fcn(w = omega, phi = 0, lower_band = -.96, upper_band = -.2, attempt_length = attempt_length , dt=dt)
+	q1a = sinusoidal_CPG_fcn(w = omega, phi = np.pi/2, lower_band = .1, upper_band = .6, attempt_length = attempt_length , dt=dt)
 
-	q0b = sinusoidal_CPG_fcn(w = omega, phi = np.pi, lower_band = -.9, upper_band = -.1, attempt_length = attempt_length , dt=dt)
-	q1b = sinusoidal_CPG_fcn(w = omega, phi = -np.pi/2, lower_band = -.7, upper_band = -.1, attempt_length = attempt_length , dt=dt)
+	q0b = sinusoidal_CPG_fcn(w = omega, phi = np.pi, lower_band = -.96, upper_band = -.2, attempt_length = attempt_length , dt=dt)
+	q1b = sinusoidal_CPG_fcn(w = omega, phi = -np.pi/2, lower_band = .1, upper_band = .6, attempt_length = attempt_length , dt=dt)
 	attempt_kinematics_RB = positions_to_kinematics_fcn(q0a, q1a, dt)
 	# # plotting
 	# plt.plot(q0a[0:100])
@@ -533,21 +533,21 @@ def create_cyclical_movements_fcn(omega=1.5, attempt_length=10, dt=0.01):
 	attempt_kinematics_LF = positions_to_kinematics_fcn(q0a, q1a, dt)
 	attempt_kinematics = combine_4leg_kinematics(attempt_kinematics_RB, attempt_kinematics_RF, attempt_kinematics_LB, attempt_kinematics_LF)
 	return attempt_kinematics
-
+	
 def create_p2p_movements_fcn(random_seed, number_of_steps = 10, attempt_length = 10, dt=0.01, filtfilt_N=1):
 	step_duration = attempt_length/number_of_steps
-	q0a = p2p_positions_gen_fcn(low = -.9, high = -.1, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed, dt=dt)
-	q1a = p2p_positions_gen_fcn(low = -.9, high = -.1, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed, dt=dt)
+	q0a = p2p_positions_gen_fcn(lower_band = -.96, upper_band = -.2, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed, dt=dt)
+	q1a = p2p_positions_gen_fcn(lower_band = .1, upper_band = .6, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed, dt=dt)
 
-	q0b = p2p_positions_gen_fcn(low = -.9, high =  -.1, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed, dt=dt)
-	q1b = p2p_positions_gen_fcn(low = -.9, high =  -.1, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed, dt=dt)
+	q0b = p2p_positions_gen_fcn(lower_band = -.96, upper_band = -.2, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed, dt=dt)
+	q1b = p2p_positions_gen_fcn(lower_band = .1, upper_band = .6, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed, dt=dt)
 	
 	if filtfilt_N>1:
 		b=np.ones(filtfilt_N)/filtfilt_N
 		q0a = signal.filtfilt(b,1,q0a)
 		q1a = signal.filtfilt(b,1,q1a)
-		q0b = signal.filtfilt(b,1,q0b)
-		q1b = signal.filtfilt(b,1,q1b)
+		q0b = signal.filtfilt(b,1,q0a)# all joints on the same angle
+		q1b = signal.filtfilt(b,1,q1a)# all joints on the same angle
 
 	attempt_kinematics_RB = positions_to_kinematics_fcn(q0a, q1a, dt)
 	attempt_kinematics_RF = positions_to_kinematics_fcn(q0b, q1b, dt)
