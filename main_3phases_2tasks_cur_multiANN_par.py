@@ -6,17 +6,17 @@ import multiprocessing as mp
 from all_functions import *
 
 def L2_learn_quadruped_experiment(run_no):
-	experiment_ID_base = 'cur3_V5_TD_full_test_nonstiff_modifiedRoM_higherForcetest_2'
+	experiment_ID_base = 'cur3_V5_TD_full_test_nonstiff_modifiedRoM_4cases_M_X'
 # Create target Directory if don't exist
 	dt=.005
 	if not os.path.exists('./results/'+experiment_ID_base):
 		os.mkdir('./results/'+experiment_ID_base)
 	all_sensory_cases = [True, False]
 	all_feedback_cases = [True, False]
-	use_acc=False
+	use_acc=True
 	normalize=True
 	curriculums = ["_E2H"]#, "_H2E"]
-	ANN_structures = ["S","M"]
+	ANN_structures = ["M"]
 	actuation_type = "TD"
 	number_of_refinements = 8
 	for cur in curriculums:
@@ -28,13 +28,14 @@ def L2_learn_quadruped_experiment(run_no):
 						MuJoCo_model_names =\
 							["tendon_quadruped_ws_inair.xml",
 							"tendon_quadruped_ws_onfloor.xml",
-							"tendon_quadruped_ws_onfloorloaded.xml"]
+							"tendon_quadruped_ws_onfloorloaded.xml",
+							"tendon_quadruped_ws_onfloorloadedheavy.xml"]
 					elif cur == "_H2E":
 						MuJoCo_model_names =\
 							["tendon_quadruped_ws_onfloorloaded.xml",
 							"tendon_quadruped_ws_onfloor.xml",
 							"tendon_quadruped_ws_inair.xml"]
-					task_types = ["cyclical"]#, "p2p"]
+					task_types = ["cyclical"]
 					for task_type in task_types:
 						if use_sensory:
 							if use_feedback:

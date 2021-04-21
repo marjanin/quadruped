@@ -2,21 +2,22 @@ import numpy as np
 from matplotlib import pyplot as plt
 from all_functions import *
 
-experiment_ID_base = 'cur3_V5_TD_test44'
+experiment_ID_base = 'cur3_V5_TD_test61'
 show_video = True
 
 all_sensory_cases = [True, False]
-use_feedback =True
-use_acc=False
+use_feedback = False
+use_acc=True
 normalize=True
 cur = "_E2H"
 ANN_structure = "S"
 actuation_type = "TD"
-task_type = "cyclical"
-number_of_refinements = 4+1
+task_type = "p2p"
+number_of_refinements = 8+1
 number_of_all_runs = 1
+random_seed = 0
 
-fig1, axes1 = plt.subplots(nrows=1, ncols=3, figsize=(12, 4))
+fig1, axes1 = plt.subplots(nrows=1, ncols=4, figsize=(12, 4))
 fig2, axes2 = plt.subplots(nrows=1, ncols=1, figsize=(6, 4.2))
 
 for use_sensory in all_sensory_cases:
@@ -38,8 +39,8 @@ for use_sensory in all_sensory_cases:
 			experiment_ID = "wo_sensory_"+"wo_feedback_"+ANN_structure+"_ANN_"+task_type+cur
 
 	if cur == "_E2H":
-		MuJoCo_model_names = ["tendon_quadruped_ws_inair.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloorloaded.xml"]
-		MuJoCo_model_names_short = ["In Air", "On Floor", "On Floor With Load"]
+		MuJoCo_model_names = ["tendon_quadruped_ws_inair.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloorloaded.xml","tendon_quadruped_ws_onfloorloadedheavy.xml"]
+		MuJoCo_model_names_short = ["In Air", "On Floor", "On Floor With Load", "On Floor With Heavy Load"]
 	elif cur == "_H2E":
 		MuJoCo_model_names = ["tendon_quadruped_ws_onfloorloaded.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_inair.xml"]
 		MuJoCo_model_names_short = ["On Floor with Load", "On Floor", "In Air"]
@@ -61,7 +62,7 @@ for use_sensory in all_sensory_cases:
 	task_errors_all_mean = np.mean(task_errors_all, axis=0)
 	task_errors_all_std = np.std(task_errors_all, axis=0)
 
-	for ii in range(3):
+	for ii in range(4):
 		if ii == 0:
 			#import pdb; pdb.set_trace()
 			axes1[ii].errorbar(x=np.arange(1,number_of_refinements+1), y=learning_errors_all_mean[ii,1:], yerr=learning_errors_all_std[ii,1:], capsize=2, animated=True, alpha=.4, color=color)
@@ -95,11 +96,11 @@ for use_sensory in all_sensory_cases:
 	# 	axes2.set_ylabel('RMSE')
 	# 	axes2.grid(color='k', linestyle=':', linewidth=.5)
 	# fig2.subplots_adjust(bottom=0.12, top=.92)
-	positions=np.arange(3)+x_shift
+	positions=np.arange(4)+x_shift
 	axes2.boxplot(task_errors_all, positions=positions)
 axes2.set_title('RMSE vs. Task (test)')
 axes2.set_xlabel('Task')
-axes2.set_xticklabels(["w. sen.","w. sen.","w. sen.","w/o. sen.","w/o. sen.","w/o. sen."])
+axes2.set_xticklabels(["w. sen.","w. sen.","w. sen.","w. sen.","w/o. sen.","w/o. sen.","w/o. sen.","w/o. sen."])
 # Rotate the tick labels and set their alignment.
 plt.setp(axes2.get_xticklabels(), rotation=-45, ha="left",
          rotation_mode="anchor")
@@ -134,9 +135,9 @@ if show_video:
 			experiment_ID = "wo_sensory_"+"wo_feedback_"+ANN_structure+"_ANN_"+task_type+cur
 	save_log_path = experiment_ID_base+"/"+experiment_ID
 	run_no = 0
-	MuJoCo_model_names = ["tendon_quadruped_ws_inair.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloorloaded.xml"]
+	MuJoCo_model_names = ["tendon_quadruped_ws_inair.xml", "tendon_quadruped_ws_onfloorloadedheavy.xml", "tendon_quadruped_ws_inair.xml","tendon_quadruped_ws_onfloorloadedheavy.xml"]
 	for MuJoCo_model_name , ii in zip(MuJoCo_model_names, range(len(MuJoCo_model_names))):
-		test_run_RMSE = test_a_task(MuJoCo_model_name, save_log_path, run_no, Mj_render=False, use_sensory=use_sensory, use_feedback=use_feedback, normalize=normalize, plot_position_curves=True, task_type=task_type, ANN_structure=ANN_structure, dt=dt, actuation_type=actuation_type, use_acc=use_acc)
+		test_run_RMSE = test_a_task(MuJoCo_model_name, save_log_path, run_no, random_seed=random_seed, Mj_render=True, use_sensory=use_sensory, use_feedback=use_feedback, normalize=normalize, plot_position_curves=True, task_type=task_type, ANN_structure=ANN_structure, dt=dt, actuation_type=actuation_type, use_acc=use_acc)
 		print(MuJoCo_model_name,"RMSE: " ,test_run_RMSE)
 #import pdb; pdb.set_trace()
 

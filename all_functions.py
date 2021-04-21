@@ -12,7 +12,7 @@ global normalization_vector_w_acc_global, normalization_vector_wo_acc_global, se
 normalization_vector_global = np.hstack((np.full((1,8),1),np.full((1,8),10),np.full((1,8),1000)))
 sensory_normalization_coef_global = 400
 ## executive functions
-def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, sensory_all, activations_all, number_of_refinements, use_sensory=True, use_feedback=False, normalize=True, task_type="cyclical", ANN_structure="M", actuation_type="JD",use_acc=False, dt=.01):
+def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, sensory_all, activations_all, number_of_refinements, random_seed, use_sensory=True, use_feedback=False, normalize=True, task_type="cyclical", ANN_structure="M", actuation_type="JD",use_acc=False, dt=.01):
 	babbling = True
 	number_of_legs = 4
 	if ANN_structure == "M":
@@ -46,7 +46,7 @@ def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, 
 		attempt_kinematics = create_cyclical_movements_fcn(omega = 1.5, attempt_length = refinement_duration_in_seconds, dt=dt)
 	elif task_type == "p2p":
 		filtfilt_N = 4
-		attempt_kinematics = create_p2p_movements_fcn(number_of_steps = 10, attempt_length = refinement_duration_in_seconds, dt=dt, filtfilt_N=filtfilt_N)
+		attempt_kinematics = create_p2p_movements_fcn(random_seed=random_seed, number_of_steps = 10, attempt_length = refinement_duration_in_seconds, dt=dt, filtfilt_N=filtfilt_N)
 	else:
 		ValueError("unacceptable task")
 	[babbling_kinematics, babbling_sensorreads, babbling_activations] = run_activations_ws_ol_fcn(
@@ -98,12 +98,13 @@ def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, 
 	errors.append(RMSE)
 	return errors, kinematics_all, sensory_all, activations_all
 
-def test_a_task(MuJoCo_model_name, experiment_ID, run_no, use_sensory=True, use_feedback=False, normalize=True, Mj_render=False, plot_position_curves=False, task_type = "cyclical", ANN_structure="M", dt=0.01, actuation_type="JD", use_acc=False):
+def test_a_task(MuJoCo_model_name, experiment_ID, run_no, random_seed, use_sensory=True, use_feedback=False, normalize=True, Mj_render=False, plot_position_curves=False, task_type = "cyclical", ANN_structure="M", dt=0.01, actuation_type="JD", use_acc=False):
 	refinement_duration_in_seconds = 10
 	if task_type == "cyclical":
 		attempt_kinematics = create_cyclical_movements_fcn(omega = 1.5, attempt_length = refinement_duration_in_seconds, dt=dt)
 	elif task_type == "p2p":
-		attempt_kinematics = create_p2p_movements_fcn(number_of_steps = 10, attempt_length = refinement_duration_in_seconds, dt=dt)
+		filtfilt_N=4
+		attempt_kinematics = create_p2p_movements_fcn(random_seed=random_seed, number_of_steps = 10, attempt_length = refinement_duration_in_seconds, dt=dt, filtfilt_N=filtfilt_N)
 	else:
 		ValueError("unacceptable task")
 	[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_varANNs_fcn(
@@ -399,7 +400,7 @@ def run_activations_ws_cl_varANNs_fcn(MuJoCo_model_name, attempt_kinematics, log
 				p_vec_error_integ = 0
 			else:
 				last_sensorydata = sim.data.sensordata/sensory_normalization_coef
-				if use_feedback == True:
+				if use_feedback:
 					[current_control_kinematics, p_vec_error, p_vec_error_integ] = \
 					create_control_kinematics_fcn(attempt_kinematics[ii,:], sim.data, number_of_DoFs, p_vec_error, p_vec_error_integ, dt=dt)
 				else:
@@ -498,7 +499,8 @@ def sinusoidal_CPG_fcn(w = 1, phi = 0, lower_band = -1, upper_band = 1, attempt_
 	q0 = q0 + lower_band
 	return q0
 
-def p2p_positions_gen_fcn(low, high, number_of_positions, duration_of_each_position, dt=.01):
+def p2p_positions_gen_fcn(low, high, number_of_positions, duration_of_each_position, random_seed, dt=.01):
+	np.random.seed(random_seed)
 	sample_no_of_each_position = duration_of_each_position / dt
 	random_array = np.zeros(int(np.round(number_of_positions*sample_no_of_each_position)),)
 	for ii in range(number_of_positions):
@@ -508,11 +510,11 @@ def p2p_positions_gen_fcn(low, high, number_of_positions, duration_of_each_posit
 	return random_array
 
 def create_cyclical_movements_fcn(omega=1.5, attempt_length=10, dt=0.01):
-	q0a = sinusoidal_CPG_fcn(w = omega, phi = 0, lower_band = -.9, upper_band = 0, attempt_length = attempt_length , dt=dt)
-	q1a = sinusoidal_CPG_fcn(w = omega, phi = np.pi/2, lower_band = -.7, upper_band = 0, attempt_length = attempt_length , dt=dt)
+	q0a = sinusoidal_CPG_fcn(w = omega, phi = 0, lower_band = -.9, upper_band = -.1, attempt_length = attempt_length , dt=dt)
+	q1a = sinusoidal_CPG_fcn(w = omega, phi = np.pi/2, lower_band = -.7, upper_band = -.1, attempt_length = attempt_length , dt=dt)
 
-	q0b = sinusoidal_CPG_fcn(w = omega, phi = np.pi, lower_band = -.9, upper_band = 0, attempt_length = attempt_length , dt=dt)
-	q1b = sinusoidal_CPG_fcn(w = omega, phi = -np.pi/2, lower_band = -.7, upper_band = 0, attempt_length = attempt_length , dt=dt)
+	q0b = sinusoidal_CPG_fcn(w = omega, phi = np.pi, lower_band = -.9, upper_band = -.1, attempt_length = attempt_length , dt=dt)
+	q1b = sinusoidal_CPG_fcn(w = omega, phi = -np.pi/2, lower_band = -.7, upper_band = -.1, attempt_length = attempt_length , dt=dt)
 	attempt_kinematics_RB = positions_to_kinematics_fcn(q0a, q1a, dt)
 	# # plotting
 	# plt.plot(q0a[0:100])
@@ -532,13 +534,13 @@ def create_cyclical_movements_fcn(omega=1.5, attempt_length=10, dt=0.01):
 	attempt_kinematics = combine_4leg_kinematics(attempt_kinematics_RB, attempt_kinematics_RF, attempt_kinematics_LB, attempt_kinematics_LF)
 	return attempt_kinematics
 
-def create_p2p_movements_fcn(number_of_steps = 10, attempt_length = 10, dt=0.01, filtfilt_N=1):
+def create_p2p_movements_fcn(random_seed, number_of_steps = 10, attempt_length = 10, dt=0.01, filtfilt_N=1):
 	step_duration = attempt_length/number_of_steps
-	q0a = p2p_positions_gen_fcn(low = -.8, high = .6, number_of_positions = number_of_steps, duration_of_each_position = step_duration, dt=dt)
-	q1a = p2p_positions_gen_fcn(low = -1, high = .8, number_of_positions = number_of_steps, duration_of_each_position = step_duration, dt=dt)
+	q0a = p2p_positions_gen_fcn(low = -.9, high = -.1, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed, dt=dt)
+	q1a = p2p_positions_gen_fcn(low = -.9, high = -.1, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed, dt=dt)
 
-	q0b = p2p_positions_gen_fcn(low = -.8, high = .6, number_of_positions = number_of_steps, duration_of_each_position = step_duration, dt=dt)
-	q1b = p2p_positions_gen_fcn(low = -1, high = .8, number_of_positions = number_of_steps, duration_of_each_position = step_duration, dt=dt)
+	q0b = p2p_positions_gen_fcn(low = -.9, high =  -.1, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed, dt=dt)
+	q1b = p2p_positions_gen_fcn(low = -.9, high =  -.1, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed, dt=dt)
 	
 	if filtfilt_N>1:
 		b=np.ones(filtfilt_N)/filtfilt_N
