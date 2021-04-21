@@ -2,11 +2,11 @@ import numpy as np
 from matplotlib import pyplot as plt
 from all_functions import *
 
-experiment_ID_base = 'cur3_V5_TD_test62'
-show_video = True
+experiment_ID_base = 'cur3_V5_TD_test61'
+show_video = False
 
 all_sensory_cases = [True, False]
-use_feedback = False
+use_feedback = True
 use_acc=True
 normalize=True
 cur = "_E2H"
