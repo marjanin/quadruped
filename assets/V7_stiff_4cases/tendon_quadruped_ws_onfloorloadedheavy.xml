@@ -1,0 +1,303 @@
+<!-- Cheetah Model
+
+    The state space is populated with joints in the order that they are
+    defined in this file. The actuators also operate on joints.
+
+    State-Space (name/joint/parameter):
+        - rootx     slider      position (m)
+        - rootz     slider      position (m)
+        - rooty     hinge       angle (rad)
+        - bthigh    hinge       angle (rad)
+        - bshin     hinge       angle (rad)
+        - bfoot     hinge       angle (rad)
+        - fthigh    hinge       angle (rad)
+        - fshin     hinge       angle (rad)
+        - ffoot     hinge       angle (rad)
+        - rootx     slider      velocity (m/s)
+        - rootz     slider      velocity (m/s)
+        - rooty     hinge       angular velocity (rad/s)
+        - bthigh    hinge       angular velocity (rad/s)
+        - bshin     hinge       angular velocity (rad/s)
+        - bfoot     hinge       angular velocity (rad/s)
+        - fthigh    hinge       angular velocity (rad/s)
+        - fshin     hinge       angular velocity (rad/s)
+        - ffoot     hinge       angular velocity (rad/s)
+
+    Actuators (name/actuator/parameter):
+        - bthigh    hinge       torque (N m)
+        - bshin     hinge       torque (N m)
+        - bfoot     hinge       torque (N m)
+        - fthigh    hinge       torque (N m)
+        - fshin     hinge       torque (N m)
+        - ffoot     hinge       torque (N m)
+
+-->
+
+<mujoco model="cheetah">
+  <!-- defaults -->
+  <compiler angle="radian" coordinate="local" inertiafromgeom="true"/>
+  <default>
+    <!-- in this model, mass is calculated based on density -->
+    <joint armature=".1" damping=".01" limited="true" solimplimit="0 .8 .03" solreflimit=".02 1" stiffness="8"/>
+    <geom conaffinity="0" condim="3" contype="1" friction="1 .1 .1" rgba="0.8 0.6 .4 1" solimp="0.0 0.8 0.01" solref="0.02 1"/>
+    <motor ctrllimited="true" ctrlrange="-1 1"/>
+
+    <tendon stiffness = "50"/>
+    <muscle ctrllimited="true" ctrlrange="0 1" force="100" />
+  </default>
+  <size nstack="300000" nuser_geom="1"/>
+  <option gravity="0 0 -9.81" timestep="0.005"/>
+  <!-- sky and floor -->
+  <asset>
+    <texture builtin="gradient" height="100" rgb1="1 1 1" rgb2="0 0 0" type="skybox" width="100"/>
+    <texture builtin="flat" height="1278" mark="cross" markrgb="1 1 1" name="texgeom" random="0.01" rgb1="0.8 0.6 0.4" rgb2="0.8 0.6 0.4" type="cube" width="127"/>
+    <texture builtin="checker" height="100" name="texplane" rgb1="0 0 0" rgb2="0.8 0.8 0.8" type="2d" width="100"/>
+    <material name="MatPlane" reflectance="0.5" shininess="1" specular="1" texrepeat="60 60" texture="texplane"/>
+    <material name="geom" texture="texgeom" texuniform="true"/>
+  </asset>
+  <worldbody>
+    <light cutoff="100" diffuse="1 1 1" dir="-0 0 -1.3" directional="true" exponent="1" pos="0 0 1.3" specular=".1 .1 .1"/>
+    <geom conaffinity="1" condim="3" material="MatPlane" name="floor" pos="0 0 0" rgba="0.8 0.9 0.8 1" size="40 40 40" type="plane"/>
+    <!-- body -->
+    <!-- torso -->
+    <body name="torso" pos="0 0 .7">
+      <camera name="track" mode="trackcom" pos="0 -3 0.3" xyaxes="1 0 0 0 0 1"/>
+      <joint armature="0" axis="1 0 0" damping="0" limited="false" name="rootx" pos="0 0 0" stiffness="0" type="slide"/>
+      <joint armature="0" axis="0 0 1" damping="0" limited="false" name="rootz" pos="0 0 0" stiffness="0" type="slide"/>
+      <joint armature="0" axis="0 1 0" damping="0" limited="false" name="rooty_rot" pos="0 0 0" stiffness="0" type="hinge"/>
+      <joint armature="0" axis="1 0 0" damping="0" limited="false" name="rootx_rot" pos="0 0 0" stiffness="0" type="hinge"/>
+      <geom name="torso" size=".5 .25 .05" type="box"/>
+      <geom name="load" pos=".00 0 .075" size=".2 .2 .05" type="box" rgba="1 .4 .4 1" density="3000"/>
+      <geom axisangle="0 1 0 .87" density="10" name="neck" pos=".5 0 .075" size="0.046 .075" type="capsule"/>
+      <geom axisangle="0 1 0 1.7" density="10" name="head" pos=".6 0 .18" size="0.08 .095 0.2" type="ellipsoid"/>
+      <geom axisangle="0 1 0 -.87" density="10" name="tail" pos="-.53 0 .075" size="0.026 .035" type="capsule"/>
+      <!-- <site name='tip'  pos='.15 0 .11'/>-->
+
+      <!-- right -->
+      <!-- torso/rbthigh -->
+      <site name="SITE_RB_0" pos="-0.35 -0.25 0.25" size="0.01"/>
+      <site name="SITE_RB_1" pos="-0.65 -0.25 0.15" size="0.01"/>
+      <site name="SITE_RB_2" pos="-0.35 -0.25 0.15" size="0.01"/>   
+      <body name="rbthigh" pos="-.5 -.25 0">
+        <joint axis="0 1 0" damping="5" name="rbthigh" pos="0 0 0" range="-.96 -.2" stiffness="0" type="hinge"/>
+        <geom name="RB_HIP" type="cylinder" pos="0 0 0" zaxis="0 1 0" size=".025 .05" rgba="1 1 1 .5"/>
+        <geom axisangle="0 1 0 .52" name="rbthigh" pos="-.07 0 -.12" size="0.046 .133" type="capsule"/>
+        <!-- [cos(theta) -sin(theta); sin(theta) cos(theta)]*[x0;y0] and theta = -.52,.6, x0=.15, .05,-.05 y0=0, -.085-->
+        <site name="SIDESITE_RB_0" pos="-0.1050 0 0.1179" size="0.01" rgba="0.7 0.8 0.95 .8" group="1"/>
+        <site name="SIDESITE_RB_1" pos="0.1550 0 -0.0311" size="0.01" rgba="0.7 0.8 0.95 .8" group="1"/>
+        <site name="SITE_RB_3" pos="0.0012 0 -0.0986" size="0.01"/>
+        <site name="SITE_RB_4" pos="-0.1320 0 -.0708" size="0.01"/>
+        <site name="SITE_RB_5" pos=" -.0661 0 -.1154" size="0.01"/>
+        <!-- torso/rbthigh/rbshin -->
+        <body name="rbshin" pos="-.14 0 -.24">
+          <joint axis="0 1 0" damping="4" name="rbshin" pos="0 0 0" range=".1 .6" stiffness="0" type="hinge"/>
+          <geom name="RB_KNEE" type="cylinder" pos="0 0 0" zaxis="0 1 0" size=".025 .05" rgba="1 1 1 .5"/>
+          <geom axisangle="0 1 0 -.6" name="rbshin" pos=".065 0 -.09" rgba="0.9 0.6 0.6 1" size="0.046 .106" type="capsule"/>
+          <site axisangle="0 1 0 -.6" name="rb_sensor_site" pos=".12 0 -.17" rgba="0 1 0 .1" size="0.05 .010" type="capsule"/>
+          <site name="SIDESITE_RB_2" pos="-0.1238 0 -0.0847" size="0.01" rgba="0.7 0.8 0.95 .8" group="1"/>
+          <site name="SIDESITE_RB_3" pos=".1238 0 0.0847" size="0.01" rgba="0.7 0.8 0.95 .8" group="1"/>
+          <site name="SITE_RB_6" pos="0.0067 0 -0.0984" size="0.01"/>
+          <site name="SITE_RB_7" pos="0.0893 0 -0.0419" size="0.01"/>
+        </body>
+      </body>
+      <!-- torso/rfthigh -->
+      <site name="SITE_RF_0" pos=".65 -.25 .25" size="0.01"/>
+      <site name="SITE_RF_1" pos="0.35 -.25 .15" size="0.01"/>
+      <site name="SITE_RF_2" pos=".65 -.25 .15" size="0.01"/>
+      <body name="rfthigh" pos=".5 -.25 0">
+        <joint axis="0 1 0" damping="5" name="rfthigh" pos="0 0 0" range="-.96 -.2" stiffness="0" type="hinge"/>
+        <geom name="RF_HIP" type="cylinder" pos="0 0 0" zaxis="0 1 0" size=".025 .05" rgba="1 1 1 .5"/>
+        <geom axisangle="0 1 0 .52" name="rfthigh" pos="-.07 0 -.12" size="0.046 .133" type="capsule"/>
+        <site name="SIDESITE_RF_0" pos="-0.1050 0 0.1179" size="0.01" rgba="0.7 0.8 0.95 .8" group="1"/>
+        <site name="SIDESITE_RF_1" pos="0.1550 0 -0.0311" size="0.01" rgba="0.7 0.8 0.95 .8" group="1"/>
+        <site name="SITE_RF_3" pos="0.0012 0 -0.0986" size="0.01"/>
+        <site name="SITE_RF_4" pos="-0.1320 0 -.0708" size="0.01"/>
+        <site name="SITE_RF_5" pos=" -.0661 0 -.1154" size="0.01"/>
+        <!-- torso/rfthigh/rfshin -->
+        <body name="rfshin" pos="-.14 0 -.24">
+          <joint axis="0 1 0" damping="4" name="rfshin" pos="0 0 0" range=".1 .6" stiffness="0" type="hinge"/>
+          <geom name="RF_KNEE" type="cylinder" pos="0 0 0" zaxis="0 1 0" size=".025 .05" rgba="1 1 1 .5"/>
+          <geom axisangle="0 1 0 -.6" name="rfshin" pos=".065 0 -.09" rgba="0.9 0.6 0.6 1" size="0.046 .106" type="capsule"/>
+          <site axisangle="0 1 0 -.6" name="rf_sensor_site" pos=".12 0 -.17" rgba="0 1 0 .1" size="0.05 .010" type="capsule"/>
+          <site name="SIDESITE_RF_2" pos="-0.1238 0 -0.0847" size="0.01" rgba="0.7 0.8 0.95 .8" group="1"/>
+          <site name="SIDESITE_RF_3" pos=".1238 0 0.0847" size="0.01" rgba="0.7 0.8 0.95 .8" group="1"/>
+          <site name="SITE_RF_6" pos="0.0067 0 -0.0984" size="0.01"/>
+          <site name="SITE_RF_7" pos="0.0893 0 -0.0419" size="0.01"/>
+        </body>
+      </body>
+
+      <!-- left -->
+      <!-- torso/lbthigh -->
+      <site name="SITE_LB_0" pos="-0.35 0.25 0.25" size="0.01"/>
+      <site name="SITE_LB_1" pos="-0.65 0.25 0.15" size="0.01"/>
+      <site name="SITE_LB_2" pos="-0.35 0.25 0.15" size="0.01"/>   
+      <body name="lbthigh" pos="-.5 0.25 0">
+        <joint axis="0 1 0" damping="5" name="lbthigh" pos="0 0 0" range="-.96 -.2" stiffness="0" type="hinge"/>
+        <geom name="LB_HIP" type="cylinder" pos="0 0 0" zaxis="0 1 0" size=".025 .05" rgba="1 1 1 .5"/>
+        <geom axisangle="0 1 0 .52" name="lbthigh" pos="-.07 0 -.12" size="0.046 .133" type="capsule"/>
+        <site name="SIDESITE_LB_0" pos="-0.1050 0 0.1179" size="0.01" rgba="0.7 0.8 0.95 .8" group="1"/>
+        <site name="SIDESITE_LB_1" pos="0.1550 0 -0.0311" size="0.01" rgba="0.7 0.8 0.95 .8" group="1"/>
+        <site name="SITE_LB_3" pos="0.0012 0 -0.0986" size="0.01"/>
+        <site name="SITE_LB_4" pos="-0.1320 0 -.0708" size="0.01"/>
+        <site name="SITE_LB_5" pos=" -.0661 0 -.1154" size="0.01"/>
+        <!-- torso/lbthigh/lbshin -->
+        <body name="lbshin" pos="-.14 0 -.24">
+          <joint axis="0 1 0" damping="4" name="lbshin" pos="0 0 0" range=".1 .6" stiffness="0" type="hinge"/>
+          <geom name="LB_KNEE" type="cylinder" pos="0 0 0" zaxis="0 1 0" size=".025 .05" rgba="1 1 1 .5"/>
+          <geom axisangle="0 1 0 -.6" name="lbshin" pos=".065 0 -.09" rgba="0.9 0.6 0.6 1" size="0.046 .106" type="capsule"/>
+          <site axisangle="0 1 0 -.6" name="lb_sensor_site" pos=".12 0 -.17" rgba="0 1 0 .1" size="0.05 .010" type="capsule"/>
+          <site name="SIDESITE_LB_2" pos="-0.1238 0 -0.0847" size="0.01" rgba="0.7 0.8 0.95 .8" group="1"/>
+          <site name="SIDESITE_LB_3" pos=".1238 0 0.0847" size="0.01" rgba="0.7 0.8 0.95 .8" group="1"/>
+          <site name="SITE_LB_6" pos="0.0067 0 -0.0984" size="0.01"/>
+          <site name="SITE_LB_7" pos="0.0893 0 -0.0419" size="0.01"/>
+        </body>
+      </body>
+      <!-- torso/lfthigh -->
+      <site name="SITE_LF_0" pos=".65 .25 .25" size="0.01"/>
+      <site name="SITE_LF_1" pos="0.35 .25 .15" size="0.01"/>
+      <site name="SITE_LF_2" pos=".65 .25 .15" size="0.01"/>
+      <body name="lfthigh" pos=".5 .25 0">
+        <joint axis="0 1 0" damping="5" name="lfthigh" pos="0 0 0" range="-.96 -.2" stiffness="0" type="hinge"/>
+        <geom name="LF_HIP" type="cylinder" pos="0 0 0" zaxis="0 1 0" size=".025 .05" rgba="1 1 1 .5"/>
+        <geom axisangle="0 1 0 .52" name="lfthigh" pos="-.07 0 -.12" size="0.046 .133" type="capsule"/>
+        <site name="SIDESITE_LF_0" pos="-0.1050 0 0.1179" size="0.01" rgba="0.7 0.8 0.95 .8" group="1"/>
+        <site name="SIDESITE_LF_1" pos="0.1550 0 -0.0311" size="0.01" rgba="0.7 0.8 0.95 .8" group="1"/>
+        <site name="SITE_LF_3" pos="0.0012 0 -0.0986" size="0.01"/>
+        <site name="SITE_LF_4" pos="-0.1320 0 -.0708" size="0.01"/>
+        <site name="SITE_LF_5" pos=" -.0661 0 -.1154" size="0.01"/>
+
+        <!-- torso/lfthigh/lfshin -->
+        <body name="lfshin" pos="-.14 0 -.24">
+          <joint axis="0 1 0" damping="4" name="lfshin" pos="0 0 0" range=".1 .6" stiffness="0" type="hinge"/>
+          <geom name="LF_KNEE" type="cylinder" pos="0 0 0" zaxis="0 1 0" size=".025 .05" rgba="1 1 1 .5"/>
+          <geom axisangle="0 1 0 -.6" name="lfshin" pos=".065 0 -.09" rgba="0.9 0.6 0.6 1" size="0.046 .106" type="capsule"/>
+          <site axisangle="0 1 0 -.6" name="lf_sensor_site" pos=".12 0 -.17" rgba="0 1 0 .1" size="0.05 .010" type="capsule"/>
+          <site name="SIDESITE_LF_2" pos="-0.1238 0 -0.0847" size="0.01" rgba="0.7 0.8 0.95 .8" group="1"/>
+          <site name="SIDESITE_LF_3" pos=".1238 0 0.0847" size="0.01" rgba="0.7 0.8 0.95 .8" group="1"/>
+          <site name="SITE_LF_6" pos="0.0067 0 -0.0984" size="0.01"/>
+          <site name="SITE_LF_7" pos="0.0893 0 -0.0419" size="0.01"/>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+
+  <tendon>
+      <!-- RB -->
+      <spatial name="T_RB_M0" width="0.006" rgba="0.55 0.78 0.55 1">
+          <site site="SITE_RB_0"/>
+          <geom geom="RB_HIP" sidesite="SIDESITE_RB_0"/>
+          <site site="SITE_RB_5"/>
+          <geom geom="RB_KNEE" sidesite="SIDESITE_RB_3"/>
+          <site site="SITE_RB_7"/>
+      </spatial>
+      <spatial name="T_RB_M1" width="0.006" rgba="0.95 0.50 0.47 1">
+          <site site="SITE_RB_1"/>
+          <geom geom="RB_HIP" sidesite="SIDESITE_RB_1"/>
+          <site site="SITE_RB_3"/>
+      </spatial>
+      <spatial name="T_RB_M2" width="0.006" rgba="0.45 0.49 0.83 1">
+          <site site="SITE_RB_2"/>
+          <geom geom="RB_HIP" sidesite="SIDESITE_RB_0"/>
+          <site site="SITE_RB_4"/>
+          <geom geom="RB_KNEE" sidesite="SIDESITE_RB_2"/>
+          <site site="SITE_RB_6"/>
+      </spatial>
+      <!-- RF -->
+      <spatial name="T_RF_M0" width="0.006" rgba="0.55 0.78 0.55 1">
+          <site site="SITE_RF_0"/>
+          <geom geom="RF_HIP" sidesite="SIDESITE_RF_0"/>
+          <site site="SITE_RF_5"/>
+          <geom geom="RF_KNEE" sidesite="SIDESITE_RF_3"/>
+          <site site="SITE_RF_7"/>
+      </spatial>
+      <spatial name="T_RF_M1" width="0.006" rgba="0.95 0.50 0.47 1">
+          <site site="SITE_RF_1"/>
+          <geom geom="RF_HIP" sidesite="SIDESITE_RF_1"/>
+          <site site="SITE_RF_3"/>
+      </spatial>
+      <spatial name="T_RF_M2" width="0.006" rgba="0.45 0.49 0.83 1">
+          <site site="SITE_RF_2"/>
+          <geom geom="RF_HIP" sidesite="SIDESITE_RF_0"/>
+          <site site="SITE_RF_4"/>
+          <geom geom="RF_KNEE" sidesite="SIDESITE_RF_2"/>
+          <site site="SITE_RF_6"/>
+      </spatial>
+    <!-- LB -->
+      <spatial name="T_LB_M0" width="0.006" rgba="0.55 0.78 0.55 1">
+          <site site="SITE_LB_0"/>
+          <geom geom="LB_HIP" sidesite="SIDESITE_LB_0"/>
+          <site site="SITE_LB_5"/>
+          <geom geom="LB_KNEE" sidesite="SIDESITE_LB_3"/>
+          <site site="SITE_LB_7"/>
+      </spatial>
+      <spatial name="T_LB_M1" width="0.006" rgba="0.95 0.50 0.47 1">
+          <site site="SITE_LB_1"/>
+          <geom geom="LB_HIP" sidesite="SIDESITE_LB_1"/>
+          <site site="SITE_LB_3"/>
+      </spatial>
+      <spatial name="T_LB_M2" width="0.006" rgba="0.45 0.49 0.83 1">
+          <site site="SITE_LB_2"/>
+          <geom geom="LB_HIP" sidesite="SIDESITE_LB_0"/>
+          <site site="SITE_LB_4"/>
+          <geom geom="LB_KNEE" sidesite="SIDESITE_LB_2"/>
+          <site site="SITE_LB_6"/>
+      </spatial>
+    <!-- LF -->
+      <spatial name="T_LF_M0" width="0.006" rgba="0.55 0.78 0.55 1">
+          <site site="SITE_LF_0"/>
+          <geom geom="LF_HIP" sidesite="SIDESITE_LF_0"/>
+          <site site="SITE_LF_5"/>
+          <geom geom="LF_KNEE" sidesite="SIDESITE_LF_3"/>
+          <site site="SITE_LF_7"/>
+      </spatial>
+      <spatial name="T_LF_M1" width="0.006" rgba="0.95 0.50 0.47 1">
+          <site site="SITE_LF_1"/>
+          <geom geom="LF_HIP" sidesite="SIDESITE_LF_1"/>
+          <site site="SITE_LF_3"/>
+      </spatial>
+      <spatial name="T_LF_M2" width="0.006" rgba="0.45 0.49 0.83 1">
+          <site site="SITE_LF_2"/>
+          <geom geom="LF_HIP" sidesite="SIDESITE_LF_0"/>
+          <site site="SITE_LF_4"/>
+          <geom geom="LF_KNEE" sidesite="SIDESITE_LF_2"/>
+          <site site="SITE_LF_6"/>
+      </spatial>
+    </tendon> 
+
+
+  <actuator>
+    <!-- <motor gear="120" joint="rbthigh" name="rbthigh"/>
+    <motor gear="90" joint="rbshin" name="rbshin"/> -->
+
+<!--     <motor gear="120" joint="rfthigh" name="rfthigh"/>
+    <motor gear="60" joint="rfshin" name="rfshin"/>
+    <motor gear="120" joint="lbthigh" name="lbthigh"/>
+    <motor gear="90" joint="lbshin" name="lbshin"/>
+    <motor gear="120" joint="lfthigh" name="lfthigh"/>
+    <motor gear="60" joint="lfshin" name="lfshin"/> -->
+
+
+    <muscle gear="100" name="T_RB_M0" tendon="T_RB_M0"/>
+    <muscle gear="100" name="T_RB_M1" tendon="T_RB_M1"/>
+    <muscle gear="100" name="T_RB_M2" tendon="T_RB_M2"/>
+
+    <muscle gear="100" name="T_RF_M0" tendon="T_RF_M0"/>
+    <muscle gear="100" name="T_RF_M1" tendon="T_RF_M1"/>
+    <muscle gear="100" name="T_RF_M2" tendon="T_RF_M2"/>
+
+    <muscle gear="100" name="T_LB_M0" tendon="T_LB_M0"/>
+    <muscle gear="100" name="T_LB_M1" tendon="T_LB_M1"/>
+    <muscle gear="100" name="T_LB_M2" tendon="T_LB_M2"/>
+
+    <muscle gear="100" name="T_LF_M0" tendon="T_LF_M0"/>
+    <muscle gear="100" name="T_LF_M1" tendon="T_LF_M1"/>
+    <muscle gear="100" name="T_LF_M2" tendon="T_LF_M2"/>
+  </actuator>
+
+  <sensor>
+     <touch name="rb_sensor" site="rb_sensor_site" />
+     <touch name="rf_sensor" site="rf_sensor_site" />
+     <touch name="lb_sensor" site="lb_sensor_site" />
+     <touch name="lf_sensor" site="lf_sensor_site" />
+  </sensor>
+</mujoco>
