@@ -14,10 +14,10 @@ use_acc = True
 normalize = True
 
 
-show_video = False
+show_video = True
 random_seed = 0
 
-task_type = task_types[0]
+task_type = task_types[1]
 curriculum = curriculums[0]
 ANN_structure = ANN_structures[0]
 number_of_refinements = 8+1
@@ -85,7 +85,7 @@ for use_sensory in all_sensory_cases:
 		axes1[ii].set_title(MuJoCo_model_names_short[ii])
 		axes1[ii].set_xlabel('Refinement #')
 		axes1[ii].set_ylabel('RMSE')
-		axes1[ii].set_ylim(0.1, 0.4)
+		axes1[ii].set_ylim(0, 0.4)
 		axes1[ii].set_xlim(-0.50, 9.5)
 		axes1[ii].grid(color='k', linestyle=':', linewidth=.5)
 
@@ -113,7 +113,7 @@ plt.setp(axes2.get_xticklabels(), rotation=-45, ha="left",
          rotation_mode="anchor")
 axes2.set_ylabel('RMSE')
 axes2.grid(color='k', linestyle=':', linewidth=.5)
-axes2.set_ylim(0.1, 0.4)
+axes2.set_ylim(0, 0.4)
 fig2.subplots_adjust(bottom=0.15, top=.92)
 axes1[2].legend((line1,line2),('with sensory','without sensory'))
 
@@ -130,10 +130,8 @@ plt.show(block=True)
 
 dt=.005
 use_sensory = True
-task_type = task_types[0]
-curriculum = curriculums[0]
-ANN_structure = ANN_structures[0]
 actuation_type = "TD"
+
 if use_sensory:
 	if use_feedback==True:
 		experiment_ID = "w_sensory_"+"w_feedback_"+ANN_structure+"_ANN_"+task_type+curriculum
