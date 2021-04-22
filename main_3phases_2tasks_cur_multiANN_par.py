@@ -16,7 +16,7 @@ def L2_learn_quadruped_experiment(run_no):
 	use_acc=True
 	normalize=True
 	curriculums = ["_E2H"]#, "_H2E"]
-	ANN_structures = ["S"]
+	ANN_structures = ["M"]
 	actuation_type = "TD"
 	number_of_refinements = 8
 	for cur in curriculums:
