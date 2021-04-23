@@ -113,9 +113,9 @@ def test_a_task(MuJoCo_model_name, experiment_ID, run_no, random_seed, use_senso
 	if plot_position_curves:
 		# import pdb; pdb.set_trace()
 		fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(6, 4.2))
-		axes[0].plot(np.arange(1000),returned_kinematics[int(returned_kinematics.shape[0]/2):,0], np.arange(1000), attempt_kinematics[int(attempt_kinematics.shape[0]/2):,0])
+		axes[0].plot(np.arange(1000),returned_kinematics[int(returned_kinematics.shape[0]/2):,6], np.arange(1000), attempt_kinematics[int(attempt_kinematics.shape[0]/2):,6])
 		axes[0].set_title('proximal')
-		axes[1].plot(np.arange(1000), returned_kinematics[int(returned_kinematics.shape[0]/2):,1], np.arange(1000), attempt_kinematics[int(attempt_kinematics.shape[0]/2):,1])
+		axes[1].plot(np.arange(1000), returned_kinematics[int(returned_kinematics.shape[0]/2):,7], np.arange(1000), attempt_kinematics[int(attempt_kinematics.shape[0]/2):,7])
 		axes[1].set_title('distal')
 		plt.show(block=True)
 
@@ -533,7 +533,7 @@ def create_cyclical_movements_fcn(omega=1.5, attempt_length=10, dt=0.01):
 	attempt_kinematics_LF = positions_to_kinematics_fcn(q0a, q1a, dt)
 	attempt_kinematics = combine_4leg_kinematics(attempt_kinematics_RB, attempt_kinematics_RF, attempt_kinematics_LB, attempt_kinematics_LF)
 	return attempt_kinematics
-	
+
 def create_p2p_movements_fcn(random_seed, number_of_steps = 10, attempt_length = 10, dt=0.01, filtfilt_N=1):
 	step_duration = attempt_length/number_of_steps
 	q0a = p2p_positions_gen_fcn(lower_band = -.96, upper_band = -.2, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed, dt=dt)
