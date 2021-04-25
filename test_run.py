@@ -6,7 +6,7 @@ import multiprocessing as mp
 from all_functions import *
 
 def L2_learn_quadruped_experiment(run_no):
-	experiment_ID_base = 'cur3_V5_TD_test63'
+	experiment_ID_base = 'cur3_V5_TD_test64'
 # Create target Directory if don't exist
 	dt=.005
 	if not os.path.exists('./results/'+experiment_ID_base):
@@ -39,7 +39,7 @@ def L2_learn_quadruped_experiment(run_no):
 							["tendon_quadruped_ws_onfloorloaded.xml",
 							"tendon_quadruped_ws_onfloor.xml",
 							"tendon_quadruped_ws_inair.xml"]
-					task_types = ["p2p"]
+					task_types = ["cyclical","p2p"]
 					for task_type in task_types:
 						if use_sensory:
 							if use_feedback:
