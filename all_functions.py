@@ -296,8 +296,14 @@ def inverse_mapping_ws_varANNs_fcn(kinematics, sensorydata, activations, ANN_str
 		else:
 			x = kinematics_to_use
 		y = activations
-		x_train, x_valid, y_train, y_valid = sklearn.model_selection.train_test_split(x, y, test_size=0.2)
-		
+		x_train_all, x_valid_all, y_train_all, y_valid_all = sklearn.model_selection.train_test_split(x, y, test_size=0.2)
+		# import pdb; pdb.set_trace()
+		downsampling_factor = 10
+		x_train=x_train_all[::downsampling_factor,:]
+		x_valid=x_valid_all[::downsampling_factor,:]
+		y_train=y_train_all[::downsampling_factor,:]
+		y_valid=y_valid_all[::downsampling_factor,:]
+
 		logdir = log_address+"compound/"
 		tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=logdir)
 		earlystopping_callback = tf.keras.callbacks.EarlyStopping(
