@@ -2,7 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from all_functions import *
 
-experiment_ID_base = 'cur3_V5_TD_full_test_nonstiff_modifiedRoM_useACCtest_1'
+experiment_ID_base = 'cur3_V5_TD_full_test_nonstiff_modifiedRoM_rigid_4cases_V9_1'
 
 
 curriculums = ["_E2H", "_H2E"]
@@ -12,10 +12,10 @@ task_types = ["cyclical", "p2p"]
 all_sensory_cases = [True, False]
 use_feedback = False
 use_acc = True
-normalize = False
+normalize = True
 
 
-show_video = True
+show_video = False
 random_seed = 0
 
 task_type = task_types[0]
