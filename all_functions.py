@@ -50,7 +50,7 @@ def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, 
 	else:
 		ValueError("unacceptable task")
 	[babbling_kinematics, babbling_sensorreads, babbling_activations] = run_activations_ws_ol_fcn(
-	MuJoCo_model_name, est_activations, Mj_render=True) # this should be ol
+	MuJoCo_model_name, est_activations, Mj_render=False) # this should be ol
 	errors = []
 	if kinematics_all == []: # initialization
 		kinematics_all = babbling_kinematics
@@ -510,11 +510,12 @@ def p2p_positions_gen_fcn(lower_band, upper_band, number_of_positions, duration_
 	return random_array
 
 def create_cyclical_movements_fcn(omega=1.5, attempt_length=10, dt=0.01):
-	q0a = sinusoidal_CPG_fcn(w = omega, phi = 0, lower_band = -.8, upper_band = -.3, attempt_length = attempt_length , dt=dt)
-	q1a = sinusoidal_CPG_fcn(w = omega, phi = np.pi/2, lower_band = 0, upper_band = .45, attempt_length = attempt_length , dt=dt)
+	distance_from_limits=0.05
+	q0a = sinusoidal_CPG_fcn(w = omega, phi = 0, lower_band = -.8+distance_from_limits, upper_band = -.3-distance_from_limits, attempt_length = attempt_length , dt=dt)
+	q1a = sinusoidal_CPG_fcn(w = omega, phi = np.pi/2, lower_band = 0+distance_from_limits, upper_band = .45-distance_from_limits, attempt_length = attempt_length , dt=dt)
 
-	q0b = sinusoidal_CPG_fcn(w = omega, phi = np.pi, lower_band = -.8, upper_band = -.3, attempt_length = attempt_length , dt=dt)
-	q1b = sinusoidal_CPG_fcn(w = omega, phi = -np.pi/2, lower_band = 0, upper_band = .45, attempt_length = attempt_length , dt=dt)
+	q0b = sinusoidal_CPG_fcn(w = omega, phi = np.pi, lower_band = -.8+distance_from_limits, upper_band = -.3-distance_from_limits, attempt_length = attempt_length , dt=dt)
+	q1b = sinusoidal_CPG_fcn(w = omega, phi = -np.pi/2, lower_band = 0+distance_from_limits, upper_band = .45-distance_from_limits, attempt_length = attempt_length , dt=dt)
 	attempt_kinematics_RB = positions_to_kinematics_fcn(q0a, q1a, dt)
 	# # plotting
 	# plt.plot(q0a[0:100])
@@ -536,11 +537,12 @@ def create_cyclical_movements_fcn(omega=1.5, attempt_length=10, dt=0.01):
 
 def create_p2p_movements_fcn(random_seed, number_of_steps = 10, attempt_length = 10, dt=0.01, filtfilt_N=1):
 	step_duration = attempt_length/number_of_steps
-	q0a = p2p_positions_gen_fcn(lower_band =  -.8, upper_band = -.3, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed, dt=dt)
-	q1a = p2p_positions_gen_fcn(lower_band = 0, upper_band = .45, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed, dt=dt)
+	distance_from_limits=0.05
+	q0a = p2p_positions_gen_fcn(lower_band =  -.8+distance_from_limits, upper_band = -.3-distance_from_limits, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed, dt=dt)
+	q1a = p2p_positions_gen_fcn(lower_band = 0+distance_from_limits, upper_band = .45-distance_from_limits, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed, dt=dt)
 
-	q0b = p2p_positions_gen_fcn(lower_band = -.8, upper_band = -.3, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed, dt=dt)
-	q1b = p2p_positions_gen_fcn(lower_band = 0, upper_band = .45, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed, dt=dt)
+	q0b = p2p_positions_gen_fcn(lower_band = -.8+distance_from_limits, upper_band = -.3-distance_from_limits, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed, dt=dt)
+	q1b = p2p_positions_gen_fcn(lower_band = 0+distance_from_limits, upper_band = .45-distance_from_limits, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed, dt=dt)
 	
 	if filtfilt_N>1:
 		b=np.ones(filtfilt_N)/filtfilt_N
