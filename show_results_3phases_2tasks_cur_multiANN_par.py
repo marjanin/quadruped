@@ -18,9 +18,9 @@ normalize = True
 show_video = False
 random_seed = 0
 
-task_type = task_types[0]
+task_type = task_types[1]
 curriculum = curriculums[0]
-ANN_structure = ANN_structures[1]
+ANN_structure = ANN_structures[0]
 number_of_refinements = 8+1
 number_of_all_runs = 14
 

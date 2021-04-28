@@ -2,7 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from all_functions import *
 
-experiment_ID_base = 'cur3_V5_TD_full_test_nonstiff_modifiedRoM_useACCtest_4'
+experiment_ID_base = 'cur3_V5_TD_full_test_nonstiff_modifiedRoM_rigid_3cases_V9_1'
 
 curriculums = ["_E2H", "_H2E"]
 ANN_structures = ["S","M"]
@@ -14,10 +14,10 @@ use_acc = False
 normalize = True
 
 
-show_video = True
+show_video = False
 random_seed = 0
 
-task_type = task_types[0]
+task_type = task_types[1]
 curriculum = curriculums[0]
 ANN_structure = ANN_structures[0]
 number_of_refinements = 8+1

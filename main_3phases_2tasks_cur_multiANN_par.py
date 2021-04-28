@@ -6,7 +6,7 @@ import multiprocessing as mp
 from all_functions import *
 
 def L2_learn_quadruped_experiment(run_no):
-	experiment_ID_base = 'cur3_V5_TD_full_test_nonstiff_modifiedRoM_rigid_4cases_V9_1x'
+	experiment_ID_base = 'cur3_V5_TD_full_test_nonstiff_modifiedRoM_rigid_3cases_V9_1'
 # Create target Directory if don't exist
 	dt=.005
 	if not os.path.exists('./results/'+experiment_ID_base):
@@ -29,8 +29,8 @@ def L2_learn_quadruped_experiment(run_no):
 						MuJoCo_model_names =\
 							["tendon_quadruped_ws_inair.xml",
 							"tendon_quadruped_ws_onfloor.xml",
-							"tendon_quadruped_ws_onfloorloaded.xml",
-							"tendon_quadruped_ws_onfloorloadedheavy.xml"]
+							"tendon_quadruped_ws_onfloorloaded.xml"]#,
+							# "tendon_quadruped_ws_onfloorloadedheavy.xml"]
 					elif cur == "_H2E":
 						MuJoCo_model_names =\
 							["tendon_quadruped_ws_onfloorloaded.xml",
