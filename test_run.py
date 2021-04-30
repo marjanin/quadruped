@@ -6,7 +6,7 @@ import multiprocessing as mp
 from all_functions import *
 
 def L2_learn_quadruped_experiment(run_no):
-	experiment_ID_base = 'cur3_V5_TD_test66'
+	experiment_ID_base = 'cur3_V5_TD_test66x'
 # Create target Directory if don't exist
 	dt=.005
 	if not os.path.exists('./results/'+experiment_ID_base):
@@ -23,6 +23,24 @@ def L2_learn_quadruped_experiment(run_no):
 	actuation_type = "TD"
 	number_of_refinements = 8
 	random_seed=0
+
+	MuJoCo_model_names =[
+	"tendon_quadruped_ws_inair.xml",
+	"tendon_quadruped_ws_onfloor.xml",
+	"tendon_quadruped_ws_onfloorloaded.xml",
+	"tendon_quadruped_ws_onfloorloadedheavy.xml"]
+	norm_stndrd_coefficients_all=dict()
+	for MuJoCo_model_name in MuJoCo_model_names:
+		norm_stndrd_coefficients_current_model= calculate_norm_stndrd_coefficients_fcn(
+			MuJoCo_model_name=MuJoCo_model_name,
+			number_of_signals=12,
+			signal_duration_in_seconds=60,
+			pass_chance=dt,
+			max_in=1,
+			min_in=0, #### needs to be 0 for TD
+			dt=dt)
+		norm_stndrd_coefficients_all[MuJoCo_model_name]=norm_stndrd_coefficients_current_model
+	import pdb; pdb.set_trace()
 	for cur in curriculums:
 		for ANN_structure in ANN_structures:
 			for use_sensory in all_sensory_cases:

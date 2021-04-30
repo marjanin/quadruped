@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 global normalization_vector_w_acc_global, normalization_vector_wo_acc_global, sensory_normalization_coefficient_global
 normalization_vector_global = np.hstack((np.full((1,8),1),np.full((1,8),10),np.full((1,8),1000)))
 sensory_normalization_coef_global = 400
+# import pdb; pdb.set_trace()
 ## executive functions
 def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, sensory_all, activations_all, number_of_refinements, random_seed, use_sensory=True, use_feedback=False, normalize=True, task_type="cyclical", ANN_structure="M", actuation_type="JD",use_acc=False, dt=.01):
 	babbling = True
@@ -616,4 +617,33 @@ def kin2pva_fcn(kinematics, number_of_DoFs):
 	v_vec = v_vec_all[-number_of_DoFs:]
 	a_vec = a_vec_all[-number_of_DoFs:]
 	return p_vec, v_vec, a_vec
+
+def calculate_norm_stndrd_coefficients_fcn(
+	MuJoCo_model_name,
+	number_of_signals,
+	signal_duration_in_seconds,
+	pass_chance,
+	max_in=1,
+	min_in=0, #### needs to be 0 for TD
+	dt=0.01):
+	babbling_signals = babbling_input_gen_fcn(
+		number_of_signals=number_of_signals,
+		signal_duration_in_seconds=signal_duration_in_seconds,
+		pass_chance=dt,
+		max_in=1,
+		min_in=min_in, #### needs to be 0 for TD
+		dt=dt)
+	est_activations = babbling_signals
+	[babbling_kinematics, babbling_sensorreads, babbling_activations] = run_activations_ws_ol_fcn(
+		MuJoCo_model_name, est_activations, Mj_render=False)
+
+	babbling_max_amplitudes=np.abs(babbling_kinematics).max(0)
+	babbling_stds=babbling_kinematics.std(0)
+	sensory_max_amplitures=abs(babbling_sensorreads).max(0)
+	sensory_max_ampliture=sensory_max_amplitures.max()
+	sensory_stds=babbling_sensorreads.std(0)
+	sensory_avg_std=sensory_stds.mean()
+	norm_stndrd_coefficients={"babbling_stds":babbling_stds, "sensory_avg_std":sensory_avg_std}
+	return norm_stndrd_coefficients
+
 #import pdb; pdb.set_trace()
