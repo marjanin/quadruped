@@ -25,7 +25,6 @@ def L2_learn_quadruped_experiment(run_no):
 	actuation_type = "TD"
 	number_of_refinements = 6
 	random_seed=0
-
 	norm_stndrd_coefficients= calculate_norm_stndrd_coefficients_fcn(
 		MuJoCo_model_name="tendon_quadruped_ws_onfloor.xml",
 		number_of_signals=12,

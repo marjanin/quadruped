@@ -2,7 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from all_functions import *
 
-experiment_ID_base = 'cur3_V5_TD_full_test_nonstiff_modifiedRoM_rigid_4cases_V9_1'
+experiment_ID_base = 'cur3_V5_TD_full_test_nonstiff_modifiedRoM_rigid_4cases_V1'# mc1 failed -> replaced with mc0
 
 
 curriculums = ["_E2H", "_H2E"]
@@ -10,7 +10,7 @@ ANN_structures = ["S","M"]
 task_types = ["cyclical", "p2p"]
 
 all_sensory_cases = [True, False]
-use_feedback = False
+use_feedback = True
 use_acc = True
 normalize = True
 
@@ -19,9 +19,9 @@ show_video = False
 random_seed = 0
 
 task_type = task_types[1]
-curriculum = curriculums[0]
-ANN_structure = ANN_structures[0]
-number_of_refinements = 8+1
+curriculum = curriculums[1]
+ANN_structure = ANN_structures[1]
+number_of_refinements = 6+1
 number_of_all_runs = 14
 
 fig1, axes1 = plt.subplots(nrows=1, ncols=4, figsize=(12, 4))
@@ -49,8 +49,8 @@ for use_sensory in all_sensory_cases:
 		MuJoCo_model_names = ["tendon_quadruped_ws_inair.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloorloaded.xml","tendon_quadruped_ws_onfloorloadedheavy.xml"]
 		MuJoCo_model_names_short = ["In Air", "On Floor", "On Floor With Load",  "On Floor With Heavy Load"]
 	elif curriculum == "_H2E":
-		MuJoCo_model_names = ["tendon_quadruped_ws_onfloorloaded.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_inair.xml"]
-		MuJoCo_model_names_short = ["On Floor with Load", "On Floor", "In Air"]
+		MuJoCo_model_names = ["tendon_quadruped_ws_onfloorloadedheavy.xml","tendon_quadruped_ws_onfloorloaded.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_inair.xml"]
+		MuJoCo_model_names_short = ["On Floor With Heavy Load", "On Floor with Load", "On Floor", "In Air"]
 	else:
 		ValueError("unacceptable curriculum")
 
