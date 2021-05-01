@@ -8,12 +8,10 @@ import sklearn.model_selection
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
-global normalization_vector_w_acc_global, normalization_vector_wo_acc_global, sensory_normalization_coefficient_global
-normalization_vector_global = np.hstack((np.full((1,8),1),np.full((1,8),10),np.full((1,8),1000)))
-sensory_normalization_coef_global = 400
-# import pdb; pdb.set_trace()
 ## executive functions
 def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, sensory_all, activations_all, number_of_refinements, random_seed, use_sensory=True, use_feedback=False, normalize=True, task_type="cyclical", ANN_structure="M", actuation_type="JD",use_acc=False, dt=.01):
+	location_folder='./log/{}/'.format(experiment_ID.split('/',1)[0])
+	[kinematics_norm_stndrd_vector_global, sensory_norm_stndrd_coef_global]=load_norm_stndrd_coefficients_fcn(location_folder)
 	babbling = True
 	number_of_legs = 4
 	if ANN_structure == "M":
@@ -22,7 +20,7 @@ def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, 
 		number_of_ANNs = 1
 	else:
 		ValueError("unacceptable ANN_structure")
-
+	#import pdb; pdb.set_trace()
 	if actuation_type == "TD":
 		number_of_signals = 12
 		min_in=0
@@ -33,7 +31,7 @@ def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, 
 		ValueError("unacceptable actuation_type")
 
 	ANNs = number_of_ANNs*[None]
-	babbling_signal_duration_in_seconds= 1*80
+	babbling_signal_duration_in_seconds= 1*60
 	refinement_duration_in_seconds = 10
 	babbling_signals = babbling_input_gen_fcn(
 		number_of_signals=number_of_signals,
@@ -198,6 +196,10 @@ def inverse_mapping_ws_varANNs_fcn(kinematics, sensorydata, activations, ANN_str
 	this function used the babbling data to create an inverse mapping using a
 	MLP NN
 	"""
+	# import pdb; pdb.set_trace()
+	file_location='/'.join(log_address.split('/',3)[:3])+"/"
+	[kinematics_norm_stndrd_vector_global, sensory_norm_stndrd_coef_global]=load_norm_stndrd_coefficients_fcn(file_location)
+	# global kinematics_norm_stndrd_vector_global, sensory_norm_stndrd_coef_global
 	number_of_legs = 4
 	if ANN_structure == "M":
 		number_of_ANNs = number_of_legs
@@ -211,8 +213,8 @@ def inverse_mapping_ws_varANNs_fcn(kinematics, sensorydata, activations, ANN_str
 	ANNs = number_of_ANNs*[None]
 	
 	if normalize:
-		normalization_vector = normalization_vector_global
-		sensory_normalization_coef = sensory_normalization_coef_global
+		normalization_vector = kinematics_norm_stndrd_vector_global
+		sensory_normalization_coef = sensory_norm_stndrd_coef_global
 	else:
 		normalization_vector = 1
 		sensory_normalization_coef = 1
@@ -359,12 +361,16 @@ def run_activations_ws_cl_varANNs_fcn(MuJoCo_model_name, attempt_kinematics, log
 	this function runs the predicted activations generatred from running
 	the inverse map on the desired task kinematics
 	"""
+	# import pdb; pdb.set_trace()
+	file_location='/'.join(log_address.split('/',3)[:3])+"/"
+	[kinematics_norm_stndrd_vector_global, sensory_norm_stndrd_coef_global]=load_norm_stndrd_coefficients_fcn(file_location)
+	# global kinematics_norm_stndrd_vector_global, sensory_norm_stndrd_coef_global
 	if normalize:
-		normalization_vector = normalization_vector_global
-		sensory_normalization_coef = sensory_normalization_coef_global
+		kinematics_norm_stndrd_vector = kinematics_norm_stndrd_vector_global
+		sensory_norm_stndrd_coef = sensory_norm_stndrd_coef_global
 	else:
-		normalization_vector = 1
-		sensory_normalization_coef = 1
+		kinematics_norm_stndrd_vector = 1
+		sensory_norm_stndrd_coef = 1
 
 	MuJoCo_model = load_model_from_path("./assets/"+MuJoCo_model_name)
 	sim = MjSim(MuJoCo_model)
@@ -406,13 +412,13 @@ def run_activations_ws_cl_varANNs_fcn(MuJoCo_model_name, attempt_kinematics, log
 				p_vec_error = 0
 				p_vec_error_integ = 0
 			else:
-				last_sensorydata = sim.data.sensordata/sensory_normalization_coef
+				last_sensorydata = sim.data.sensordata/sensory_norm_stndrd_coef
 				if use_feedback:
 					[current_control_kinematics, p_vec_error, p_vec_error_integ] = \
 					create_control_kinematics_fcn(attempt_kinematics[ii,:], sim.data, number_of_DoFs, p_vec_error, p_vec_error_integ, dt=dt)
 				else:
 					current_control_kinematics = attempt_kinematics[ii,:]
-			current_control_kinematics_normalized = np.squeeze(current_control_kinematics/normalization_vector)
+			current_control_kinematics_normalized = np.squeeze(current_control_kinematics/kinematics_norm_stndrd_vector)
 			#import pdb; pdb.set_trace()
 			for leg_number in range(number_of_legs):
 				Inverse_ANN_model = Inverse_ANN_models[leg_number]
@@ -458,13 +464,13 @@ def run_activations_ws_cl_varANNs_fcn(MuJoCo_model_name, attempt_kinematics, log
 				p_vec_error = 0
 				p_vec_error_integ = 0
 			else:
-				last_sensorydata = sim.data.sensordata/sensory_normalization_coef
+				last_sensorydata = sim.data.sensordata/sensory_norm_stndrd_coef
 				if use_feedback == True:
 					[current_control_kinematics, p_vec_error, p_vec_error_integ] = \
 					create_control_kinematics_fcn(attempt_kinematics[ii,:], sim.data, number_of_DoFs, p_vec_error, p_vec_error_integ, dt=dt)
 				else:
 					current_control_kinematics = attempt_kinematics[ii,:]
-			current_control_kinematics_normalized = np.squeeze(current_control_kinematics/normalization_vector)
+			current_control_kinematics_normalized = np.squeeze(current_control_kinematics/kinematics_norm_stndrd_vector)
 			if use_acc:
 				current_control_kinematics_to_use = current_control_kinematics_normalized
 			else:
@@ -637,13 +643,22 @@ def calculate_norm_stndrd_coefficients_fcn(
 	[babbling_kinematics, babbling_sensorreads, babbling_activations] = run_activations_ws_ol_fcn(
 		MuJoCo_model_name, est_activations, Mj_render=False)
 
-	babbling_max_amplitudes=np.abs(babbling_kinematics).max(0)
-	babbling_stds=babbling_kinematics.std(0)
+	kinematics_max_amplitudes=np.abs(babbling_kinematics).max(0)
+	kinematics_stds=babbling_kinematics.std(0)
 	sensory_max_amplitures=abs(babbling_sensorreads).max(0)
 	sensory_max_ampliture=sensory_max_amplitures.max()
 	sensory_stds=babbling_sensorreads.std(0)
 	sensory_avg_std=sensory_stds.mean()
-	norm_stndrd_coefficients={"babbling_stds":babbling_stds, "sensory_avg_std":sensory_avg_std}
+	norm_stndrd_coefficients={"kinematics_stds":kinematics_stds, "sensory_avg_std":sensory_avg_std}
 	return norm_stndrd_coefficients
+
+def load_norm_stndrd_coefficients_fcn(location_folder):
+	file_locaiton=location_folder+"norm_stndrd_coefficients.npy"
+	norm_stndrd_coefficients = np.load(file_locaiton,allow_pickle=True).item()
+	kinematics_norm_stndrd_vector_global=norm_stndrd_coefficients["kinematics_stds"]
+	sensory_norm_stndrd_coef_global=norm_stndrd_coefficients["sensory_avg_std"]
+	if sensory_norm_stndrd_coef_global==0:
+		sensory_norm_stndrd_coef_global=1
+	return kinematics_norm_stndrd_vector_global, sensory_norm_stndrd_coef_global
 
 #import pdb; pdb.set_trace()

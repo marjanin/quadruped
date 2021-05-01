@@ -2,18 +2,18 @@ import numpy as np
 from matplotlib import pyplot as plt
 from all_functions import *
 
-experiment_ID_base = 'cur3_V5_TD_test65'
+experiment_ID_base = 'cur3_V5_TD_test69'
 show_video = False
 
 all_sensory_cases = [True, False]
-use_feedback = False
+use_feedback = True
 use_acc=True
 normalize=True
 cur = "_E2H"
-ANN_structure = "M"
+ANN_structure = "S"
 actuation_type = "TD"
-task_type = "p2p"
-number_of_refinements = 8+1
+task_type = "cyclical"
+number_of_refinements = 6+1
 number_of_all_runs = 1
 random_seed = 0
 
