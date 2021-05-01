@@ -6,19 +6,34 @@ import multiprocessing as mp
 from all_functions import *
 
 def L2_learn_quadruped_experiment(run_no):
-	experiment_ID_base = 'cur3_V5_TD_full_test_nonstiff_modifiedRoM_rigid_3cases_V9_1x'
+	experiment_ID_base = 'cur3_V5_TD_full_test_nonstiff_modifiedRoM_rigid_4cases_V1'
 # Create target Directory if don't exist
 	dt=.005
 	if not os.path.exists('./results/'+experiment_ID_base):
 		os.mkdir('./results/'+experiment_ID_base)
+	if not os.path.exists('./log/'+experiment_ID_base):
+		os.mkdir('./log/'+experiment_ID_base)
+
 	all_sensory_cases = [True, False]
 	all_feedback_cases = [True, False]
 	use_acc=True
 	normalize=True
-	curriculums = ["_E2H"]#, "_H2E"]
+	curriculums = ["_E2H", "_H2E"]
 	ANN_structures = ["S","M"]
 	actuation_type = "TD"
-	number_of_refinements = 8
+	number_of_refinements = 6
+
+	np.random.seed(random_seed)
+	norm_stndrd_coefficients= calculate_norm_stndrd_coefficients_fcn(
+		MuJoCo_model_name="tendon_quadruped_ws_onfloor.xml",
+		number_of_signals=12,
+		signal_duration_in_seconds=60,
+		pass_chance=dt,
+		max_in=1,
+		min_in=0, #### needs to be 0 for TD
+		dt=dt)
+	np.save('./log/{}/norm_stndrd_coefficients.npy'.format(experiment_ID_base),norm_stndrd_coefficients)
+
 	for cur in curriculums:
 		for ANN_structure in ANN_structures:
 			for use_sensory in all_sensory_cases:
@@ -29,11 +44,12 @@ def L2_learn_quadruped_experiment(run_no):
 						MuJoCo_model_names =\
 							["tendon_quadruped_ws_inair.xml",
 							"tendon_quadruped_ws_onfloor.xml",
-							"tendon_quadruped_ws_onfloorloaded.xml"]#,
-							# "tendon_quadruped_ws_onfloorloadedheavy.xml"]
+							"tendon_quadruped_ws_onfloorloaded.xml",
+							"tendon_quadruped_ws_onfloorloadedheavy.xml"]
 					elif cur == "_H2E":
 						MuJoCo_model_names =\
-							["tendon_quadruped_ws_onfloorloaded.xml",
+							["tendon_quadruped_ws_onfloorloadedheavy.xml",
+							"tendon_quadruped_ws_onfloorloaded.xml",
 							"tendon_quadruped_ws_onfloor.xml",
 							"tendon_quadruped_ws_inair.xml"]
 					task_types = ["cyclical","p2p"]
@@ -84,8 +100,8 @@ def L2_learn_quadruped_experiment(run_no):
 # main code
 pool = mp.Pool(mp.cpu_count())
 print(mp.cpu_count())
-number_of_all_runs = 14
-pool.map_async(L2_learn_quadruped_experiment, [run_no for run_no in range(number_of_all_runs)])
+number_of_all_runs = 16
+pool.map_async(L2_learn_quadruped_experiment, [run_no for run_no in range(0,number_of_all_runs)])
 pool.close()
 pool.join()
 

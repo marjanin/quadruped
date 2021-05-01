@@ -6,7 +6,7 @@ experiment_ID_base = 'cur3_V5_TD_test69'
 show_video = False
 
 all_sensory_cases = [True, False]
-use_feedback = True
+use_feedback = False
 use_acc=True
 normalize=True
 cur = "_E2H"
