@@ -3,6 +3,7 @@ import pickle
 from matplotlib import pyplot as plt
 import tensorflow as tf
 import multiprocessing as mp
+import time
 from all_functions import *
 
 def L2_learn_quadruped_experiment(run_no):
@@ -22,17 +23,23 @@ def L2_learn_quadruped_experiment(run_no):
 	ANN_structures = ["S","M"]
 	actuation_type = "TD"
 	number_of_refinements = 6
+
+	# calculating calculate_norm_stndrd_coefficients
+	if run_no==0:
+		norm_stndrd_coefficients_randomseed=0
+		np.random.seed(norm_stndrd_coefficients_randomseed)
+		norm_stndrd_coefficients= calculate_norm_stndrd_coefficients_fcn(
+			MuJoCo_model_name="tendon_quadruped_ws_onfloor.xml",
+			number_of_signals=12,
+			signal_duration_in_seconds=60,
+			pass_chance=dt,
+			max_in=1,
+			min_in=0, #### needs to be 0 for TD
+			dt=dt)
+		np.save('./log/{}/norm_stndrd_coefficients.npy'.format(experiment_ID_base),norm_stndrd_coefficients)
+	else:
+		time.sleep(10)
 	random_seed = run_no
-	np.random.seed(random_seed)
-	norm_stndrd_coefficients= calculate_norm_stndrd_coefficients_fcn(
-		MuJoCo_model_name="tendon_quadruped_ws_onfloor.xml",
-		number_of_signals=12,
-		signal_duration_in_seconds=60,
-		pass_chance=dt,
-		max_in=1,
-		min_in=0, #### needs to be 0 for TD
-		dt=dt)
-	np.save('./log/{}/norm_stndrd_coefficients.npy'.format(experiment_ID_base),norm_stndrd_coefficients)
 	for cur in curriculums:
 		for ANN_structure in ANN_structures:
 			for use_sensory in all_sensory_cases:
@@ -99,7 +106,7 @@ def L2_learn_quadruped_experiment(run_no):
 pool = mp.Pool(mp.cpu_count())
 print(mp.cpu_count())
 number_of_all_runs = 16
-pool.map_async(L2_learn_quadruped_experiment, [run_no for run_no in range(27,27+15)])
+pool.map_async(L2_learn_quadruped_experiment, [run_no for run_no in range(number_of_all_runs)])
 pool.close()
 pool.join()
 

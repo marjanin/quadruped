@@ -2,7 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from all_functions import *
 
-experiment_ID_base = 'cur3_V5_TD_full_test_nonstiff_modifiedRoM_rigid_4cases_V1'# mc1 failed -> replaced with mc0
+experiment_ID_base = 'cur3_V5_TD_full_test_nonstiff_modifiedRoM_rigid_4cases_V2'# mc1 failed -> replaced with mc0
 
 
 curriculums = ["_E2H", "_H2E"]
@@ -22,7 +22,7 @@ task_type = task_types[0]
 curriculum = curriculums[1]
 ANN_structure = ANN_structures[0]
 number_of_refinements = 6+1
-number_of_all_runs = 40
+number_of_all_runs = 15
 
 fig1, axes1 = plt.subplots(nrows=1, ncols=4, figsize=(12, 4))
 fig2, axes2 = plt.subplots(nrows=1, ncols=1, figsize=(6, 4.2))
