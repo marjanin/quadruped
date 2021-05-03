@@ -548,7 +548,7 @@ def create_cyclical_movements_fcn(omega=1.5, attempt_length=10, dt=0.01):
 	attempt_kinematics = combine_4leg_kinematics(attempt_kinematics_RB, attempt_kinematics_RF, attempt_kinematics_LB, attempt_kinematics_LF)
 	return attempt_kinematics
 
-def create_p2p_movements_fcn(random_seed, number_of_steps = 10, attempt_length = 10, dt=0.01, filtfilt_N=1):
+def create_p2p_movements_fcn(random_seed, number_of_steps = 5, attempt_length = 10, dt=0.01, filtfilt_N=1):
 	step_duration = attempt_length/number_of_steps
 	distance_from_limits=0.00
 	random_seed_1=random_seed
