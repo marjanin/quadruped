@@ -15,14 +15,14 @@ use_acc = True
 normalize = True
 
 
-show_video = False
+show_video = True
 random_seed = 0
 
 task_type = task_types[1]
 curriculum = curriculums[1]
-ANN_structure = ANN_structures[1]
+ANN_structure = ANN_structures[0]
 number_of_refinements = 6+1
-number_of_all_runs = 14
+number_of_all_runs = 40
 
 fig1, axes1 = plt.subplots(nrows=1, ncols=4, figsize=(12, 4))
 fig2, axes2 = plt.subplots(nrows=1, ncols=1, figsize=(6, 4.2))
@@ -144,7 +144,7 @@ else:
 	else:
 		experiment_ID = "wo_sensory_"+"wo_feedback_"+ANN_structure+"_ANN_"+task_type+curriculum
 save_log_path = experiment_ID_base+"/"+experiment_ID
-run_no = 0
+run_no = 4
 MuJoCo_model_names = ["tendon_quadruped_ws_inair.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloorloaded.xml","tendon_quadruped_ws_onfloorloadedheavy.xml"]
 if show_video:
 	for MuJoCo_model_name , ii in zip(MuJoCo_model_names, range(len(MuJoCo_model_names))):

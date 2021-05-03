@@ -550,12 +550,14 @@ def create_cyclical_movements_fcn(omega=1.5, attempt_length=10, dt=0.01):
 
 def create_p2p_movements_fcn(random_seed, number_of_steps = 10, attempt_length = 10, dt=0.01, filtfilt_N=1):
 	step_duration = attempt_length/number_of_steps
-	distance_from_limits=0.05
-	q0a = p2p_positions_gen_fcn(lower_band =  -.8+distance_from_limits, upper_band = -.3-distance_from_limits, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed, dt=dt)
-	q1a = p2p_positions_gen_fcn(lower_band = 0+distance_from_limits, upper_band = .45-distance_from_limits, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed, dt=dt)
+	distance_from_limits=0.00
+	random_seed_1=random_seed
+	random_seed_2=np.random.randint(1000)
+	q0a = p2p_positions_gen_fcn(lower_band =  -.8+distance_from_limits, upper_band = -.3-distance_from_limits, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed_1, dt=dt)
+	q1a = p2p_positions_gen_fcn(lower_band = 0+distance_from_limits, upper_band = .45-distance_from_limits, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed_2, dt=dt)
 
-	q0b = p2p_positions_gen_fcn(lower_band = -.8+distance_from_limits, upper_band = -.3-distance_from_limits, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed, dt=dt)
-	q1b = p2p_positions_gen_fcn(lower_band = 0+distance_from_limits, upper_band = .45-distance_from_limits, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed, dt=dt)
+	# q0b = p2p_positions_gen_fcn(lower_band = -.8+distance_from_limits, upper_band = -.3-distance_from_limits, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed, dt=dt) # for second independent synergies
+	# q1b = p2p_positions_gen_fcn(lower_band = 0+distance_from_limits, upper_band = .45-distance_from_limits, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed, dt=dt) #  for second independent synergies
 	
 	if filtfilt_N>1:
 		b=np.ones(filtfilt_N)/filtfilt_N

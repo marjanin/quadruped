@@ -6,7 +6,7 @@ import multiprocessing as mp
 from all_functions import *
 
 def L2_learn_quadruped_experiment(run_no):
-	experiment_ID_base = 'cur3_V5_TD_full_test_nonstiff_modifiedRoM_rigid_4cases_V1X'
+	experiment_ID_base = 'cur3_V5_TD_full_test_nonstiff_modifiedRoM_rigid_4cases_V2'
 # Create target Directory if don't exist
 	dt=.005
 	if not os.path.exists('./results/'+experiment_ID_base):
@@ -99,7 +99,7 @@ def L2_learn_quadruped_experiment(run_no):
 pool = mp.Pool(mp.cpu_count())
 print(mp.cpu_count())
 number_of_all_runs = 16
-pool.map_async(L2_learn_quadruped_experiment, [run_no for run_no in range(0,number_of_all_runs)])
+pool.map_async(L2_learn_quadruped_experiment, [run_no for run_no in range(27,27+15)])
 pool.close()
 pool.join()
 
