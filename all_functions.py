@@ -523,7 +523,7 @@ def p2p_positions_gen_fcn(lower_band, upper_band, number_of_positions, duration_
 	return random_array
 
 def create_cyclical_movements_fcn(omega=1.5, attempt_length=10, dt=0.01):
-	distance_from_limits=0.05
+	distance_from_limits=0.00
 	q0a = sinusoidal_CPG_fcn(w = omega, phi = 0, lower_band = -.8+distance_from_limits, upper_band = -.3-distance_from_limits, attempt_length = attempt_length , dt=dt)
 	q1a = sinusoidal_CPG_fcn(w = omega, phi = np.pi/2, lower_band = 0+distance_from_limits, upper_band = .45-distance_from_limits, attempt_length = attempt_length , dt=dt)
 

@@ -18,7 +18,7 @@ normalize = True
 show_video = True
 random_seed = 0
 
-task_type = task_types[1]
+task_type = task_types[0]
 curriculum = curriculums[1]
 ANN_structure = ANN_structures[0]
 number_of_refinements = 6+1
