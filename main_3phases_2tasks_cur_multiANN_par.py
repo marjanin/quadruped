@@ -19,7 +19,7 @@ def L2_learn_quadruped_experiment(run_no):
 	all_feedback_cases = [False]
 	use_acc=True
 	normalize=True
-	curriculums = ["_E2H"]#, "_H2E"]
+	curriculums = ["_E2H"]#, "_H2E"]#
 	ANN_structures = ["S","M"]
 	actuation_type = "TD"
 	number_of_refinements = 6
