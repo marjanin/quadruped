@@ -331,7 +331,7 @@ def inverse_mapping_ws_varANNs_fcn(kinematics, sensorydata, activations, ANN_str
 			model = tf.keras.Sequential()
 			# Adds a densely-connected layer with 15 units to the model:
 			#model.add(tf.keras.layers.BatchNormalization(input_shape= x_train.shape[1:]))
-			model.add(tf.keras.layers.Dense(hidden_layer_nodes, activation='linear', input_shape= x_train.shape[1:]))
+			model.add(tf.keras.layers.Dense(hidden_layer_nodes/2, activation='linear', input_shape= x_train.shape[1:]))
 			# Add a softmax layer with 3 output units:
 			model.add(tf.keras.layers.Dense(output_layer_nodes, activation='linear'))
 			model.compile(optimizer=tf.keras.optimizers.Adam(0.01),

@@ -2,8 +2,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 from all_functions import *
 
-experiment_ID_base = 'cur3_V5_TD_test69'
-show_video = False
+experiment_ID_base = 'cur3_V5_TD_test77'
+show_video = True
 
 all_sensory_cases = [True, False]
 use_feedback = False
@@ -12,10 +12,10 @@ normalize=True
 cur = "_E2H"
 ANN_structure = "S"
 actuation_type = "TD"
-task_type = "cyclical"
-number_of_refinements = 6+1
+task_type = "p2p"
+number_of_refinements = 4+1
 number_of_all_runs = 1
-random_seed = 0
+random_seed = 1
 
 fig1, axes1 = plt.subplots(nrows=1, ncols=4, figsize=(12, 4))
 fig2, axes2 = plt.subplots(nrows=1, ncols=1, figsize=(6, 4.2))

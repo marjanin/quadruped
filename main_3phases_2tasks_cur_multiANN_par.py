@@ -7,7 +7,7 @@ import time
 from all_functions import *
 
 def L2_learn_quadruped_experiment(run_no):
-	experiment_ID_base = 'cur3_V5_TD_full_test_nonstiff_modifiedRoM_rigid_4cases_V2_5_test1_4cases'
+	experiment_ID_base = 'cur3_V5_TD_full_test_nonstiff_modifiedRoM_rigid_3phases_V1'
 # Create target Directory if don't exist
 	dt=.005
 	if not os.path.exists('./results/'+experiment_ID_base):
@@ -49,12 +49,10 @@ def L2_learn_quadruped_experiment(run_no):
 						MuJoCo_model_names =\
 							["tendon_quadruped_ws_inair.xml",
 							"tendon_quadruped_ws_onfloor.xml",
-							"tendon_quadruped_ws_onfloorloaded.xml",
-							"tendon_quadruped_ws_onfloorloadedheavy.xml"]
+							"tendon_quadruped_ws_onfloorloaded1000.xml"]
 					elif cur == "_H2E":
 						MuJoCo_model_names =\
-							["tendon_quadruped_ws_onfloorloadedheavy.xml",
-							"tendon_quadruped_ws_onfloorloaded.xml",
+							["tendon_quadruped_ws_onfloorloaded1000.xml",
 							"tendon_quadruped_ws_onfloor.xml",
 							"tendon_quadruped_ws_inair.xml"]
 					task_types = ["cyclical","p2p"]
@@ -106,7 +104,7 @@ def L2_learn_quadruped_experiment(run_no):
 pool = mp.Pool(mp.cpu_count())
 print(mp.cpu_count())
 number_of_all_runs = 16
-pool.map_async(L2_learn_quadruped_experiment, [run_no for run_no in range(number_of_all_runs)])
+pool.map_async(L2_learn_quadruped_experiment, [run_no for run_no in range(number_of_all_runs,number_of_all_runs+16)])
 pool.close()
 pool.join()
 
