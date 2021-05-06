@@ -2,7 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from all_functions import *
 
-experiment_ID_base = 'cur3_V5_TD_full_test_nonstiff_modifiedRoM_rigid_3phases_V2_5_test4'
+experiment_ID_base = 'cur4_xmlVer11_TD_V1'#mc1 error -> replaced with MC0 copy
 
 
 curriculums = ["_E2H", "_H2E"]
@@ -18,9 +18,9 @@ normalize = True
 show_video = False
 random_seed = 0
 
-task_type = task_types[1]
+task_type = task_types[0]
 curriculum = curriculums[0]
-ANN_structure = ANN_structures[1]
+ANN_structure = ANN_structures[0]
 number_of_refinements = 6+1
 number_of_all_runs = 15
 

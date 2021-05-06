@@ -67,3 +67,6 @@ mc11 failed -> replaced with mc10
 
 cur3_V5_TD_full_test_nonstiff_modifiedRoM_rigid_3phases_V2_5_test3:
 heavy load extra heavy
+
+
+'cur4_xmlVer11_TD_V1'#mc1 error -> replaced with MC0 copy
