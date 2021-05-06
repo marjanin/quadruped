@@ -2,8 +2,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 from all_functions import *
 
-experiment_ID_base = 'cur3_V5_TD_test77'
-show_video = True
+experiment_ID_base = 'cur3_V5_TD_test98_single'
+show_video = False
 
 all_sensory_cases = [True, False]
 use_feedback = False
@@ -12,10 +12,10 @@ normalize=True
 cur = "_E2H"
 ANN_structure = "S"
 actuation_type = "TD"
-task_type = "p2p"
+task_type = "cyclical"
 number_of_refinements = 4+1
 number_of_all_runs = 1
-random_seed = 1
+random_seed = 0
 
 fig1, axes1 = plt.subplots(nrows=1, ncols=4, figsize=(12, 4))
 fig2, axes2 = plt.subplots(nrows=1, ncols=1, figsize=(6, 4.2))
@@ -39,10 +39,11 @@ for use_sensory in all_sensory_cases:
 			experiment_ID = "wo_sensory_"+"wo_feedback_"+ANN_structure+"_ANN_"+task_type+cur
 
 	if cur == "_E2H":
-		MuJoCo_model_names = ["tendon_quadruped_ws_inair.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloorloaded.xml","tendon_quadruped_ws_onfloorloadedheavy.xml"]
+		# MuJoCo_model_names = ["tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloor.xml","tendon_quadruped_ws_onfloor.xml"]
+		MuJoCo_model_names = ["tendon_quadruped_ws_inair.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloorloaded1000.xml","tendon_quadruped_ws_onfloorloaded2000.xml"]
 		MuJoCo_model_names_short = ["In Air", "On Floor", "On Floor With Load", "On Floor With Heavy Load"]
 	elif cur == "_H2E":
-		MuJoCo_model_names = ["tendon_quadruped_ws_onfloorloaded.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_inair.xml"]
+		MuJoCo_model_names = ["tendon_quadruped_ws_onfloorloaded3000.xml", "tendon_quadruped_ws_onfloorloaded1000.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_inair.xml"]
 		MuJoCo_model_names_short = ["On Floor with Load", "On Floor", "In Air"]
 	else:
 		ValueError("unacceptable curriculum")
@@ -121,7 +122,7 @@ if save_figures:
 plt.show(block=True)
 
 if show_video:
-	dt=.005
+	dt=.001
 	use_sensory = True
 	if use_sensory:
 		if use_feedback:
@@ -135,7 +136,7 @@ if show_video:
 			experiment_ID = "wo_sensory_"+"wo_feedback_"+ANN_structure+"_ANN_"+task_type+cur
 	save_log_path = experiment_ID_base+"/"+experiment_ID
 	run_no = 0
-	MuJoCo_model_names = ["tendon_quadruped_ws_inair.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloorloaded.xml","tendon_quadruped_ws_onfloorloadedheavy.xml"]
+	MuJoCo_model_names = ["tendon_quadruped_ws_inair.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloorloaded1000.xml","tendon_quadruped_ws_onfloorloaded2000.xml"]
 	for MuJoCo_model_name , ii in zip(MuJoCo_model_names, range(len(MuJoCo_model_names))):
 		test_run_RMSE = test_a_task(MuJoCo_model_name, save_log_path, run_no, random_seed=random_seed, Mj_render=True, use_sensory=use_sensory, use_feedback=use_feedback, normalize=normalize, plot_position_curves=True, task_type=task_type, ANN_structure=ANN_structure, dt=dt, actuation_type=actuation_type, use_acc=use_acc)
 		print(MuJoCo_model_name,"RMSE: " ,test_run_RMSE)

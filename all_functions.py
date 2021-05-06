@@ -112,9 +112,9 @@ def test_a_task(MuJoCo_model_name, experiment_ID, run_no, random_seed, use_senso
 	if plot_position_curves:
 		# import pdb; pdb.set_trace()
 		fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(6, 4.2))
-		axes[0].plot(np.arange(1000),returned_kinematics[int(returned_kinematics.shape[0]/2):,6], np.arange(1000), attempt_kinematics[int(attempt_kinematics.shape[0]/2):,6])
+		axes[0].plot(np.arange(5000),returned_kinematics[int(returned_kinematics.shape[0]/2):,6], np.arange(5000), attempt_kinematics[int(attempt_kinematics.shape[0]/2):,6])
 		axes[0].set_title('proximal')
-		axes[1].plot(np.arange(1000), returned_kinematics[int(returned_kinematics.shape[0]/2):,7], np.arange(1000), attempt_kinematics[int(attempt_kinematics.shape[0]/2):,7])
+		axes[1].plot(np.arange(5000), returned_kinematics[int(returned_kinematics.shape[0]/2):,7], np.arange(5000), attempt_kinematics[int(attempt_kinematics.shape[0]/2):,7])
 		axes[1].set_title('distal')
 		plt.show(block=True)
 
@@ -301,7 +301,7 @@ def inverse_mapping_ws_varANNs_fcn(kinematics, sensorydata, activations, ANN_str
 		y = activations
 		x_train_all, x_valid_all, y_train_all, y_valid_all = sklearn.model_selection.train_test_split(x, y, test_size=0.2)
 		# import pdb; pdb.set_trace()
-		downsampling_factor = 10
+		downsampling_factor = 20
 		x_train=x_train_all[::downsampling_factor,:]
 		x_valid=x_valid_all[::downsampling_factor,:]
 		y_train=y_train_all[::downsampling_factor,:]
@@ -331,7 +331,7 @@ def inverse_mapping_ws_varANNs_fcn(kinematics, sensorydata, activations, ANN_str
 			model = tf.keras.Sequential()
 			# Adds a densely-connected layer with 15 units to the model:
 			#model.add(tf.keras.layers.BatchNormalization(input_shape= x_train.shape[1:]))
-			model.add(tf.keras.layers.Dense(hidden_layer_nodes/2, activation='linear', input_shape= x_train.shape[1:]))
+			model.add(tf.keras.layers.Dense(hidden_layer_nodes, activation='linear', input_shape= x_train.shape[1:]))
 			# Add a softmax layer with 3 output units:
 			model.add(tf.keras.layers.Dense(output_layer_nodes, activation='linear'))
 			model.compile(optimizer=tf.keras.optimizers.Adam(0.01),

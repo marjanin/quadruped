@@ -63,3 +63,7 @@ generalize normalization -> especially in the feedback create_control_kinematics
 mc1 failed -> replaced with mc0
 mc7 failed -> replaced with mc6
 mc11 failed -> replaced with mc10
+
+
+cur3_V5_TD_full_test_nonstiff_modifiedRoM_rigid_3phases_V2_5_test3:
+heavy load extra heavy

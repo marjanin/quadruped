@@ -2,7 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from all_functions import *
 
-experiment_ID_base = 'cur3_V5_TD_full_test_nonstiff_modifiedRoM_rigid_4cases_V2_5_test1_4cases'
+experiment_ID_base = 'cur3_V5_TD_full_test_nonstiff_modifiedRoM_rigid_3phases_V2_5_test4'
 
 
 curriculums = ["_E2H", "_H2E"]
@@ -20,7 +20,7 @@ random_seed = 0
 
 task_type = task_types[1]
 curriculum = curriculums[0]
-ANN_structure = ANN_structures[0]
+ANN_structure = ANN_structures[1]
 number_of_refinements = 6+1
 number_of_all_runs = 15
 
@@ -46,10 +46,10 @@ for use_sensory in all_sensory_cases:
 		color= "C1"
 
 	if curriculum == "_E2H":
-		MuJoCo_model_names = ["tendon_quadruped_ws_inair.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloorloaded.xml","tendon_quadruped_ws_onfloorloadedheavy.xml"]
+		MuJoCo_model_names = ["tendon_quadruped_ws_inair.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloorloaded1000.xml","tendon_quadruped_ws_onfloorloaded3000.xml"]
 		MuJoCo_model_names_short = ["In Air", "On Floor", "On Floor With Load",  "On Floor With Heavy Load"]
 	elif curriculum == "_H2E":
-		MuJoCo_model_names = ["tendon_quadruped_ws_onfloorloadedheavy.xml","tendon_quadruped_ws_onfloorloaded.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_inair.xml"]
+		MuJoCo_model_names = ["tendon_quadruped_ws_onfloorloaded3000.xml","tendon_quadruped_ws_onfloorloaded1000.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_inair.xml"]
 		MuJoCo_model_names_short = ["On Floor With Heavy Load", "On Floor with Load", "On Floor", "In Air"]
 	else:
 		ValueError("unacceptable curriculum")
@@ -148,7 +148,7 @@ run_no = 3
 MuJoCo_model_names = ["tendon_quadruped_ws_inair.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloorloaded.xml","tendon_quadruped_ws_onfloorloadedheavy.xml"]
 if show_video:
 	for MuJoCo_model_name , ii in zip(MuJoCo_model_names, range(len(MuJoCo_model_names))):
-		test_run_RMSE = test_a_task(MuJoCo_model_name, save_log_path, run_no, Mj_render=False, random_seed=random_seed, use_sensory=use_sensory, use_feedback=use_feedback, normalize=normalize, plot_position_curves=True, task_type=task_type, ANN_structure=ANN_structure, dt=dt, actuation_type=actuation_type, use_acc=use_acc)
+		test_run_RMSE = test_a_task(MuJoCo_model_name, save_log_path, run_no, Mj_render=True, random_seed=random_seed, use_sensory=use_sensory, use_feedback=use_feedback, normalize=normalize, plot_position_curves=True, task_type=task_type, ANN_structure=ANN_structure, dt=dt, actuation_type=actuation_type, use_acc=use_acc)
 		print(MuJoCo_model_name,"RMSE: " ,test_run_RMSE)
 
 #import pdb; pdb.set_trace()

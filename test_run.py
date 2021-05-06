@@ -6,9 +6,9 @@ import multiprocessing as mp
 from all_functions import *
 
 def L2_learn_quadruped_experiment(run_no):
-	experiment_ID_base = 'cur3_V5_TD_test77'
+	experiment_ID_base = 'cur3_V5_TD_test98_single'
 # Create target Directory if don't exist
-	dt=.005
+	dt=.0025
 	if not os.path.exists('./results/'+experiment_ID_base):
 		os.mkdir('./results/'+experiment_ID_base)
 	if not os.path.exists('./log/'+experiment_ID_base):
@@ -24,7 +24,7 @@ def L2_learn_quadruped_experiment(run_no):
 	ANN_structures = ["S"]
 	actuation_type = "TD"
 	number_of_refinements = 4
-	random_seed=0
+	random_seed=1#run_no
 	norm_stndrd_coefficients= calculate_norm_stndrd_coefficients_fcn(
 		MuJoCo_model_name="tendon_quadruped_ws_onfloor.xml",
 		number_of_signals=12,
@@ -40,18 +40,16 @@ def L2_learn_quadruped_experiment(run_no):
 				for use_feedback in all_feedback_cases:
 					np.random.seed(random_seed)
 					if cur == "_E2H":
-						MuJoCo_model_names =\
-							["tendon_quadruped_ws_inair.xml",
-							"tendon_quadruped_ws_onfloor.xml",
-							"tendon_quadruped_ws_onfloorloaded.xml",
-							"tendon_quadruped_ws_onfloorloadedheavy.xml"]
+						#MuJoCo_model_names =["tendon_quadruped_ws_inair.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloorloaded1000.xml", "tendon_quadruped_ws_onfloorloaded2000.xml"]
+						MuJoCo_model_names = ["tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloor.xml","tendon_quadruped_ws_onfloor.xml"]
+
 					elif cur == "_H2E":
 						MuJoCo_model_names =\
-							["tendon_quadruped_ws_onfloorloadedheavy.xml",
-							"tendon_quadruped_ws_onfloorloaded.xml",
+							["tendon_quadruped_ws_onfloorloaded2000xml",
+							"tendon_quadruped_ws_onfloorloaded1000.xml",
 							"tendon_quadruped_ws_onfloor.xml",
 							"tendon_quadruped_ws_inair.xml"]
-					task_types = ["cyclical","p2p"]
+					task_types = ["cyclical"]
 					for task_type in task_types:
 						if use_sensory:
 							if use_feedback:
@@ -105,4 +103,5 @@ def L2_learn_quadruped_experiment(run_no):
 # pool.join()
 
 #import pdb; pdb.set_trace()
-L2_learn_quadruped_experiment(0)
+run_no=0
+L2_learn_quadruped_experiment(run_no)

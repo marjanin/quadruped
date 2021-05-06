@@ -7,9 +7,9 @@ import time
 from all_functions import *
 
 def L2_learn_quadruped_experiment(run_no):
-	experiment_ID_base = 'cur3_V5_TD_full_test_nonstiff_modifiedRoM_rigid_3phases_V2_5_test3'
+	experiment_ID_base = 'cur3_xmlVer11_TD_V1'
 # Create target Directory if don't exist
-	dt=.005
+	dt=.0025
 	if not os.path.exists('./results/'+experiment_ID_base):
 		os.mkdir('./results/'+experiment_ID_base)
 	if not os.path.exists('./log/'+experiment_ID_base):
@@ -49,12 +49,12 @@ def L2_learn_quadruped_experiment(run_no):
 						MuJoCo_model_names =\
 							["tendon_quadruped_ws_inair.xml",
 							"tendon_quadruped_ws_onfloor.xml",
-							"tendon_quadruped_ws_onfloorloaded.xml",
-							"tendon_quadruped_ws_onfloorloadedheavy.xml"]
+							"tendon_quadruped_ws_onfloorloaded1000.xml",
+							"tendon_quadruped_ws_onfloorloaded2000.xml"]
 					elif cur == "_H2E":
 						MuJoCo_model_names =\
-							["tendon_quadruped_ws_onfloorloadedheavy.xml",
-							"tendon_quadruped_ws_onfloorloaded.xml",
+							["tendon_quadruped_ws_onfloorloaded2000.xml",
+							"tendon_quadruped_ws_onfloorloaded1000.xml",
 							"tendon_quadruped_ws_onfloor.xml",
 							"tendon_quadruped_ws_inair.xml"]
 					task_types = ["cyclical","p2p"]
