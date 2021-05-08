@@ -1,5 +1,6 @@
 import numpy as np
 from matplotlib import pyplot as plt
+import scipy.stats as stats
 #from all_functions import *
 
 experiment_ID_base = 'cur4_xmlVer11_TD_V1'#mc1 error -> replaced with MC0 copy
@@ -10,7 +11,7 @@ ANN_structures = ["S","M"]
 task_types = ["cyclical", "p2p"]
 
 all_sensory_cases = [True, False]
-use_feedback = True
+use_feedback = False
 use_acc = True
 normalize = True
 
@@ -94,8 +95,10 @@ for use_sensory in all_sensory_cases:
 	fig1.subplots_adjust(left=0.06, bottom=0.12, right=.95, top=.85, wspace=.25, hspace=.20)
 	if use_sensory:
 		x_shift=.35
+		task_errors_all_sensory = task_errors_all
 	else:
 		x_shift=0
+		task_errors_all_no_sensory = task_errors_all
 	# for ii in range(3):
 	# 	axes2.errorbar(ii+x_shift, y=task_errors_all_mean[ii], yerr=task_errors_all_std[ii], capsize=2, animated=True, alpha=.3, color=color)
 	# 	axes2.bar(ii+x_shift, task_errors_all_mean[ii], width=0.45,alpha=.6, color=color, hatch=hatch)
@@ -106,6 +109,17 @@ for use_sensory in all_sensory_cases:
 	# fig2.subplots_adjust(bottom=0.12, top=.92)
 	positions=np.arange(4)+x_shift
 	axes2.boxplot(task_errors_all, positions=positions)
+
+stat_sig_star_positions=np.arange(4)+.35/2
+F_values=np.zeros(4)
+p_values=np.zeros(4)
+for ii in range(4):
+	F_values[ii],p_values[ii]=stats.f_oneway(task_errors_all_sensory[:,ii],task_errors_all_no_sensory[:,ii])
+	if p_values[ii]<0.01:
+		axes2.plot([stat_sig_star_positions[ii]],[.31],'k*')
+	if p_values[ii]<0.05:
+		axes2.plot([stat_sig_star_positions[ii]],[.3],'k*')
+print(p_values)
 axes2.set_title('RMSE vs. Task (test)')
 axes2.set_xlabel('Task')
 axes2.set_xticklabels(["w. sen.","w. sen.","w. sen.","w. sen.","w/o. sen.","w/o. sen.","w/o. sen.","w/o. sen."])
@@ -117,7 +131,7 @@ axes2.grid(color='k', linestyle=':', linewidth=.5)
 axes2.set_ylim(0, 0.4)
 fig2.subplots_adjust(bottom=0.15, top=.92)
 axes1[2].legend((line1,line2),('with sensory','without sensory'))
-
+# import pdb; pdb.set_trace()
 
 save_figures = True
 if save_figures:
