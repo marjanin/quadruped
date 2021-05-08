@@ -1,6 +1,6 @@
 import numpy as np
 from matplotlib import pyplot as plt
-from all_functions import *
+#from all_functions import *
 
 experiment_ID_base = 'cur4_xmlVer11_TD_V1'#mc1 error -> replaced with MC0 copy
 
@@ -10,7 +10,7 @@ ANN_structures = ["S","M"]
 task_types = ["cyclical", "p2p"]
 
 all_sensory_cases = [True, False]
-use_feedback = False
+use_feedback = True
 use_acc = True
 normalize = True
 
@@ -22,7 +22,7 @@ task_type = task_types[0]
 curriculum = curriculums[0]
 ANN_structure = ANN_structures[0]
 number_of_refinements = 6+1
-number_of_all_runs = 15
+number_of_all_runs = 30
 
 fig1, axes1 = plt.subplots(nrows=1, ncols=4, figsize=(12, 4))
 fig2, axes2 = plt.subplots(nrows=1, ncols=1, figsize=(6, 4.2))
