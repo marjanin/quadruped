@@ -106,8 +106,8 @@ def L2_learn_quadruped_experiment(run_no):
 pool = mp.Pool(mp.cpu_count())
 print(mp.cpu_count())
 number_of_all_runs = 16
-zz=np.append(1,np.arange(16,31))
-pool.map_async(L2_learn_quadruped_experiment, [run_no for run_no in zz])
+#zz=np.append(1,np.arange(16,31))
+pool.map_async(L2_learn_quadruped_experiment, [run_no for run_no in range(31+16,31+16+16)])
 pool.close()
 pool.join()
 
