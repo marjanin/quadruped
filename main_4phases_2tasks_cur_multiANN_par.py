@@ -7,7 +7,7 @@ import time
 from all_functions import *
 
 def L2_learn_quadruped_experiment(run_no):
-	experiment_ID_base = 'cur4_xmlVer11_TD_V1X'
+	experiment_ID_base = 'cur4_xmlVer11_TD_V1'
 # Create target Directory if don't exist
 	dt=.0025
 	if not os.path.exists('./results/'+experiment_ID_base):
@@ -19,7 +19,7 @@ def L2_learn_quadruped_experiment(run_no):
 	all_feedback_cases = [True, False]
 	use_acc=True
 	normalize=True
-	curriculums = ["_E2H"]#, "_H2E"]#
+	curriculums = ["_H2E"]#, "_H2E"]#
 	ANN_structures = ["S","M"]
 	actuation_type = "TD"
 	number_of_refinements = 6
@@ -107,7 +107,7 @@ pool = mp.Pool(mp.cpu_count())
 print(mp.cpu_count())
 number_of_all_runs = 16
 #zz=np.append(1,np.arange(16,31))
-pool.map_async(L2_learn_quadruped_experiment, [run_no for run_no in range(31+16,31+16+16)])
+pool.map_async(L2_learn_quadruped_experiment, [run_no for run_no in range(number_of_all_runs)])
 pool.close()
 pool.join()
 
