@@ -30,6 +30,9 @@ normaliz=false (not implemented)
 use_acc=False
 normaliz=false (not implemented)
 
+
+experiment_ID_base = 'cur4_xmlVer11_TD_V1_testANNstruc'
+to test if single is worst than multiple if p2p is not all the same for all legs
 'cur3_V5_TD_full_test_nonstiff_modifiedRoM_useACCtest_3'
 use_acc=True
 normalize=True

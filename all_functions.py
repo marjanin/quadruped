@@ -553,18 +553,24 @@ def create_p2p_movements_fcn(random_seed, number_of_steps = 10, attempt_length =
 	distance_from_limits=0.00
 	random_seed_1=random_seed
 	random_seed_2=np.random.randint(1000)
+	random_seed_3=np.random.randint(1000)
+	random_seed_4=np.random.randint(1000)
 	q0a = p2p_positions_gen_fcn(lower_band =  -.8+distance_from_limits, upper_band = -.3-distance_from_limits, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed_1, dt=dt)
 	q1a = p2p_positions_gen_fcn(lower_band = 0+distance_from_limits, upper_band = .45-distance_from_limits, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed_2, dt=dt)
 
-	# q0b = p2p_positions_gen_fcn(lower_band = -.8+distance_from_limits, upper_band = -.3-distance_from_limits, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed, dt=dt) # for second independent synergies
-	# q1b = p2p_positions_gen_fcn(lower_band = 0+distance_from_limits, upper_band = .45-distance_from_limits, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed, dt=dt) #  for second independent synergies
+	q0b = p2p_positions_gen_fcn(lower_band = -.8+distance_from_limits, upper_band = -.3-distance_from_limits, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed_3, dt=dt) # for second independent synergies
+	q1b = p2p_positions_gen_fcn(lower_band = 0+distance_from_limits, upper_band = .45-distance_from_limits, number_of_positions = number_of_steps, duration_of_each_position = step_duration, random_seed=random_seed_4, dt=dt) #  for second independent synergies
 	
 	if filtfilt_N>1:
 		b=np.ones(filtfilt_N)/filtfilt_N
 		q0a = signal.filtfilt(b,1,q0a)
 		q1a = signal.filtfilt(b,1,q1a)
-		q0b = signal.filtfilt(b,1,q0a)# all joints on the same angle
-		q1b = signal.filtfilt(b,1,q1a)# all joints on the same angle
+		#q0b = signal.filtfilt(b,1,q0a)# all joints on the same angle
+		#q1b = signal.filtfilt(b,1,q1a)# all joints on the same angle
+		q0b = signal.filtfilt(b,1,q0b)# all joints not on the same angle
+		q1b = signal.filtfilt(b,1,q1b)# all joints not on the same angle
+
+
 
 	attempt_kinematics_RB = positions_to_kinematics_fcn(q0a, q1a, dt)
 	attempt_kinematics_RF = positions_to_kinematics_fcn(q0b, q1b, dt)
