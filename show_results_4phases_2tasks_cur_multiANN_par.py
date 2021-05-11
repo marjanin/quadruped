@@ -20,7 +20,7 @@ show_video = False
 random_seed = 0
 
 task_type = task_types[0]
-curriculum = curriculums[0]
+curriculum = curriculums[1]
 ANN_structure = ANN_structures[1]
 number_of_refinements = 6+1
 number_of_all_runs = 16
@@ -72,11 +72,11 @@ for use_sensory in all_sensory_cases:
 	task_errors_all_std = np.std(task_errors_all, axis=0)
 
 	for ii in range(4):
-		if ii == 0:
+		if ii == 0: # x starts from 1
 			#import pdb; pdb.set_trace()
 			axes1[ii].errorbar(x=np.arange(1,number_of_refinements+1), y=learning_errors_all_mean[ii,1:], yerr=learning_errors_all_std[ii,1:], capsize=2, animated=True, alpha=.4, color=color)
 			axes1[ii].plot(np.arange(1,number_of_refinements+1), learning_errors_all_mean[ii,1:],linestyle, alpha=.8, color=color)
-		else:
+		else:  # x starts from 0
 			axes1[ii].errorbar(x=np.arange(number_of_refinements+1), y=learning_errors_all_mean[ii], yerr=learning_errors_all_std[ii], capsize=2, animated=True, alpha=.4, color=color)
 			if use_sensory:
 				line1, = axes1[ii].plot(np.arange(number_of_refinements+1), learning_errors_all_mean[ii],linestyle, alpha=.8, color=color)

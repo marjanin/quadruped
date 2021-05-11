@@ -7,7 +7,7 @@ import time
 from all_functions import *
 
 def L2_learn_quadruped_experiment(run_no):
-	experiment_ID_base = 'cur4_xmlVer11_TD_V1'
+	experiment_ID_base = 'cur4_xmlVer11_TD_V1x'
 # Create target Directory if don't exist
 	dt=.0025
 	if not os.path.exists('./results/'+experiment_ID_base):
@@ -19,7 +19,7 @@ def L2_learn_quadruped_experiment(run_no):
 	all_feedback_cases = [True, False]
 	use_acc=True
 	normalize=True
-	curriculums = ["_H2E"]#, "_H2E"]#
+	curriculums = ["_H2E"]#, "_H2E"]#runmc8 again
 	ANN_structures = ["S","M"]
 	actuation_type = "TD"
 	number_of_refinements = 6
