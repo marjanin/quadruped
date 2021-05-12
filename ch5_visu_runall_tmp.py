@@ -84,7 +84,7 @@ for current_key, current_value in all_cases.items():
 					ANN_structure=case_to_run_2["ANN_structures"],
 					number_of_refinements=number_of_refinements,
 					number_of_all_runs=number_of_all_runs)
-				import pdb; pdb.set_trace()
+				# import pdb; pdb.set_trace()
 				fig1=compare_learning_error_plots_fcn(learning_errors_all_1, learning_errors_all_2, labels, curriculum="_E2H")
 				fig2=compare_task_error_plots_fcn(task_errors_all_1, task_errors_all_2, labels)
 				#import pdb; pdb.set_trace()
