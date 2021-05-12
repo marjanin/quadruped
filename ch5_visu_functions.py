@@ -17,7 +17,6 @@ def loading_plotting_data_fcn(experiment_ID_base, use_sensory, use_feedback, cur
 			experiment_ID = "wo_sensory_"+"w_feedback_"+ANN_structure+"_ANN_"+task_type+curriculum
 		else:
 			experiment_ID = "wo_sensory_"+"wo_feedback_"+ANN_structure+"_ANN_"+task_type+curriculum
-		color= "C1"
 
 	if curriculum == "_E2H":
 		MuJoCo_model_names = ["tendon_quadruped_ws_inair.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloorloaded1000.xml","tendon_quadruped_ws_onfloorloaded3000.xml"]
@@ -39,8 +38,8 @@ def loading_plotting_data_fcn(experiment_ID_base, use_sensory, use_feedback, cur
 def compare_learning_error_plots_fcn(learning_errors_all_1, learning_errors_all_2, labels, curriculum):
 	number_of_refinements = learning_errors_all_1.shape[2]-1
 	fig1, axes1 = plt.subplots(nrows=1, ncols=4, figsize=(16, 4))
-	color_1 = "C1"
-	color_2 = "C0"
+	color_1 = [31./255, 119./255, 180./255]
+	color_2 = [255./255, 128./255,14./255]
 	linestyle = ".:"
 	hatch = ""
 	learning_errors_all_mean_1 = np.mean(learning_errors_all_1, axis=0)

@@ -3,27 +3,27 @@ from matplotlib import pyplot as plt
 import scipy.stats as stats
 from ch5_visu_functions import *
 #from all_functions import *
-experiment_ID_base = 'cur4_xmlVer11_TD_V1_testANNstruc'#mc1 error -> replaced with MC0 copy
+experiment_ID_base = 'cur4_xmlVer11_TD_V1'#mc1 error -> replaced with MC0 copy
 
 
 
 number_of_refinements = 6+1
-number_of_all_runs = 32
+number_of_all_runs = 50
 
 curricula = ["_E2H", "_H2E"]
 ANN_structures = ["S","M"]
 task_types = ["cyclical", "p2p"]
 
-task_type = task_types[1]
+task_type = task_types[0]
 curriculum = curricula[0]
 ANN_structure = ANN_structures[0]
 use_feedback = 1
 use_sensory = 1
 
 comparison_name="task_{}_cur_{}_stru_{}_fb_{}_sensory_{}".format(
-	task_type,curriculum,"var",use_feedback,use_sensory)
+	task_type,curriculum,ANN_structure,use_feedback,"var")
 
-labels=["sing.", "mult."]
+labels=["w/o tact", "w tact"]
 
 [learning_errors_all_1, task_errors_all_1] =\
 loading_plotting_data_fcn(
@@ -38,11 +38,11 @@ loading_plotting_data_fcn(
 [learning_errors_all_2, task_errors_all_2] =\
 loading_plotting_data_fcn(
 	experiment_ID_base=experiment_ID_base,
-	use_sensory=use_sensory,
+	use_sensory=0,
 	use_feedback=use_feedback,
 	curriculum=curriculum,
 	task_type=task_type,
-	ANN_structure="M",
+	ANN_structure=ANN_structure,
 	number_of_refinements=number_of_refinements,
 	number_of_all_runs=number_of_all_runs)
 # import pdb; pdb.set_trace()
