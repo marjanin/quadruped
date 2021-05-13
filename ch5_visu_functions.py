@@ -38,8 +38,8 @@ def loading_plotting_data_fcn(experiment_ID_base, use_sensory, use_feedback, cur
 def compare_learning_error_plots_fcn(learning_errors_all_1, learning_errors_all_2, labels, curriculum):
 	number_of_refinements = learning_errors_all_1.shape[2]-1
 	fig1, axes1 = plt.subplots(nrows=1, ncols=4, figsize=(16, 4))
-	color_1 = [31./255, 119./255, 180./255]
-	color_2 = [255./255, 128./255,14./255]
+	color_1 = [31./255, 119./255, 180./255]#"C0"
+	color_2 = [255./255, 128./255,14./255]#"C1"
 	linestyle = ".:"
 	hatch = ""
 	learning_errors_all_mean_1 = np.mean(learning_errors_all_1, axis=0)
@@ -81,7 +81,7 @@ def compare_learning_error_plots_fcn(learning_errors_all_1, learning_errors_all_
 	return fig1
 
 def compare_task_error_plots_fcn(task_errors_all_1, task_errors_all_2, labels):
-	fig2, axes2 = plt.subplots(nrows=1, ncols=1, figsize=(6, 4.2))
+	fig2, axes2 = plt.subplots(nrows=1, ncols=1, figsize=(6, 5.1))
 	x_shift_1=0.0
 	x_shift_2=0.35
 	positions_1=np.arange(4)+x_shift_1
