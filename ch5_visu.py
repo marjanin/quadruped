@@ -8,7 +8,7 @@ experiment_ID_base = 'cur4_xmlVer11_TD_V1'#mc1 error -> replaced with MC0 copy
 
 
 number_of_refinements = 6+1
-number_of_all_runs = 50
+number_of_all_runs = 60
 
 curricula = ["_E2H", "_H2E"]
 ANN_structures = ["S","M"]
@@ -20,25 +20,25 @@ ANN_structure = ANN_structures[0]
 use_feedback = 1
 use_sensory = 1
 
-comparison_name="task_{}_cur_{}_stru_{}_fb_{}_sensory_{}".format(
-	task_type,curriculum,ANN_structure,use_feedback,"var")
+comparison_name="task_{}_cur_{}_stru_{}_fb_{}_sensory_{}_extremecases".format(
+	task_type,curriculum,ANN_structure,use_feedback,use_sensory)
 
-labels=["w/o tact", "w tact"]
+labels=["case 1", "case 2"]
 
 [learning_errors_all_1, task_errors_all_1] =\
 loading_plotting_data_fcn(
 	experiment_ID_base=experiment_ID_base,
-	use_sensory=use_sensory,
-	use_feedback=use_feedback,
+	use_sensory=0,
+	use_feedback=0,
 	curriculum=curriculum,
 	task_type=task_type,
-	ANN_structure=ANN_structure,
+	ANN_structure="S",
 	number_of_refinements=number_of_refinements,
 	number_of_all_runs=number_of_all_runs)
 [learning_errors_all_2, task_errors_all_2] =\
 loading_plotting_data_fcn(
 	experiment_ID_base=experiment_ID_base,
-	use_sensory=0,
+	use_sensory=use_sensory,
 	use_feedback=use_feedback,
 	curriculum=curriculum,
 	task_type=task_type,
