@@ -19,11 +19,11 @@ normalize = True
 show_video = False
 random_seed = 0
 
-task_type = task_types[0]
+task_type = task_types[1]
 curriculum = curriculums[1]
-ANN_structure = ANN_structures[1]
+ANN_structure = ANN_structures[0]
 number_of_refinements = 6+1
-number_of_all_runs = 16
+number_of_all_runs = 64
 
 fig1, axes1 = plt.subplots(nrows=1, ncols=4, figsize=(12, 4))
 fig2, axes2 = plt.subplots(nrows=1, ncols=1, figsize=(6, 4.2))
