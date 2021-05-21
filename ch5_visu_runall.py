@@ -6,8 +6,6 @@ from ch5_visu_functions import *
 #from all_functions import *
 experiment_ID_base = 'cur4_xmlVer11_TD_V1'#mc1 error -> replaced with MC0 copy
 
-
-
 number_of_refinements = 6+1
 number_of_all_runs = 60
 curriculum="_E2H"

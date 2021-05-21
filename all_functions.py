@@ -106,16 +106,25 @@ def test_a_task(MuJoCo_model_name, experiment_ID, run_no, random_seed, use_senso
 		attempt_kinematics = create_p2p_movements_fcn(random_seed=random_seed, number_of_steps = 10, attempt_length = refinement_duration_in_seconds, dt=dt, filtfilt_N=filtfilt_N)
 	else:
 		ValueError("unacceptable task")
+	number_of_all_samples=refinement_duration_in_seconds/dt
+	number_of_all_samples_to_plot=number_of_all_samples/2
 	[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_varANNs_fcn(
 			MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), dt=dt, ANN_structure = ANN_structure, use_sensory=use_sensory, use_feedback=use_feedback, normalize=normalize, Mj_render=Mj_render, actuation_type=actuation_type, use_acc=use_acc) # this should be cl
 	RMSE = np.sqrt(np.mean(np.square((returned_kinematics[int(returned_kinematics.shape[0]/2):,:8]-attempt_kinematics[int(attempt_kinematics.shape[0]/2):,:8])))) # RMSE on the last half of the trial
 	if plot_position_curves:
 		# import pdb; pdb.set_trace()
+		x_axis_plot=np.linspace(0,5,int(number_of_all_samples_to_plot))
 		fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(6, 4.2))
-		axes[0].plot(np.arange(5000),returned_kinematics[int(returned_kinematics.shape[0]/2):,6], np.arange(5000), attempt_kinematics[int(attempt_kinematics.shape[0]/2):,6])
+		axes[0].plot(x_axis_plot,returned_kinematics[int(returned_kinematics.shape[0]/2):,6], x_axis_plot, attempt_kinematics[int(attempt_kinematics.shape[0]/2):,6])
+		# axes[0].plot(x_axis_plot, attempt_kinematics[:,6])
 		axes[0].set_title('proximal')
-		axes[1].plot(np.arange(5000), returned_kinematics[int(returned_kinematics.shape[0]/2):,7], np.arange(5000), attempt_kinematics[int(attempt_kinematics.shape[0]/2):,7])
+		axes[0].set_ylabel('angle (radians)')
+		axes[1].plot(x_axis_plot, returned_kinematics[int(returned_kinematics.shape[0]/2):,7], x_axis_plot, attempt_kinematics[int(attempt_kinematics.shape[0]/2):,7])
+		# axes[1].plot(x_axis_plot, attempt_kinematics[:,7])
+		fig.subplots_adjust(hspace=0.5)
 		axes[1].set_title('distal')
+		axes[1].set_ylabel('angle (radians)')
+		axes[1].set_xlabel('time (seconds)')
 		plt.show(block=True)
 
 	return RMSE
@@ -565,10 +574,10 @@ def create_p2p_movements_fcn(random_seed, number_of_steps = 10, attempt_length =
 		b=np.ones(filtfilt_N)/filtfilt_N
 		q0a = signal.filtfilt(b,1,q0a)
 		q1a = signal.filtfilt(b,1,q1a)
-		#q0b = signal.filtfilt(b,1,q0a)# all joints on the same angle
-		#q1b = signal.filtfilt(b,1,q1a)# all joints on the same angle
-		q0b = signal.filtfilt(b,1,q0b)# all joints not on the same angle
-		q1b = signal.filtfilt(b,1,q1b)# all joints not on the same angle
+		q0b = signal.filtfilt(b,1,q0a)# all joints on the same angle
+		q1b = signal.filtfilt(b,1,q1a)# all joints on the same angle
+		# q0b = signal.filtfilt(b,1,q0b)# all joints not on the same angle
+		# q1b = signal.filtfilt(b,1,q1b)# all joints not on the same angle
 
 
 
