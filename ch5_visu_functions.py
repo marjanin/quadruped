@@ -72,7 +72,7 @@ def compare_learning_error_plots_fcn(learning_errors_all_1, learning_errors_all_
 		axes1[ii].set_title(MuJoCo_model_names_short[ii])
 		axes1[ii].set_xlabel('Refinement #')
 		axes1[ii].set_ylabel('RMSE')
-		axes1[ii].set_ylim(0, 0.4)
+		axes1[ii].set_ylim(0, 0.25)
 		axes1[ii].set_xlim(-0.50, 9.5)
 		# axes1[ii].grid(color='k', linestyle=':', linewidth=.5)
 	fig1.suptitle('RMSE vs. Refinement # (learning)', fontsize=16)
@@ -100,9 +100,9 @@ def compare_task_error_plots_fcn(task_errors_all_1, task_errors_all_2, labels):
 	for ii in range(4):
 		F_values[ii],p_values[ii]=stats.f_oneway(task_errors_all_2[:,ii],task_errors_all_1[:,ii])
 		if p_values[ii]<0.01:
-			axes2.plot([stat_sig_star_positions[ii]],[.31],'k*')
+			axes2.plot([stat_sig_star_positions[ii]],[.205],'k*')
 		if p_values[ii]<0.05:
-			axes2.plot([stat_sig_star_positions[ii]],[.3],'k*')
+			axes2.plot([stat_sig_star_positions[ii]],[.2],'k*')
 	print(p_values)
 	axes2.set_title('RMSE vs. Task (test)')
 	axes2.set_xlabel('Task')
@@ -112,6 +112,6 @@ def compare_task_error_plots_fcn(task_errors_all_1, task_errors_all_2, labels):
 	         rotation_mode="anchor")
 	axes2.set_ylabel('RMSE')
 	axes2.grid(color='k', linestyle=':', linewidth=.5)
-	axes2.set_ylim(0, 0.4)
+	axes2.set_ylim(0, 0.25)
 	fig2.subplots_adjust(bottom=0.15, top=.92)
 	return fig2
