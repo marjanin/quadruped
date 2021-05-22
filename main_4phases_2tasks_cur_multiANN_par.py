@@ -16,11 +16,11 @@ def L2_learn_quadruped_experiment(run_no):
 		os.mkdir('./log/'+experiment_ID_base)
 
 	all_sensory_cases = [True]
-	all_feedback_cases = [True]
+	all_feedback_cases = [False]
 	use_acc=True
 	normalize=True
 	curriculums = ["_E2H"]#, "_H2E"]#runmc8 again
-	ANN_structures = ["M"]
+	ANN_structures = ["S","M"]
 	actuation_type = "TD"
 	number_of_refinements = 6
 
@@ -105,8 +105,8 @@ def L2_learn_quadruped_experiment(run_no):
 # main code
 pool = mp.Pool(mp.cpu_count())
 print(mp.cpu_count())
-number_of_all_runs_start=0
-number_of_all_runs = 32
+number_of_all_runs_start= 0
+number_of_all_runs = 64
 #zz=np.append(1,np.arange(16,31))
 pool.map_async(L2_learn_quadruped_experiment, [run_no for run_no in range(number_of_all_runs_start,number_of_all_runs_start+number_of_all_runs)])
 pool.close()
