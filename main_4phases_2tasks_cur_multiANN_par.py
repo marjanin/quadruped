@@ -7,7 +7,7 @@ import time
 from all_functions import *
 
 def L2_learn_quadruped_experiment(run_no):
-	experiment_ID_base = 'cur4_xmlVer11_TD_V1_syncp2ptest'
+	experiment_ID_base = 'cur4_xmlVer11_TD_V1_CutFB'
 # Create target Directory if don't exist
 	dt=.0025
 	if not os.path.exists('./results/'+experiment_ID_base):
@@ -16,7 +16,7 @@ def L2_learn_quadruped_experiment(run_no):
 		os.mkdir('./log/'+experiment_ID_base)
 
 	all_sensory_cases = [True]
-	all_feedback_cases = [False]
+	all_feedback_cases = [True]
 	use_acc=True
 	normalize=True
 	curriculums = ["_E2H"]#, "_H2E"]#runmc8 again
@@ -57,7 +57,7 @@ def L2_learn_quadruped_experiment(run_no):
 							"tendon_quadruped_ws_onfloorloaded1000.xml",
 							"tendon_quadruped_ws_onfloor.xml",
 							"tendon_quadruped_ws_inair.xml"]
-					task_types = ["p2p"]
+					task_types = ["cyclical","p2p"]
 					for task_type in task_types:
 						if use_sensory:
 							if use_feedback:
@@ -77,7 +77,7 @@ def L2_learn_quadruped_experiment(run_no):
 						for MuJoCo_model_name, ii in zip(MuJoCo_model_names, range(len(MuJoCo_model_names))):
 							save_log_path = experiment_ID_base+"/"+experiment_ID
 							[errors, kinematics_all, sensory_all, activations_all] = \
-								babble_and_refine(
+								babble_and_refine_cutFB(
 									MuJoCo_model_name,
 									save_log_path,
 									run_no,

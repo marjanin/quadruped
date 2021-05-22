@@ -679,3 +679,93 @@ def load_norm_stndrd_coefficients_fcn(location_folder):
 	return kinematics_norm_stndrd_vector_global, sensory_norm_stndrd_coef_global
 
 #import pdb; pdb.set_trace()
+
+def babble_and_refine_cutFB(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, sensory_all, activations_all, number_of_refinements, random_seed, use_sensory=True, use_feedback=False, normalize=True, task_type="cyclical", ANN_structure="M", actuation_type="JD",use_acc=False, dt=.01):
+	location_folder='./log/{}/'.format(experiment_ID.split('/',1)[0])
+	[kinematics_norm_stndrd_vector_global, sensory_norm_stndrd_coef_global]=load_norm_stndrd_coefficients_fcn(location_folder)
+	babbling = True
+	number_of_legs = 4
+	if ANN_structure == "M":
+		number_of_ANNs = number_of_legs
+	elif ANN_structure == "S":
+		number_of_ANNs = 1
+	else:
+		ValueError("unacceptable ANN_structure")
+	#import pdb; pdb.set_trace()
+	if actuation_type == "TD":
+		number_of_signals = 12
+		min_in=0
+	elif actuation_type == "JD":
+		number_of_signals = 8
+		min_in=-1
+	else:
+		ValueError("unacceptable actuation_type")
+
+	ANNs = number_of_ANNs*[None]
+	babbling_signal_duration_in_seconds= 1*60
+	refinement_duration_in_seconds = 10
+	babbling_signals = babbling_input_gen_fcn(
+		number_of_signals=number_of_signals,
+		signal_duration_in_seconds=babbling_signal_duration_in_seconds,
+		pass_chance=dt,
+		max_in=1,
+		min_in=min_in, #### needs to be 0 for TD
+		dt=dt)
+	est_activations = babbling_signals
+	if task_type == "cyclical":
+		attempt_kinematics = create_cyclical_movements_fcn(omega = 1.5, attempt_length = refinement_duration_in_seconds, dt=dt)
+	elif task_type == "p2p":
+		filtfilt_N = 4
+		attempt_kinematics = create_p2p_movements_fcn(random_seed=random_seed, number_of_steps = 10, attempt_length = refinement_duration_in_seconds, dt=dt, filtfilt_N=filtfilt_N)
+	else:
+		ValueError("unacceptable task")
+	[babbling_kinematics, babbling_sensorreads, babbling_activations] = run_activations_ws_ol_fcn(
+	MuJoCo_model_name, est_activations, Mj_render=False) # this should be ol
+	errors = []
+	if kinematics_all == []: # initialization
+		kinematics_all = babbling_kinematics
+		sensory_all = babbling_sensorreads
+		activations_all = babbling_activations
+		use_prior_model_babbling = False
+	else:
+		# asses the before babbling error
+		[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_varANNs_fcn(
+			MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), dt=dt, ANN_structure = ANN_structure, use_sensory=use_sensory, use_feedback=use_feedback, normalize=normalize, Mj_render=False, actuation_type=actuation_type, use_acc=use_acc) # this should be cl
+		RMSE = np.sqrt(np.mean(np.square((returned_kinematics[int(returned_kinematics.shape[0]/2):,:8]-attempt_kinematics[int(attempt_kinematics.shape[0]/2):,:8])))) # RMSE on the last half of the trial
+		print("Pre-babbling error>")
+		print("RMSE:", RMSE)
+		errors.append(RMSE)
+		# concatinating all data
+		kinematics_all = np.concatenate((kinematics_all,babbling_kinematics),axis=0)
+		sensory_all = np.concatenate((sensory_all,babbling_sensorreads),axis=0)
+		activations_all = np.concatenate((activations_all,babbling_activations),axis=0)
+		use_prior_model_babbling = True
+
+	Inverse_ANN_models = inverse_mapping_ws_varANNs_fcn(
+	kinematics_all, sensory_all, activations_all, ANN_structure=ANN_structure, epochs=25, log_address="./log/{}/{}/".format(experiment_ID,run_no), use_sensory=use_sensory, normalize=normalize, use_prior_model=use_prior_model_babbling, actuation_type=actuation_type, use_acc=use_acc) #
+	
+	
+	for ii in range(number_of_refinements):
+		if ii>=number_of_refinements/2:
+			use_feedback=False
+		[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_varANNs_fcn(
+			MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), dt=dt, ANN_structure = ANN_structure, use_sensory=use_sensory, use_feedback=use_feedback, normalize=normalize, Mj_render=False, actuation_type=actuation_type, use_acc=use_acc) # this should be cl
+		RMSE = np.sqrt(np.mean(np.square((returned_kinematics[int(returned_kinematics.shape[0]/2):,:8]-attempt_kinematics[int(attempt_kinematics.shape[0]/2):,:8])))) # RMSE on the last half of the trial
+		print("Run #:", ii+1)
+		print("RMSE:", RMSE)
+		errors.append(RMSE)
+
+		kinematics_all = np.concatenate((kinematics_all,returned_kinematics),axis=0)
+		sensory_all = np.concatenate((sensory_all,returned_sensorreads),axis=0)
+		activations_all = np.concatenate((activations_all,returned_est_activations),axis=0)
+
+		Inverse_ANN_models = inverse_mapping_ws_varANNs_fcn(
+		kinematics_all, sensory_all, activations_all, ANN_structure=ANN_structure, epochs=5, log_address="./log/{}/{}/".format(experiment_ID,run_no), use_sensory=use_sensory, normalize=normalize, use_prior_model=True, actuation_type=actuation_type, use_acc=use_acc) #
+	# test_run (no-training or storing the data)
+	[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_varANNs_fcn(
+		MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), dt=dt, ANN_structure = ANN_structure, use_sensory=use_sensory, use_feedback=use_feedback, normalize=normalize, Mj_render=False, actuation_type=actuation_type, use_acc=use_acc) # this should be cl
+	RMSE = np.sqrt(np.mean(np.square((returned_kinematics[int(returned_kinematics.shape[0]/2):,:8]-attempt_kinematics[int(attempt_kinematics.shape[0]/2):,:8]))))
+	print("Run #:", number_of_refinements+1)
+	print("RMSE:", RMSE)
+	errors.append(RMSE)
+	return errors, kinematics_all, sensory_all, activations_all
