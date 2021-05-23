@@ -7,7 +7,7 @@ import time
 from all_functions import *
 
 def L2_learn_quadruped_experiment(run_no):
-	experiment_ID_base = 'cur4_xmlVer11_TD_V1_CutFB'
+	experiment_ID_base = 'cur4_xmlVer11_TD_V2'
 # Create target Directory if don't exist
 	dt=.0025
 	if not os.path.exists('./results/'+experiment_ID_base):
@@ -15,8 +15,8 @@ def L2_learn_quadruped_experiment(run_no):
 	if not os.path.exists('./log/'+experiment_ID_base):
 		os.mkdir('./log/'+experiment_ID_base)
 
-	all_sensory_cases = [True]
-	all_feedback_cases = [True]
+	all_sensory_cases = [True, False]
+	all_feedback_cases = [True, False]
 	use_acc=True
 	normalize=True
 	curriculums = ["_E2H"]#, "_H2E"]#runmc8 again

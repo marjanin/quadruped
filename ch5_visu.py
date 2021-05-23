@@ -3,18 +3,18 @@ from matplotlib import pyplot as plt
 import scipy.stats as stats
 from ch5_visu_functions import *
 #from all_functions import *
-experiment_ID_base = 'cur4_xmlVer11_TD_V1'
+experiment_ID_base = 'cur4_xmlVer11_TD_V1_CutFB'
 
 
 
 number_of_refinements = 6+1
-number_of_all_runs = 60
+number_of_all_runs = 16
 
 curricula = ["_E2H", "_H2E"]
 ANN_structures = ["S","M"]
 task_types = ["cyclical", "p2p"]
 
-task_type = task_types[1]
+task_type = task_types[0]
 curriculum = curricula[0]
 ANN_structure = ANN_structures[1]
 use_feedback = 0
@@ -49,7 +49,7 @@ loading_plotting_data_fcn(
 fig1=compare_learning_error_plots_fcn(learning_errors_all_1, learning_errors_all_2, labels, curriculum="_E2H")
 fig2=compare_task_error_plots_fcn(task_errors_all_1, task_errors_all_2, labels)
 #import pdb; pdb.set_trace()
-save_figures = True
+save_figures = False
 if save_figures:
 	dpi = 600
 	# fig1.subplots_adjust(left=.06, bottom=.12, right=.96, top=.92, wspace=.30, hspace=.20)

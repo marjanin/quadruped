@@ -748,6 +748,8 @@ def babble_and_refine_cutFB(MuJoCo_model_name, experiment_ID, run_no, kinematics
 	for ii in range(number_of_refinements):
 		if ii>=number_of_refinements/2:
 			use_feedback=False
+		else:
+			use_feedback=True
 		[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_varANNs_fcn(
 			MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), dt=dt, ANN_structure = ANN_structure, use_sensory=use_sensory, use_feedback=use_feedback, normalize=normalize, Mj_render=False, actuation_type=actuation_type, use_acc=use_acc) # this should be cl
 		RMSE = np.sqrt(np.mean(np.square((returned_kinematics[int(returned_kinematics.shape[0]/2):,:8]-attempt_kinematics[int(attempt_kinematics.shape[0]/2):,:8])))) # RMSE on the last half of the trial
