@@ -77,7 +77,7 @@ def L2_learn_quadruped_experiment(run_no):
 						for MuJoCo_model_name, ii in zip(MuJoCo_model_names, range(len(MuJoCo_model_names))):
 							save_log_path = experiment_ID_base+"/"+experiment_ID
 							[errors, kinematics_all, sensory_all, activations_all] = \
-								babble_and_refine_cutFB(
+								babble_and_refine(
 									MuJoCo_model_name,
 									save_log_path,
 									run_no,
