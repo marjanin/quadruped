@@ -41,7 +41,8 @@ normalize=True
 use_acc=False
 normalize=True
 
-
+cur4_xmlVer11_TD_V2 p2p-> diagonal
+cur4_xmlVer11_TD_V3 p2p-> all four limbs the same (ran only p2p)
 
 cur3_V5_TD_test41
 testimg a lower frequency (omega=1.5)
