@@ -539,6 +539,9 @@ def create_cyclical_movements_fcn(omega=1.5, attempt_length=10, dt=0.01):
 	q0b = sinusoidal_CPG_fcn(w = omega, phi = np.pi, lower_band = -.8+distance_from_limits, upper_band = -.3-distance_from_limits, attempt_length = attempt_length , dt=dt)
 	q1b = sinusoidal_CPG_fcn(w = omega, phi = -np.pi/2, lower_band = 0+distance_from_limits, upper_band = .45-distance_from_limits, attempt_length = attempt_length , dt=dt)
 	attempt_kinematics_RB = positions_to_kinematics_fcn(q0a, q1a, dt)
+	attempt_kinematics_RF = positions_to_kinematics_fcn(q0b, q1b, dt)
+	attempt_kinematics_LB = positions_to_kinematics_fcn(q0b, q1b, dt)
+	attempt_kinematics_LF = positions_to_kinematics_fcn(q0a, q1a, dt)
 	# # plotting
 	# plt.plot(q0a[0:100])
 	# plt.title('Proximal')
@@ -550,10 +553,6 @@ def create_cyclical_movements_fcn(omega=1.5, attempt_length=10, dt=0.01):
 	# plt.ylabel('Angle (rads)')
 	# plt.xlabel('Sample #')
 	# plt.show(block=True)
-
-	attempt_kinematics_RF = positions_to_kinematics_fcn(q0a, q1a, dt)
-	attempt_kinematics_LB = positions_to_kinematics_fcn(q0a, q1a, dt)
-	attempt_kinematics_LF = positions_to_kinematics_fcn(q0a, q1a, dt)
 	attempt_kinematics = combine_4leg_kinematics(attempt_kinematics_RB, attempt_kinematics_RF, attempt_kinematics_LB, attempt_kinematics_LF)
 	return attempt_kinematics
 

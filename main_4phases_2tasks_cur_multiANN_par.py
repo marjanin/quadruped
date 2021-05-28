@@ -7,7 +7,7 @@ import time
 from all_functions import *
 
 def L2_learn_quadruped_experiment(run_no):
-	experiment_ID_base = 'cur4_xmlVer11_TD_V3'
+	experiment_ID_base = 'cur4_xmlVer11_TD_V4'
 # Create target Directory if don't exist
 	dt=.0025
 	if not os.path.exists('./results/'+experiment_ID_base):
@@ -57,7 +57,7 @@ def L2_learn_quadruped_experiment(run_no):
 							"tendon_quadruped_ws_onfloorloaded1000.xml",
 							"tendon_quadruped_ws_onfloor.xml",
 							"tendon_quadruped_ws_inair.xml"]
-					task_types = ["p2p"]
+					task_types = ["cyclical"]
 					for task_type in task_types:
 						if use_sensory:
 							if use_feedback:
