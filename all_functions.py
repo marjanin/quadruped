@@ -551,8 +551,8 @@ def create_cyclical_movements_fcn(omega=1.5, attempt_length=10, dt=0.01):
 	# plt.xlabel('Sample #')
 	# plt.show(block=True)
 
-	attempt_kinematics_RF = positions_to_kinematics_fcn(q0b, q1b, dt)
-	attempt_kinematics_LB = positions_to_kinematics_fcn(q0b, q1b, dt)
+	attempt_kinematics_RF = positions_to_kinematics_fcn(q0a, q1a, dt)
+	attempt_kinematics_LB = positions_to_kinematics_fcn(q0a, q1a, dt)
 	attempt_kinematics_LF = positions_to_kinematics_fcn(q0a, q1a, dt)
 	attempt_kinematics = combine_4leg_kinematics(attempt_kinematics_RB, attempt_kinematics_RF, attempt_kinematics_LB, attempt_kinematics_LF)
 	return attempt_kinematics

@@ -7,7 +7,7 @@ import time
 from all_functions import *
 
 def L2_learn_quadruped_experiment(run_no):
-	experiment_ID_base = 'cur4_xmlVer11_TD_V2'
+	experiment_ID_base = 'cur4_xmlVer11_TD_V3'
 # Create target Directory if don't exist
 	dt=.0025
 	if not os.path.exists('./results/'+experiment_ID_base):
@@ -15,12 +15,12 @@ def L2_learn_quadruped_experiment(run_no):
 	if not os.path.exists('./log/'+experiment_ID_base):
 		os.mkdir('./log/'+experiment_ID_base)
 
-	all_sensory_cases = [False]
-	all_feedback_cases = [False]
+	all_sensory_cases = [True, False]
+	all_feedback_cases = [True, False]
 	use_acc=True
 	normalize=True
 	curriculums = ["_E2H"]#, "_H2E"]#runmc8 again
-	ANN_structures = ["M"]
+	ANN_structures = ["S","M"]
 	actuation_type = "TD"
 	number_of_refinements = 6
 
@@ -57,7 +57,7 @@ def L2_learn_quadruped_experiment(run_no):
 							"tendon_quadruped_ws_onfloorloaded1000.xml",
 							"tendon_quadruped_ws_onfloor.xml",
 							"tendon_quadruped_ws_inair.xml"]
-					task_types = ["p2p"]
+					task_types = ["cyclical","p2p"]
 					for task_type in task_types:
 						if use_sensory:
 							if use_feedback:
@@ -106,9 +106,9 @@ def L2_learn_quadruped_experiment(run_no):
 pool = mp.Pool(mp.cpu_count())
 print(mp.cpu_count())
 number_of_all_runs_start= 0
-number_of_all_runs = 0
+number_of_all_runs = 64
 #zz=np.append(1,np.arange(16,31))
-pool.map_async(L2_learn_quadruped_experiment, [run_no for run_no in range(15,16)])
+pool.map_async(L2_learn_quadruped_experiment, [run_no for run_no in range(number_of_all_runs_start,number_of_all_runs_start+number_of_all_runs)])
 pool.close()
 pool.join()
 

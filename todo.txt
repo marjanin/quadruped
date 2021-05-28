@@ -74,5 +74,7 @@ heavy load extra heavy
 
 
 'cur4_xmlVer11_TD_V1'#mc1 error -> replaced with MC0 copy => fixed on the next run
+'cur4_xmlVer11_TD_V2'# p2p diagonal
+'cur4_xmlVer11_TD_V3'# p2p all legs move the same
 
 calculate and save the mse error values for all kinematics (and not just the rmse for only the joint angles---the first 8 values on the kinemtaics array) too for both the learning (which is also possible to look from the tensorboard figures) and test_a_task function. Note that mse is what I need to calculate for this case and not the rmse since it is a combination of joint angles, angular velocities and angular accelerations and therefore would not have a unit even if we use rmse.
