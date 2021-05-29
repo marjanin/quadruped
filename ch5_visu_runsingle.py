@@ -5,20 +5,20 @@ import time
 from os import mkdir, path
 from ch5_visu_functions import *
 #from all_functions import *
-experiment_ID_base = 'cur4_xmlVer11_TD_V1'
+experiment_ID_base = 'cur4_xmlVer11_TD_V4'
 if not path.exists("./results/{}/figures/".format(experiment_ID_base)):
 	mkdir("./results/{}/figures/".format(experiment_ID_base))
 number_of_refinements = 6+1
-number_of_all_runs = 16
+number_of_all_runs = 32
 curriculum="_E2H"
-comparison_name="stack_fig"
+comparison_name="test_fig"
 labels=["worst","best"]
 
 [learning_errors_all_1, task_errors_all_1] =\
 loading_plotting_data_fcn(
 	experiment_ID_base=experiment_ID_base,
 	use_sensory=0,
-	use_feedback=1,
+	use_feedback=0,
 	curriculum=curriculum,
 	task_type="cyclical",
 	ANN_structure="M",
@@ -28,7 +28,7 @@ loading_plotting_data_fcn(
 loading_plotting_data_fcn(
 	experiment_ID_base=experiment_ID_base,
 	use_sensory=1,
-	use_feedback=1,
+	use_feedback=0,
 	curriculum=curriculum,
 	task_type="cyclical",
 	ANN_structure="M",
