@@ -21,7 +21,7 @@ loading_plotting_data_fcn(
 	use_feedback=0,
 	curriculum=curriculum,
 	task_type="cyclical",
-	ANN_structure="S",
+	ANN_structure="M",
 	number_of_refinements=number_of_refinements,
 	number_of_all_runs=number_of_all_runs)
 [learning_errors_all_2, task_errors_all_2] =\
@@ -31,7 +31,7 @@ loading_plotting_data_fcn(
 	use_feedback=0,
 	curriculum=curriculum,
 	task_type="cyclical",
-	ANN_structure="S",
+	ANN_structure="M",
 	number_of_refinements=number_of_refinements,
 	number_of_all_runs=number_of_all_runs)
 # import pdb; pdb.set_trace()
