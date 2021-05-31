@@ -57,7 +57,7 @@ def L2_learn_quadruped_experiment(run_no):
 							"tendon_quadruped_ws_onfloorloaded1000.xml",
 							"tendon_quadruped_ws_onfloor.xml",
 							"tendon_quadruped_ws_inair.xml"]
-					task_types = ["cyclical"]
+					task_types = ["p2p"]
 					for task_type in task_types:
 						if use_sensory:
 							if use_feedback:
@@ -106,7 +106,7 @@ def L2_learn_quadruped_experiment(run_no):
 pool = mp.Pool(mp.cpu_count())
 print(mp.cpu_count())
 number_of_all_runs_start= 32
-number_of_all_runs = 64
+number_of_all_runs = 32
 #zz=np.append(1,np.arange(16,31))
 pool.map_async(L2_learn_quadruped_experiment, [run_no for run_no in range(number_of_all_runs_start,number_of_all_runs_start+number_of_all_runs)])
 pool.close()
