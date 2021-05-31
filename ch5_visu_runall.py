@@ -9,7 +9,7 @@ experiment_ID_base = 'cur4_xmlVer11_TD_V4'
 if not path.exists("./results/{}/figures/".format(experiment_ID_base)):
 	mkdir("./results/{}/figures/".format(experiment_ID_base))
 number_of_refinements = 6+1
-number_of_all_runs = 32
+number_of_all_runs = 64
 curriculum="_E2H"
 
 all_cases={
