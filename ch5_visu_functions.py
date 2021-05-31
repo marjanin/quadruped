@@ -1,6 +1,8 @@
 import numpy as np
 import scipy.stats as stats
 from matplotlib import pyplot as plt
+import matplotlib.animation as animation
+from time import time
 
 def loading_plotting_data_fcn(experiment_ID_base, use_sensory, use_feedback, curriculum, task_type, ANN_structure, number_of_refinements, number_of_all_runs):
 	if use_sensory:
@@ -135,3 +137,123 @@ def compare_task_error_plots_fcn(task_errors_all_1, task_errors_all_2, labels, i
 	axes2.set_ylim(0, 0.25*unit_exchange_ratio)
 	fig2.subplots_adjust(bottom=0.15, top=.92)
 	return fig2
+
+def task_plots_fcn(test_run_RMSE, attempt_kinematics, returned_kinematics, dt, fig_name_base, in_degree=1, save_figures=1):
+	if in_degree:
+		unit_exchange_ratio=180./np.pi
+		attempt_kinematics=attempt_kinematics*unit_exchange_ratio
+		returned_kinematics=returned_kinematics*unit_exchange_ratio
+	refinement_duration_in_seconds = 10.
+	number_of_all_samples=refinement_duration_in_seconds/dt
+	number_of_all_samples_to_plot=number_of_all_samples/2
+	
+	# figure 1 - temporal plots
+	x_axis_plot=np.linspace(0,5,int(number_of_all_samples_to_plot))
+	fig1, axes1 = plt.subplots(nrows=2, ncols=1, figsize=(6, 4.2))
+	axes1[0].plot(x_axis_plot,attempt_kinematics[int(attempt_kinematics.shape[0]/2):,6], x_axis_plot, returned_kinematics[int(returned_kinematics.shape[0]/2):,6])
+	# axes1[0].plot(x_axis_plot, attempt_kinematics[:,6])
+	axes1[0].set_title('proximal')
+	axes1[0].set_ylabel('angle (degrees)')
+	axes1[1].plot(x_axis_plot, attempt_kinematics[int(attempt_kinematics.shape[0]/2):,7], x_axis_plot, returned_kinematics[int(returned_kinematics.shape[0]/2):,7])
+	# axes1[1].plot(x_axis_plot, attempt_kinematics[:,7])
+	fig1.subplots_adjust(bottom=.145, hspace=0.5)
+	axes1[1].set_title('distal')
+	axes1[1].set_ylabel('angle (degrees)')
+	axes1[1].set_xlabel('time (seconds)\nRMSE (degrees): {:.2f}'.format(test_run_RMSE*180/np.pi))
+	# plt.show(block=True)
+
+	# figure 2 - joint space representation
+	fig2, axes2 = plt.subplots(nrows=1, ncols=1, figsize=(4.2, 4.2))
+	axes2.plot(
+		attempt_kinematics[int(attempt_kinematics.shape[0]/2):,6],
+		attempt_kinematics[int(attempt_kinematics.shape[0]/2):,7],
+		returned_kinematics[int(returned_kinematics.shape[0]/2):,6],
+		returned_kinematics[int(attempt_kinematics.shape[0]/2):,7])
+	axes2.set_aspect('equal', 'box')
+	axes2.set_title('Joint angle space')
+	axes2.set_xlabel('proximal\nRMSE (degrees): {:.2f}'.format(test_run_RMSE*180/np.pi))
+	axes2.set_ylabel('distal')
+	axes2.legend(['desired (degrees)','performed (degrees)'],prop={'size': 8})
+	fig2.subplots_adjust(left=.14, bottom=None, right=None, top=.917, wspace=None, hspace=None)
+	plt.show(block=0)
+	if save_figures:
+		dpi = 600
+		# fig1.subplots_adjust(left=.06, bottom=.12, right=.96, top=.92, wspace=.30, hspace=.20)
+		fig1.savefig(fig_name_base+"_task_figure_1.png", dpi=dpi)
+		#fig2.subplots_adjust(bottom=.12, top=.92)
+		fig2.savefig(fig_name_base+"_task_figure_2.png", dpi=dpi)
+		# plt.show(block=1)
+		plt.close(fig1)
+		plt.close(fig2)
+def task_animation_fcn(test_run_RMSE, attempt_kinematics, returned_kinematics, fig_name_base):
+	downsampling_factor=10
+	qd0=attempt_kinematics[int(attempt_kinematics.shape[0]/2)::downsampling_factor,6]-(-0.5235987756)+(np.pi/2)+np.pi/32
+	qd1=attempt_kinematics[int(attempt_kinematics.shape[0]/2)::downsampling_factor,7]+np.pi/16
+	qp0=returned_kinematics[int(returned_kinematics.shape[0]/2)::downsampling_factor,6]-(-0.5235987756)+(np.pi/2)+np.pi/32
+	qp1=returned_kinematics[int(returned_kinematics.shape[0]/2)::downsampling_factor,7]+np.pi/16
+
+	t_max=5 #seconds
+	fs_original=400
+
+	fs=int(fs_original/downsampling_factor)
+	interval=1000*(1/fs)# in ms
+	total_frames=t_max*fs
+	t=np.linspace(0,t_max,fs)
+	l0=.133
+	l1=.106
+	# w=1
+	theta1_offset=0
+	# theta0=2*np.pi*w*t
+	# theta1=theta1_offset+2*np.pi*w*t
+	thetad0=qd0
+	thetad1=qd1
+
+	thetap0=qp0
+	thetap1=qp1
+
+	xd0=np.cos(thetad0)*l0
+	yd0=-np.sin(thetad0)*l0
+	xd1=np.cos(thetad0+thetad1)*l1+xd0
+	yd1=-np.sin(thetad0+thetad1)*l1+yd0
+
+	xp0=np.cos(thetap0)*l0
+	yp0=-np.sin(thetap0)*l0
+	xp1=np.cos(thetap0+thetap1)*l1+xp0
+	yp1=-np.sin(thetap0+thetap1)*l1+yp0
+	#set up figure
+	fig = plt.figure(figsize=(5.15, 5.5))
+	ax = fig.add_subplot(111, aspect='equal', autoscale_on=False,
+	                     xlim=(-.1, .15), ylim=(-.25, 0.025))
+	ax.set_xlabel('meters\nRMSE (degrees): {:.2f}'.format(test_run_RMSE*180/np.pi))
+	ax.set_ylabel('meters')
+	ax.grid()
+	line1, = ax.plot([], [], 'o-', lw=2)
+	line2, = ax.plot([], [], 'o-', lw=2)
+	# time_text = ax.text(0.02, 0.95, '', transform=ax.transAxes)
+	# energy_text = ax.text(0.02, 0.90, '', transform=ax.transAxes)
+
+	# animation
+	def init():
+	    """initialize animation"""
+	    line1.set_data([], [])
+	    line2.set_data([], [])
+	    # time_text.set_text('aa')
+	    # energy_text.set_text('bb')
+	    return line1,line2#, time_text, energy_text
+
+	def animate(i):
+	    """perform animation step"""    
+	    line1.set_data([0,-xd0[i],-xd1[i]],[0,yd0[i],yd1[i]])
+	    line2.set_data([0,-xp0[i],-xp1[i]],[0,yp0[i],yp1[i]])
+
+	#    line.set_data([x0[i],x1[i]],[y0[i],y1[i]])
+	    # time_text.set_text('time = %.1f' % pendulum.time_elapsed)
+	    # energy_text.set_text('energy = %.3f J' % pendulum.energy())
+	    return line1,line2#, time_text, energy_text
+
+	# animate(0)
+	ani = animation.FuncAnimation(fig, animate, frames=total_frames,
+	                              interval=10, blit=False, init_func=init)
+	ani.save(fig_name_base+"_task_video.mp4", fps=fs*0.5) # fps=fs*0.5: 0.5 x speed
+	# plt.show()
+	plt.close(fig)

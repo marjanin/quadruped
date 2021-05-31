@@ -97,7 +97,7 @@ def babble_and_refine(MuJoCo_model_name, experiment_ID, run_no, kinematics_all, 
 	errors.append(RMSE)
 	return errors, kinematics_all, sensory_all, activations_all
 
-def test_a_task(MuJoCo_model_name, experiment_ID, run_no, random_seed, use_sensory=True, use_feedback=False, normalize=True, Mj_render=False, plot_position_curves=False, task_type = "cyclical", ANN_structure="M", dt=0.01, actuation_type="JD", use_acc=False):
+def test_a_task(MuJoCo_model_name, experiment_ID, run_no, random_seed, use_sensory=True, use_feedback=False, normalize=True, Mj_render=False, return_kinematics=False, task_type = "cyclical", ANN_structure="M", dt=0.01, actuation_type="JD", use_acc=False):
 	refinement_duration_in_seconds = 10
 	if task_type == "cyclical":
 		attempt_kinematics = create_cyclical_movements_fcn(omega = 1.5, attempt_length = refinement_duration_in_seconds, dt=dt)
@@ -111,23 +111,11 @@ def test_a_task(MuJoCo_model_name, experiment_ID, run_no, random_seed, use_senso
 	[returned_kinematics, returned_sensorreads, returned_est_activations ] = run_activations_ws_cl_varANNs_fcn(
 			MuJoCo_model_name, attempt_kinematics, log_address="./log/{}/{}/".format(experiment_ID,run_no), dt=dt, ANN_structure = ANN_structure, use_sensory=use_sensory, use_feedback=use_feedback, normalize=normalize, Mj_render=Mj_render, actuation_type=actuation_type, use_acc=use_acc) # this should be cl
 	RMSE = np.sqrt(np.mean(np.square((returned_kinematics[int(returned_kinematics.shape[0]/2):,:8]-attempt_kinematics[int(attempt_kinematics.shape[0]/2):,:8])))) # RMSE on the last half of the trial
-	if plot_position_curves:
-		# import pdb; pdb.set_trace()
-		x_axis_plot=np.linspace(0,5,int(number_of_all_samples_to_plot))
-		fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(6, 4.2))
-		axes[0].plot(x_axis_plot,returned_kinematics[int(returned_kinematics.shape[0]/2):,6], x_axis_plot, attempt_kinematics[int(attempt_kinematics.shape[0]/2):,6])
-		# axes[0].plot(x_axis_plot, attempt_kinematics[:,6])
-		axes[0].set_title('proximal')
-		axes[0].set_ylabel('angle (radians)')
-		axes[1].plot(x_axis_plot, returned_kinematics[int(returned_kinematics.shape[0]/2):,7], x_axis_plot, attempt_kinematics[int(attempt_kinematics.shape[0]/2):,7])
-		# axes[1].plot(x_axis_plot, attempt_kinematics[:,7])
-		fig.subplots_adjust(hspace=0.5)
-		axes[1].set_title('distal')
-		axes[1].set_ylabel('angle (radians)')
-		axes[1].set_xlabel('time (seconds)')
-		plt.show(block=True)
-
-	return RMSE
+	
+	if return_kinematics:
+		return RMSE, attempt_kinematics, returned_kinematics
+	else:
+		return RMSE
 ## lower level functions
 def babbling_input_gen_fcn(number_of_signals, signal_duration_in_seconds, pass_chance, max_in, min_in, dt=.01):
 	"""
