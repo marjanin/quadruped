@@ -9,13 +9,13 @@ experiment_ID_base = 'cur4_xmlVer11_TD_V4'
 if not path.exists("./results/{}/figures/".format(experiment_ID_base)):
 	mkdir("./results/{}/figures/".format(experiment_ID_base))
 number_of_refinements = 6+1
-number_of_all_runs = 16
+number_of_all_runs = 32
 curriculum="_E2H"
 
 all_cases={
-"ANN_structures":["M"],
-"task_types":["cyclical"],
-"feedback_cases":[0],
+"ANN_structures":["S","M"],
+"task_types":["cyclical","p2p"],
+"feedback_cases":[0,1],
 "tactile_cases":[0,1]}
 
 case_to_run_1={

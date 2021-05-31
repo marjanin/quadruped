@@ -11,7 +11,7 @@ if not path.exists("./results/{}/figures/".format(experiment_ID_base)):
 number_of_refinements = 6+1
 number_of_all_runs = 32
 curriculum="_E2H"
-comparison_name="test_fig"
+comparison_name="stack_fig"
 labels=["worst","best"]
 
 [learning_errors_all_1, task_errors_all_1] =\
@@ -21,14 +21,14 @@ loading_plotting_data_fcn(
 	use_feedback=0,
 	curriculum=curriculum,
 	task_type="cyclical",
-	ANN_structure="M",
+	ANN_structure="S",
 	number_of_refinements=number_of_refinements,
 	number_of_all_runs=number_of_all_runs)
 [learning_errors_all_2, task_errors_all_2] =\
 loading_plotting_data_fcn(
 	experiment_ID_base=experiment_ID_base,
 	use_sensory=1,
-	use_feedback=0,
+	use_feedback=1,
 	curriculum=curriculum,
 	task_type="cyclical",
 	ANN_structure="M",
