@@ -6,7 +6,7 @@ import multiprocessing as mp
 from all_functions import *
 
 def L2_learn_quadruped_experiment(run_no):
-	experiment_ID_base = 'cur3_V5_TD_test98_single'
+	experiment_ID_base = 'cur3_V5_TD_test99_single'
 # Create target Directory if don't exist
 	dt=.0025
 	if not os.path.exists('./results/'+experiment_ID_base):
@@ -21,12 +21,12 @@ def L2_learn_quadruped_experiment(run_no):
 	use_acc = True
 	normalize = True
 	curriculums = ["_E2H"]
-	ANN_structures = ["S"]
+	ANN_structures = ["M"]
 	actuation_type = "TD"
 	number_of_refinements = 4
 	random_seed=1#run_no
 	norm_stndrd_coefficients= calculate_norm_stndrd_coefficients_fcn(
-		MuJoCo_model_name="tendon_quadruped_ws_onfloor.xml",
+		MuJoCo_model_name="tendon_quadruped_ws_inair.xml",
 		number_of_signals=12,
 		signal_duration_in_seconds=60,
 		pass_chance=dt,

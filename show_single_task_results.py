@@ -34,7 +34,7 @@ for use_sensory in all_sensory_cases:
 			dt=.0025
 			actuation_type = "TD"
 
-			Mj_render = 0
+			Mj_render = 1
 			if use_sensory:
 				if use_feedback==True:
 					experiment_ID = "w_sensory_"+"w_feedback_"+ANN_structure+"_ANN_"+task_type+curriculum
@@ -47,7 +47,6 @@ for use_sensory in all_sensory_cases:
 					experiment_ID = "wo_sensory_"+"wo_feedback_"+ANN_structure+"_ANN_"+task_type+curriculum
 			save_log_path = experiment_ID_base+"/"+experiment_ID
 			MuJoCo_model_names = ["tendon_quadruped_ws_inair.xml", "tendon_quadruped_ws_onfloor.xml", "tendon_quadruped_ws_onfloorloaded1000.xml","tendon_quadruped_ws_onfloorloaded2000.xml"]
-
 			for MuJoCo_model_name , ii in zip(MuJoCo_model_names, range(len(MuJoCo_model_names))):
 				test_run_RMSE, attempt_kinematics, returned_kinematics=\
 					test_a_task(MuJoCo_model_name, save_log_path, run_no, Mj_render=Mj_render, random_seed=random_seed, use_sensory=use_sensory, use_feedback=use_feedback, normalize=normalize, return_kinematics=True, task_type=task_type, ANN_structure=ANN_structure, dt=dt, actuation_type=actuation_type, use_acc=use_acc)
@@ -57,7 +56,6 @@ for use_sensory in all_sensory_cases:
 				# test_run_RMSE=np.load('./tmp/test_run_RMSE.npy')
 				# attempt_kinematics=np.load('./tmp/attempt_kinematics.npy')
 				# returned_kinematics=np.load('./tmp/returned_kinematics.npy')
-
 				print(MuJoCo_model_name,"RMSE: " ,test_run_RMSE*180/np.pi)
 				# import pdb; pdb.set_trace()
 				fig_name_base="./results/"+experiment_ID_base+"/figures/"+experiment_ID+"_runno_"+str(run_no)+"_"+MuJoCo_model_name[:-4]
@@ -66,3 +64,4 @@ for use_sensory in all_sensory_cases:
 			#import pdb; pdb.set_trace()
 			# if plot_position_curves:
 			# import pdb; pdb.set_trace()
+			print("Experiment_ID: "+experiment_ID)
