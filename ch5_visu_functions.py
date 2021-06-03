@@ -150,11 +150,11 @@ def task_plots_fcn(test_run_RMSE, attempt_kinematics, returned_kinematics, dt, f
 	# figure 1 - temporal plots
 	x_axis_plot=np.linspace(0,5,int(number_of_all_samples_to_plot))
 	fig1, axes1 = plt.subplots(nrows=2, ncols=1, figsize=(6, 4.2))
-	axes1[0].plot(x_axis_plot,attempt_kinematics[int(attempt_kinematics.shape[0]/2):,0], x_axis_plot, returned_kinematics[int(returned_kinematics.shape[0]/2):,0])
+	axes1[0].plot(x_axis_plot,attempt_kinematics[int(attempt_kinematics.shape[0]/2):,6], x_axis_plot, returned_kinematics[int(returned_kinematics.shape[0]/2):,6])
 	# axes1[0].plot(x_axis_plot, attempt_kinematics[:,6])
 	axes1[0].set_title('proximal')
 	axes1[0].set_ylabel('angle (degrees)')
-	axes1[1].plot(x_axis_plot, attempt_kinematics[int(attempt_kinematics.shape[0]/2):,1], x_axis_plot, returned_kinematics[int(returned_kinematics.shape[0]/2):,1])
+	axes1[1].plot(x_axis_plot, attempt_kinematics[int(attempt_kinematics.shape[0]/2):,7], x_axis_plot, returned_kinematics[int(returned_kinematics.shape[0]/2):,7])
 	# axes1[1].plot(x_axis_plot, attempt_kinematics[:,7])
 	fig1.subplots_adjust(bottom=.145, hspace=0.5)
 	axes1[1].set_title('distal')
@@ -165,10 +165,10 @@ def task_plots_fcn(test_run_RMSE, attempt_kinematics, returned_kinematics, dt, f
 	# figure 2 - joint space representation
 	fig2, axes2 = plt.subplots(nrows=1, ncols=1, figsize=(4.2, 4.2))
 	axes2.plot(
-		attempt_kinematics[int(attempt_kinematics.shape[0]/2):,0],
-		attempt_kinematics[int(attempt_kinematics.shape[0]/2):,1],
-		returned_kinematics[int(returned_kinematics.shape[0]/2):,0],
-		returned_kinematics[int(attempt_kinematics.shape[0]/2):,1])
+		attempt_kinematics[int(attempt_kinematics.shape[0]/2):,6],
+		attempt_kinematics[int(attempt_kinematics.shape[0]/2):,7],
+		returned_kinematics[int(returned_kinematics.shape[0]/2):,6],
+		returned_kinematics[int(attempt_kinematics.shape[0]/2):,7])
 	axes2.set_aspect('equal', 'box')
 	axes2.set_title('Joint angle space')
 	axes2.set_xlabel('proximal\nRMSE (degrees): {:.2f}'.format(test_run_RMSE*180/np.pi))
