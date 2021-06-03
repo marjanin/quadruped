@@ -73,7 +73,7 @@ def compare_learning_error_plots_fcn(learning_errors_all_1, learning_errors_all_
 			axes1[ii].errorbar(x=np.arange(1,number_of_refinements+1), y=learning_errors_all_mean_2[ii,1:], yerr=learning_errors_all_std_2[ii,1:], capsize=2, animated=True, alpha=.4, color=color_2)
 			axes1[ii].plot(np.arange(1,number_of_refinements+1), learning_errors_all_mean_2[ii,1:],linestyle, alpha=.8, color=color_2)
 			if in_degree:
-				axes1[ii].set_ylabel('angle (degrees)')
+				axes1[ii].set_ylabel('RMS error (degrees)')
 			else:
 				axes1[ii].set_ylabel('RMSE')
 		else:
@@ -130,7 +130,7 @@ def compare_task_error_plots_fcn(task_errors_all_1, task_errors_all_2, labels, i
 	plt.setp(axes2.get_xticklabels(), rotation=-45, ha="left",
 	         rotation_mode="anchor")
 	if in_degree:
-		axes2.set_ylabel('angle (degrees)')
+		axes2.set_ylabel('RMS error (degrees)')
 	else:
 		axes2.set_ylabel('RMSE')
 	axes2.grid(color='k', linestyle=':', linewidth=.5)
@@ -153,12 +153,12 @@ def task_plots_fcn(test_run_RMSE, attempt_kinematics, returned_kinematics, dt, f
 	axes1[0].plot(x_axis_plot,attempt_kinematics[int(attempt_kinematics.shape[0]/2):,6], x_axis_plot, returned_kinematics[int(returned_kinematics.shape[0]/2):,6])
 	# axes1[0].plot(x_axis_plot, attempt_kinematics[:,6])
 	axes1[0].set_title('proximal')
-	axes1[0].set_ylabel('angle (degrees)')
+	axes1[0].set_ylabel('RMS error (degrees)')
 	axes1[1].plot(x_axis_plot, attempt_kinematics[int(attempt_kinematics.shape[0]/2):,7], x_axis_plot, returned_kinematics[int(returned_kinematics.shape[0]/2):,7])
 	# axes1[1].plot(x_axis_plot, attempt_kinematics[:,7])
 	fig1.subplots_adjust(bottom=.145, hspace=0.5)
 	axes1[1].set_title('distal')
-	axes1[1].set_ylabel('angle (degrees)')
+	axes1[1].set_ylabel('RMS error (degrees)')
 	axes1[1].set_xlabel('time (seconds)\nRMSE (degrees): {:.2f}'.format(test_run_RMSE*180/np.pi))
 	# plt.show(block=True)
 

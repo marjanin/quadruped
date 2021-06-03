@@ -9,7 +9,7 @@ experiment_ID_base = 'cur4_xmlVer11_TD_V4'
 if not path.exists("./results/{}/figures/".format(experiment_ID_base)):
 	mkdir("./results/{}/figures/".format(experiment_ID_base))
 number_of_refinements = 6+1
-number_of_all_runs = 32
+number_of_all_runs = 64
 curriculum="_E2H"
 comparison_name="stack_fig"
 labels=["worst","best"]
@@ -39,7 +39,7 @@ fig1=compare_learning_error_plots_fcn(learning_errors_all_1, learning_errors_all
 fig2=compare_task_error_plots_fcn(task_errors_all_1, task_errors_all_2, labels)
 #import pdb; pdb.set_trace()
 plt.show(block=1)
-save_figures = 0
+save_figures = 1
 if save_figures:
 	dpi = 150
 	# fig1.subplots_adjust(left=.06, bottom=.12, right=.96, top=.92, wspace=.30, hspace=.20)
