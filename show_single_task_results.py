@@ -34,7 +34,7 @@ for use_sensory in all_sensory_cases:
 			dt=.0025
 			actuation_type = "TD"
 
-			Mj_render = 1
+			Mj_render = 0
 			if use_sensory:
 				if use_feedback==True:
 					experiment_ID = "w_sensory_"+"w_feedback_"+ANN_structure+"_ANN_"+task_type+curriculum
@@ -58,7 +58,7 @@ for use_sensory in all_sensory_cases:
 				# returned_kinematics=np.load('./tmp/returned_kinematics.npy')
 				print(MuJoCo_model_name,"RMSE: " ,test_run_RMSE*180/np.pi)
 				# import pdb; pdb.set_trace()
-				fig_name_base="./results/"+experiment_ID_base+"/figures/"+experiment_ID+"_runno_"+str(run_no)+"_"+MuJoCo_model_name[:-4]
+				fig_name_base="./results/"+experiment_ID_base+"/figures/"+"rrleg_"+experiment_ID+"_runno_"+str(run_no)+"_"+MuJoCo_model_name[:-4]
 				task_plots_fcn(test_run_RMSE, attempt_kinematics, returned_kinematics, dt, fig_name_base, in_degree=1, save_figures=1)
 				task_animation_fcn(test_run_RMSE, attempt_kinematics, returned_kinematics, fig_name_base)
 			#import pdb; pdb.set_trace()
